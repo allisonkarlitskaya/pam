@@ -5,16 +5,17 @@
 
 %define pwdb_version 0.62
 %define db_version 4.3.27
+%define pam_redhat_release 3
 
 Summary: A security tool which provides authentication for applications.
 Name: pam
 Version: 0.78
-Release: 3
+Release: 4
 License: GPL or BSD
 Group: System Environment/Base
 Source0: ftp.us.kernel.org:/pub/linux/libs/pam/pre/library/Linux-PAM-%{version}.tar.bz2
 Source1: ftp.us.kernel.org:/pub/linux/libs/pam/pre/library/Linux-PAM-%{version}.tar.bz2.sign
-Source2: pam-redhat-%{version}-1.tar.gz
+Source2: pam-redhat-%{version}-%{pam_redhat_release}.tar.gz
 Source3: pwdb-%{pwdb_version}.tar.gz
 Source4: db-%{db_version}.tar.gz
 Source5: other.pamd
@@ -26,19 +27,9 @@ Patch21: pam-0.78-unix-hpux-aging.patch
 Patch28: pam-0.75-sgml2latex.patch
 Patch29: pam-0.78-multicrack.patch
 Patch34: pam-0.77-dbpam.patch
-Patch40: pam-0.78-grubb-leak.patch
 Patch60: pam-0.78-selinux.patch
 Patch61: pam-pwdbselinux.patch
-Patch63: pam-0.77-consolelock.patch
-Patch75: pam-0.77-stack-convoverwrite.patch
-Patch76: pam-0.77-console-addperms.patch
-Patch78: pam-0.77-console-manfix.patch
-Patch80: pam-0.77-console-xcrash.patch
-Patch81: pam-0.77-stack-memleaks.patch
-Patch82: pam-0.77-timestamp-test-login.patch
 Patch84: pam-0.77-unix-passwd-parse.patch
-Patch85: pam-0.77-console-auth.patch
-Patch86: pam-0.78-console-apply-onfile.patch
 
 BuildRoot: %{_tmppath}/%{name}-root
 Requires: cracklib, cracklib-dicts, glib2, initscripts >= 3.94
@@ -85,21 +76,11 @@ cp $RPM_SOURCE_DIR/system-auth.pamd .
 %patch28 -p1 -b .doc
 %patch29 -p1 -b .multicrack
 %patch34 -p1 -b .dbpam
-%patch40 -p1 -b .grubb-leak
 %if %{WITH_SELINUX}
 %patch60 -p1 -b .selinux
 %patch61 -p1 -b .pwdbselinux 
 %endif
-%patch63 -p1 -b .consolelock
-%patch75 -p1 -b .stack-convoverwrite
-%patch76 -p1 -b .add-perms
-%patch78 -p1 -b .man-fix
-%patch80 -p1 -b .xcrash
-%patch81 -p1 -b .mem-leak
-%patch82 -p1 -b .test-login
 %patch84 -p1 -b .passwd-parse
-%patch85 -p1 -b .auth
-%patch86 -p1 -b .apply-onfile
 
 for readme in modules/pam_*/README ; do
 	cp -f ${readme} doc/txts/README.`dirname ${readme} | sed -e 's|^modules/||'`
@@ -363,6 +344,10 @@ fi
 %{_libdir}/libpam_misc.so
 
 %changelog
+* Wed Jan 12 2005 Tomas Mraz <tmraz@redhat.com> 0.78-4
+- updated pam-redhat from elvis CVS
+- removed obsolete patches
+
 * Mon Jan  3 2005 Jeff Johnson <jbj@redhat.com> 0.78-3
 - depend on db-4.3.27, not db-4.3.21.
 
