@@ -10,7 +10,7 @@
 Summary: A security tool which provides authentication for applications.
 Name: pam
 Version: 0.77
-Release: 55
+Release: 56
 License: GPL or BSD
 Group: System Environment/Base
 Source0: ftp.us.kernel.org:/pub/linux/libs/pam/pre/library/Linux-PAM-%{version}.tar.bz2
@@ -68,6 +68,10 @@ Patch61: pam-pwdbselinux.patch
 Patch62: pam-0.77-closefd.patch
 Patch63: pam-0.77-consolelock.patch
 Patch64: pam-0.77-console-pmu-perms.patch
+Patch70: pam-0.77-pwd-lock.patch
+Patch71: pam-0.77-nullok-override.patch
+Patch72: pam-0.77-remove-getgrlist.patch
+Patch73: pam-0.77-succif-quiet.patch
 
 BuildRoot: %{_tmppath}/%{name}-root
 Requires: cracklib, cracklib-dicts, glib2, initscripts >= 3.94
@@ -157,6 +161,10 @@ cp $RPM_SOURCE_DIR/install-sh .
 %patch62 -p1 -b .closefd 
 %patch63 -p1 -b .consolelock
 %patch64 -p1 -b .pmu-perms
+%patch70 -p1 -b .pwd-lock
+%patch71 -p1 -b .nullok-override
+%patch72 -p1 -b .remove-getgrlist
+%patch73 -p1 -b .succif-quiet
 
 for readme in modules/pam_*/README ; do
 	cp -f ${readme} doc/txts/README.`dirname ${readme} | sed -e 's|^modules/||'`
@@ -424,6 +432,15 @@ fi
 %{_libdir}/libpam_misc.so
 
 %changelog
+* Mon Sep 13 2004 Jindrich Novy <jnovy@redhat.com>
+- rebuilt
+
+* Mon Sep 13 2004 Tomas Mraz <t8m@centrum.cz> 0.77-56
+- #75454 fixed locking when changing password
+- #127054 
+- #125653 removed unnecessary getgrouplist call
+- #124979 added quiet option to pam_succeed_if
+
 * Mon Aug 30 2004 Warren Togami <wtogami@redhat.com> 0.77-55
 - #126024 /dev/pmu console perms
 
