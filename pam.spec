@@ -6,12 +6,12 @@
 %define pwdb_version 0.62
 %define db_version 4.3.27
 %define db_conflicting_version 4.4.0
-%define pam_redhat_release 4
+%define pam_redhat_release 5
 
 Summary: A security tool which provides authentication for applications.
 Name: pam
 Version: 0.78
-Release: 7
+Release: 8
 License: GPL or BSD
 Group: System Environment/Base
 Source0: ftp.us.kernel.org:/pub/linux/libs/pam/pre/library/Linux-PAM-%{version}.tar.bz2
@@ -31,7 +31,6 @@ Patch34: pam-0.77-dbpam.patch
 Patch60: pam-0.78-selinux.patch
 Patch61: pam-pwdbselinux.patch
 Patch84: pam-0.77-unix-passwd-parse.patch
-Patch85: pam-0.78-console-glib-dynamic.patch
 Patch90: pam-0.78-loginuid.patch
 
 BuildRoot: %{_tmppath}/%{name}-root
@@ -84,7 +83,6 @@ cp $RPM_SOURCE_DIR/system-auth.pamd .
 %patch61 -p1 -b .pwdbselinux 
 %endif
 %patch84 -p1 -b .passwd-parse
-%patch85 -p1 -b .glib-dynamic
 %patch90 -p1 -b .loginuid
 
 for readme in modules/pam_*/README ; do
@@ -353,6 +351,10 @@ fi
 %{_libdir}/libpam_misc.so
 
 %changelog
+* Fri Mar 18 2005 Tomas Mraz <tmraz@redhat.com> 0.78-8
+- remove ownership and permissions handling from pam_console call
+  pam_console_apply as a handler instead
+
 * Mon Mar 14 2005 Tomas Mraz <tmraz@redhat.com> 0.78-7
 - add pam_loginuid module for setting the the login uid for auditing purposes
   (by Steve Grubb)
