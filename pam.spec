@@ -5,12 +5,12 @@
 %define _sysconfdir /etc
 
 %define pwdb_version 0.62
-%define db_version 4.2.52
+%define db_version 4.3.21
 
 Summary: A security tool which provides authentication for applications.
 Name: pam
 Version: 0.77
-Release: 66
+Release: 67
 License: GPL or BSD
 Group: System Environment/Base
 Source0: ftp.us.kernel.org:/pub/linux/libs/pam/pre/library/Linux-PAM-%{version}.tar.bz2
@@ -448,6 +448,9 @@ fi
 %{_libdir}/libpam_misc.so
 
 %changelog
+* Fri Nov 12 2004 Jeff Johnson <jbj@jbj.org> 0.77-67
+- rebuild against db-4.3.21.
+
 * Thu Nov 11 2004 Tomas Mraz <tmraz@redhat.com> 0.77-66
 - #77646 log failures when renaming the files when changing password
 - Log failure on missing /etc/security/opasswd when remember option is present
