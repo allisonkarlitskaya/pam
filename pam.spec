@@ -1,9 +1,8 @@
 %define build6x 0
-%define builddevel 0
 Summary: A security tool which provides authentication for applications.
 Name: pam
-Version: 0.72
-Release: 37
+Version: 0.74
+Release: 22
 Copyright: GPL or BSD
 Group: System Environment/Base
 Source0: pam-redhat-%{version}-%{release}.tar.gz
@@ -11,8 +10,8 @@ Source1: other.pamd
 BuildRoot: %{_tmppath}/%{name}-root
 Requires: cracklib, cracklib-dicts, glib, pwdb >= 0.54-2, initscripts >= 3.94
 Obsoletes: pamconfig
-Prereq: grep, mktemp, textutils, /sbin/ldconfig
-BuildPrereq: bison, glib-devel
+Prereq: grep, mktemp, sed, fileutils, textutils, /sbin/ldconfig
+BuildPrereq: bison, glib-devel, sed, fileutils, autoconf
 %if ! %{build6x}
 BuildPrereq: db3-devel
 %endif
@@ -23,7 +22,6 @@ PAM (Pluggable Authentication Modules) is a system security tool
 which allows system administrators to set authentication policy
 without having to recompile programs which do authentication.
 
-%if %{builddevel}
 %package devel
 Group: Development/Libraries
 Summary: Files needed for developing PAM-aware applications and modules for PAM.
@@ -35,44 +33,39 @@ which allows system administrators to set authentication policy
 without having to recompile programs which do authentication.  This
 package contains header files and static libraries used for building
 both PAM-aware applications and modules for use with PAM.
-%endif
 
 %prep
 %setup -q
-ln -sf defs/redhat.defs default.defs
 for readme in modules/pam_*/README ; do
 	cp -fv ${readme} doc/txts/README.`dirname ${readme} | sed -e 's|^modules/||'`
 done
+autoconf
 
 %build
-touch .freezemake
-make RPM_OPT_FLAGS="$RPM_OPT_FLAGS"
+CFLAGS="$RPM_OPT_FLAGS -fPIC" \
+./configure \
+	--prefix=/ \
+	--infodir=%{_infodir} \
+	--mandir=%{_mandir} \
+	--enable-static-libpam \
+	--enable-fakeroot=$RPM_BUILD_ROOT
+make
 
 %install
-rm -rf $RPM_BUILD_ROOT
-mkdir -p $RPM_BUILD_ROOT/usr/include/security
-mkdir -p $RPM_BUILD_ROOT/lib/security
-make install FAKEROOT=$RPM_BUILD_ROOT LDCONFIG=: MANDIR=%{_mandir}
+[ "$RPM_BUILD_ROOT" != "/" ] && rm -rf $RPM_BUILD_ROOT
+make install
 install -d -m 755 $RPM_BUILD_ROOT/etc/pam.d
 install -m 644 other.pamd $RPM_BUILD_ROOT/etc/pam.d/other
 install -m 644 system-auth.pamd $RPM_BUILD_ROOT/etc/pam.d/system-auth
-# make sure the modules built...
-[ -f $RPM_BUILD_ROOT/lib/security/pam_deny.so ] || {
-  echo "You have LITTLE or NOTHING in your /lib/security directory:"
-  echo $RPM_BUILD_ROOT/lib/security/*
-  echo ""
-  echo "Fix it before you install this package, while you still can!"
-  exit 1
-}
+
 # forcibly strip the helpers
 strip $RPM_BUILD_ROOT/sbin/* ||:
+
 # Install man pages.
-mkdir -p $RPM_BUILD_ROOT%{_mandir}/man3/
-mkdir -p $RPM_BUILD_ROOT%{_mandir}/man8/
 install -m 644 doc/man/*.3 $RPM_BUILD_ROOT%{_mandir}/man3/
 install -m 644 doc/man/*.8 $RPM_BUILD_ROOT%{_mandir}/man8/
 
-# Make sure every module built.
+# Make sure every module built.  Yes, this is hackish.
 for dir in modules/pam_* ; do
 if [ -d ${dir} ] ; then
 	if ! ls -1 $RPM_BUILD_ROOT/lib/security/`basename ${dir}`*.so ; then
@@ -83,7 +76,7 @@ fi
 done
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ "$RPM_BUILD_ROOT" != "/" ] && rm -rf $RPM_BUILD_ROOT
 
 %if ! %{build6x}
 %pre
@@ -108,6 +101,7 @@ if [ -f /etc/pam.d/other ] ; then
 		fi
 	fi
 fi
+exit 0
 %endif
 
 %if %{build6x}
@@ -141,7 +135,7 @@ fi
 %files
 %defattr(-,root,root)
 %dir /etc/pam.d
-%config /etc/pam.d/other
+%config(noreplace) /etc/pam.d/other
 %config(noreplace) /etc/pam.d/system-auth
 %doc Copyright
 %doc doc/html doc/ps doc/txts
@@ -149,6 +143,7 @@ fi
 /lib/libpam.so.*
 /lib/libpam_misc.so.*
 /sbin/*_chkpwd
+/sbin/pam_console_apply
 /sbin/pam_tally
 %dir /lib/security
 /lib/security/pam_access.so
@@ -171,7 +166,6 @@ fi
 /lib/security/pam_nologin.so
 /lib/security/pam_permit.so
 /lib/security/pam_pwdb.so
-/lib/security/pam_radius.so
 /lib/security/pam_rhosts_auth.so
 /lib/security/pam_rootok.so
 /lib/security/pam_securetty.so
@@ -190,6 +184,7 @@ fi
 /lib/security/pam_wheel.so
 /lib/security/pam_xauth.so
 /lib/security/pam_filter
+%dir /etc/security
 %config /etc/security/access.conf
 %config /etc/security/time.conf
 %config /etc/security/group.conf
@@ -201,10 +196,8 @@ fi
 %{_mandir}/man5/*
 %{_mandir}/man8/*
 
-%if %{builddevel}
 %files devel
 %defattr(-,root,root)
-%endif
 /lib/libpam.so
 /lib/libpam_misc.so
 /lib/libpam_misc.a
@@ -212,8 +205,132 @@ fi
 %{_mandir}/man3/*
 
 %changelog
+* Fri Apr  6 2001 Nalin Dahyabhai <nalin@redhat.com>
+- correct speling errors in various debug messages and doc files (#33494)
+
+* Thu Apr  5 2001 Nalin Dahyabhai <nalin@redhat.com>
+- prereq sed, fileutils (used in %%post)
+
+* Wed Apr  4 2001 Nalin Dahyabhai <nalin@redhat.com>
+- remove /dev/dri from console.perms -- XFree86 munges it, so it's outside of
+  our control (reminder from Daryll Strauss)
+- add /dev/3dfx to console.perms
+
+* Fri Mar 23 2001 Nalin Dahyabhai <nalin@redhat.com>
+- pam_wheel: make 'trust' and 'deny' work together correctly
+- pam_wheel: also check the user's primary gid
+- pam_group: also initialize groups when called with PAM_REINITIALIZE_CRED
+
+* Tue Mar 20 2001 Nalin Dahyabhai <nalin@redhat.com>
+- mention pam_console_apply in the see also section of the pam_console man pages
+
+* Fri Mar 16 2001 Nalin Dahyabhai <nalin@redhat.com>
+- console.perms: /dev/vc/* should be a regexp, not a glob (thanks to
+  Charles Lopes)
+
+* Mon Mar 12 2001 Nalin Dahyabhai <nalin@redhat.com>
+- console.perms: /dev/cdroms/* should belong to the user, from Douglas
+  Gilbert via Tim Waugh
+
+* Thu Mar  8 2001 Nalin Dahyabhai <nalin@redhat.com>
+- pam_console_apply: muck with devices even if the mount point doesn't exist
+
+* Wed Mar  7 2001 Nalin Dahyabhai <nalin@redhat.com>
+- pam_console: error out on undefined classes in pam_console config file
+- console.perms: actually change the permissions on the new device classes
+- pam_console: add an fstab= argument, and -f and -c flags to pam_console_apply
+- pam_console: use g_log instead of g_critical when bailing out
+- console.perms: logins on /dev/vc/* are also console logins, from Douglas
+  Gilbert via Tim Waugh
+
+* Tue Mar  6 2001 Nalin Dahyabhai <nalin@redhat.com>
+- add pam_console_apply
+- /dev/pilot's usually a serial port (or a USB serial port), so revert its
+  group to 'uucp' instead of 'tty' in console.perms
+- change pam_console's behavior wrt directories -- directories which are
+  mount points according to /etc/fstab are taken to be synonymous with
+  their device special nodes, and directories which are not mount points
+  are ignored
+
+* Tue Feb 27 2001 Nalin Dahyabhai <nalin@redhat.com>
+- handle errors fork()ing in pam_xauth
+- make the "other" config noreplace
+
+* Mon Feb 26 2001 Nalin Dahyabhai <nalin@redhat.com>
+- user should own the /dev/video directory, not the non-existent /dev/v4l
+- tweak pam_limits doc
+
+* Wed Feb 21 2001 Nalin Dahyabhai <nalin@redhat.com>
+- own /etc/security
+- be more descriptive when logging messages from pam_limits
+- pam_listfile: remove some debugging code (#28346)
+
+* Mon Feb 19 2001 Nalin Dahyabhai <nalin@redhat.com>
+- pam_lastlog: don't pass NULL to logwtmp()
+
+* Fri Feb 16 2001 Nalin Dahyabhai <nalin@redhat.com>
+- pam_listfile: fix argument parser (#27773)
+- pam_lastlog: link to libutil
+
+* Tue Feb 13 2001 Nalin Dahyabhai <nalin@redhat.com>
+- pam_limits: change the documented default config file to reflect the defaults
+- pam_limits: you should be able to log in a total of maxlogins times, not
+  (maxlogins - 1)
+- handle group limits on maxlogins correctly (#25690)
+
+* Mon Feb 12 2001 Nalin Dahyabhai <nalin@redhat.com>
+- change the pam_xauth default maximum "system user" ID from 499 to 99 (#26343)
+
+* Wed Feb  7 2001 Nalin Dahyabhai <nalin@redhat.com>
+- refresh the default system-auth file, pam_access is out
+
+* Mon Feb  5 2001 Nalin Dahyabhai <nalin@redhat.com>
+- actually time out when attempting to lckpwdf() (#25889)
+- include time.h in pam_issue (#25923)
+- update the default system-auth to the one generated by authconfig 4.1.1
+- handle getpw??? and getgr??? failures more gracefully (#26115)
+- get rid of some extraneous {set,end}{pw,gr}ent() calls
+
+* Tue Jan 30 2001 Nalin Dahyabhai <nalin@redhat.com>
+- overhaul pam_stack to account for abstraction libpam now provides
+
+* Tue Jan 23 2001 Nalin Dahyabhai <nalin@redhat.com>
+- remove pam_radius
+
+* Mon Jan 22 2001 Nalin Dahyabhai <nalin@redhat.com>
+- merge to 0.74
+- make console.perms match perms set by MAKEDEV, and add some devfs device names
+- add 'sed' to the buildprereq list (#24666)
+
+* Sun Jan 21 2001 Matt Wilson <msw@redhat.com>
+- added "exit 0" to the end of the %pre script
+
+* Fri Jan 19 2001 Nalin Dahyabhai <nalin@redhat.com>
+- self-hosting fix from Guy Streeter
+
+* Wed Jan 17 2001 Nalin Dahyabhai <nalin@redhat.com>
+- use gcc for LD_L to pull in intrinsic stuff on ia64
+
+* Fri Jan 12 2001 Nalin Dahyabhai <nalin@redhat.com>
+- take another whack at compatibility with "hash,age" data in pam_unix (#21603)
+
+* Wed Jan 10 2001 Nalin Dahyabhai <nalin@redhat.com>
+- make the -devel subpackage unconditional
+
+* Tue Jan  9 2001 Nalin Dahyabhai <nalin@redhat.com>
+- merge/update to 0.73
+
+* Mon Dec 18 2000 Nalin Dahyabhai <nalin@redhat.com>
+- refresh from CVS -- some weird stuff crept into pam_unix
+
+* Wed Dec 12 2000 Nalin Dahyabhai <nalin@redhat.com>
+- fix handling of "nis" when changing passwords by adding the checks for the
+  data source to the password-updating module in pam_unix
+- add the original copyright for pam_access (fix from Michael Gerdts)
+
 * Thu Nov 30 2000 Nalin Dahyabhai <nalin@redhat.com>
 - redo similar() using a distance algorithm and drop the default dif_ok to 5
+- readd -devel
 
 * Wed Nov 29 2000 Nalin Dahyabhai <nalin@redhat.com>
 - fix similar() function in pam_cracklib (#14740)
