@@ -2,7 +2,7 @@
 Summary: A security tool which provides authentication for applications.
 Name: pam
 Version: 0.75
-Release: 12
+Release: 13
 License: GPL or BSD
 Group: System Environment/Base
 Source0: pam-redhat-%{version}-%{release}.tar.gz
@@ -209,6 +209,8 @@ fi
 
 %files devel
 %defattr(-,root,root)
+/lib/libpam.so
+/lib/libpam_misc.so
 %{_libdir}/libpam.so
 %{_libdir}/libpam.a
 %{_libdir}/libpam_misc.so
@@ -217,6 +219,9 @@ fi
 %{_mandir}/man3/*
 
 %changelog
+* Sat Sep  8 2001 Bill Nottingham <notting@redhat.com> 0.75-13
+- ship /lib/lib{pam,pam_misc}.so for legacy package builds
+
 * Thu Sep  6 2001 Nalin Dahyabhai <nalin@redhat.com> 0.75-12
 - noreplace configuration files in /etc/security
 - pam_console: update pam_console_apply and man pages to reflect
