@@ -10,7 +10,7 @@
 Summary: A security tool which provides authentication for applications.
 Name: pam
 Version: 0.77
-Release: 56
+Release: 58
 License: GPL or BSD
 Group: System Environment/Base
 Source0: ftp.us.kernel.org:/pub/linux/libs/pam/pre/library/Linux-PAM-%{version}.tar.bz2
@@ -80,8 +80,8 @@ Prereq: grep, mktemp, sed, coreutils, /sbin/ldconfig
 BuildPrereq: autoconf, bison, flex, glib2-devel, sed, cracklib, cracklib-dicts
 BuildPrereq: perl, pkgconfig
 %if %{WITH_SELINUX}
-BuildPrereq: libselinux-devel >= 1.8
-Requires: libselinux >= 1.8
+BuildPrereq: libselinux-devel >= 1.17.1
+Requires: libselinux >= 1.17.1
 %endif
 URL: http://www.us.kernel.org/pub/linux/libs/pam/index.html
 
@@ -432,6 +432,9 @@ fi
 %{_libdir}/libpam_misc.so
 
 %changelog
+* Fri Sep 17 2004 Dan Walsh <dwalsh@redhat.com> 0.77-58
+- rebuild selinux patch using checkPasswdAccess
+
 * Mon Sep 13 2004 Jindrich Novy <jnovy@redhat.com>
 - rebuilt
 
