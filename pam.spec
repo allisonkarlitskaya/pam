@@ -4,16 +4,19 @@
 %define _sbindir /sbin
 %define _sysconfdir /etc
 
+%define pwdb_version 0.61.2
+
 Summary: A security tool which provides authentication for applications.
 Name: pam
 Version: 0.75
-Release: 19s.1
+Release: 29
 License: GPL or BSD
 Group: System Environment/Base
 Source0: ftp.us.kernel.org:/pub/linux/libs/pam/pre/library/Linux-PAM-%{version}.tar.bz2
-Source1: pam-redhat-%{version}-18.tar.gz
-Source2: other.pamd
-Source3: system-auth.pamd
+Source1: pam-redhat-%{version}-%{release}.tar.gz
+Source2: pwdb-%{pwdb_version}.tar.gz
+Source3: other.pamd
+Source4: system-auth.pamd
 Patch1: pam-0.75-headers.patch
 Patch2: pam-0.75-accessdoc.patch
 Patch3: pam-0.75-build.patch
@@ -64,13 +67,15 @@ Patch48: pam-0.75-rhosts-plus.patch
 Patch49: pam-0.75-limits-retval.patch
 Patch50: pam-0.75-reentrant.patch
 Patch51: pam-0.75-macros.patch
+Patch52: pam-0.75-pwdb-static.patch
+Patch53: pam-0.75-unix-log_success.patch
 
 BuildRoot: %{_tmppath}/%{name}-root
-Requires: cracklib, cracklib-dicts, glib, pwdb >= 0.54-2, initscripts >= 3.94
+Requires: cracklib, cracklib-dicts, glib, initscripts >= 3.94
 Obsoletes: pamconfig
 Prereq: grep, mktemp, sed, fileutils, textutils, /sbin/ldconfig
 BuildPrereq: autoconf, automake, bison, glib-devel, sed, fileutils, cracklib
-BuildPrereq: pwdb, perl
+BuildPrereq: perl
 %if ! %{build6x}
 BuildPrereq: db3-devel
 %endif
@@ -94,7 +99,7 @@ contains header files and static libraries used for building both
 PAM-aware applications and modules for use with PAM.
 
 %prep
-%setup -q -n Linux-PAM-%{version} -a 1
+%setup -q -n Linux-PAM-%{version} -a 1 -a 2
 cp $RPM_SOURCE_DIR/other.pamd .
 cp $RPM_SOURCE_DIR/system-auth.pamd .
 cp %{_datadir}/automake/install-sh .
@@ -148,6 +153,8 @@ cp %{_datadir}/automake/install-sh .
 %patch49 -p1 -b .limits-retval
 %patch50 -p1 -b .reentrant
 %patch51 -p1 -b .macros
+%patch52 -p1 -b .pwdb-static
+%patch53 -p1 -b .unix-log_success
 for readme in modules/pam_*/README ; do
 	cp -f ${readme} doc/txts/README.`dirname ${readme} | sed -e 's|^modules/||'`
 done
@@ -155,6 +162,20 @@ autoconf
 
 %build
 CFLAGS="-fPIC $RPM_OPT_FLAGS" ; export CFLAGS
+
+topdir=`pwd`/pwdb-instroot
+test -d ${topdir}         || mkdir ${topdir}
+test -d ${topdir}/include || mkdir ${topdir}/include
+test -d ${topdir}/lib     || mkdir ${topdir}/lib
+
+pushd pwdb-%{pwdb_version}
+make
+make install INCLUDED=${topdir}/include/pwdb LIBDIR=${topdir}/lib LDCONFIG=:
+rm ${topdir}/lib/*.so*
+popd
+
+CPPFLAGS=-I${topdir}/include ; export CPPFLAGS
+LDFLAGS=-L${topdir}/lib ; export LDFLAGS
 %configure --enable-static-libpam --enable-fakeroot=$RPM_BUILD_ROOT
 make
 
@@ -170,6 +191,9 @@ install -m 644 system-auth.pamd $RPM_BUILD_ROOT%{_sysconfdir}/pam.d/system-auth
 
 # Forcibly strip binaries.
 strip $RPM_BUILD_ROOT%{_sbindir}/* ||:
+
+# Remove docs for modules we exclude from the files manifest.
+rm doc/*/*pam_timestamp*
 
 # Install man pages.
 install -d -m 755 $RPM_BUILD_ROOT%{_mandir}/man{3,5,8}
@@ -194,6 +218,9 @@ if [ -d ${dir} ] ; then
 	fi
 fi
 done
+
+# Install the pwdb configuration file.
+install -m644 pwdb-%{pwdb_version}/conf/pwdb.conf $RPM_BUILD_ROOT%{_sysconfdir}/
 
 %clean
 [ "$RPM_BUILD_ROOT" != "/" ] && rm -rf $RPM_BUILD_ROOT
@@ -254,6 +281,7 @@ fi
 
 %files
 %defattr(-,root,root)
+%config /etc/pwdb.conf
 %dir /etc/pam.d
 %config(noreplace) /etc/pam.d/other
 %config(noreplace) /etc/pam.d/system-auth
@@ -329,13 +357,43 @@ fi
 /usr/lib/libpam_misc.a
 /usr/lib/libpam_misc.so
 # At some point these will (and should) go away.
-%{_libdir}/libpam.so
-%{_libdir}/libpamc.so
-%{_libdir}/libpam_misc.so
+#%{_libdir}/libpam.so
+#%{_libdir}/libpamc.so
+#%{_libdir}/libpam_misc.so
 
 %changelog
-* Wed Mar 18 2003 D. Marlin <dmarlin@redhat.com>
-- new s390 release number and rebuild for s390 (bug #85960)
+* Mon Mar 25 2002 Nalin Dahyabhai <nalin@redhat.com> 0.75-29
+- rebuild
+
+* Mon Mar 11 2002 Nalin Dahyabhai <nalin@redhat.com> 0.75-28
+- include the pwdb config file
+
+* Fri Mar  1 2002 Nalin Dahyabhai <nalin@redhat.com> 0.75-27
+- adjust the pwdb-static patch to build pam_radius correctly (#59408)
+
+* Fri Mar  1 2002 Nalin Dahyabhai <nalin@redhat.com> 0.75-26
+- change the db4-devel build dependency to db3-devel
+
+* Thu Feb 21 2002 Nalin Dahyabhai <nalin@redhat.com> 0.75-25
+- rebuild
+
+* Fri Feb  8 2002 Nalin Dahyabhai <nalin@redhat.com> 0.75-24
+- pam_unix: log successful password changes
+- remove pam_timestamp
+
+* Thu Feb  7 2002 Nalin Dahyabhai <nalin@redhat.com> 0.75-23
+- fix pwdb embedding
+- add pam_timestamp
+
+* Thu Jan 31 2002 Nalin Dahyabhai <nalin@redhat.com> 0.75-22
+- swallow up pwdb 0.61.1 for building pam_pwdb
+
+* Wed Jan 23 2002 Nalin Dahyabhai <nalin@redhat.com> 0.75-21
+- pam_userdb: build with db4 instead of db3
+
+* Wed Nov 22 2001 Nalin Dahyabhai <nalin@redhat.com> 0.75-20
+- pam_stack: fix some memory leaks (reported by Fernando Trias)
+- pam_chroot: integrate Owl patch to report the more common causes of failures
 
 * Fri Nov  9 2001 Nalin Dahyabhai <nalin@redhat.com> 0.75-19
 - fix a bug in the getpwnam_r wrapper which sometimes resulted in false
