@@ -165,7 +165,6 @@ cp $RPM_SOURCE_DIR/install-sh .
 %patch40 -p1 -b .grubb_leak
 %patch62 -p1 -b .closefd 
 %patch63 -p1 -b .consolelock
-%patch64 -p1 -b .pmu-perms
 %patch70 -p1 -b .pwd-lock
 %patch71 -p1 -b .nullok-override
 %patch72 -p1 -b .remove-getgrlist
