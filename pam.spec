@@ -6,12 +6,12 @@
 %define pwdb_version 0.62
 %define db_version 4.3.27
 %define db_conflicting_version 4.4.0
-%define pam_redhat_release 5
+%define pam_redhat_release 1
 
 Summary: A security tool which provides authentication for applications.
 Name: pam
-Version: 0.78
-Release: 9
+Version: 0.79
+Release: 1
 License: GPL or BSD
 Group: System Environment/Base
 Source0: ftp.us.kernel.org:/pub/linux/libs/pam/pre/library/Linux-PAM-%{version}.tar.bz2
@@ -26,21 +26,16 @@ Patch4: pam-0.75-prompt.patch
 Patch10: pam-0.77-lastlog-utmp.patch
 Patch21: pam-0.78-unix-hpux-aging.patch
 Patch28: pam-0.75-sgml2latex.patch
-Patch29: pam-0.78-multicrack.patch
 Patch34: pam-0.77-dbpam.patch
 Patch60: pam-0.78-selinux.patch
 Patch61: pam-pwdbselinux.patch
-Patch84: pam-0.77-unix-passwd-parse.patch
-Patch90: pam-0.78-loginuid.patch
-Patch91: pam-0.78-console-wrong-log.patch
-Patch92: pam-0.78-console-alsa-init.patch
-Patch93: pam-0.78-console-perms-dri.patch
 
 BuildRoot: %{_tmppath}/%{name}-root
-Requires: cracklib, cracklib-dicts, glib2, initscripts >= 3.94
+Requires: cracklib, cracklib-dicts >= 2.8, glib2, initscripts >= 3.94
 Obsoletes: pamconfig
 Prereq: grep, mktemp, sed, coreutils, /sbin/ldconfig
-BuildPrereq: autoconf, bison, flex, glib2-devel, sed, cracklib, cracklib-dicts
+BuildPrereq: autoconf, bison, flex, glib2-devel, sed, cracklib,
+BuildPrereq: cracklib-dicts >= 2.8
 BuildPrereq: perl, pkgconfig
 %if %{WITH_SELINUX}
 BuildPrereq: libselinux-devel >= 1.17.1
@@ -79,17 +74,11 @@ cp $RPM_SOURCE_DIR/system-auth.pamd .
 %patch10 -p1 -b .lastlog-utmp
 %patch21 -p1 -b .unix-hpux-aging
 %patch28 -p1 -b .doc
-%patch29 -p1 -b .multicrack
 %patch34 -p1 -b .dbpam
 %if %{WITH_SELINUX}
 %patch60 -p1 -b .selinux
 %patch61 -p1 -b .pwdbselinux 
 %endif
-%patch84 -p1 -b .passwd-parse
-%patch90 -p1 -b .loginuid
-%patch91 -p1 -b .wrong-log
-%patch92 -p1 -b .alsa-init
-%patch93 -p1 -b .dri
 
 for readme in modules/pam_*/README ; do
 	cp -f ${readme} doc/txts/README.`dirname ${readme} | sed -e 's|^modules/||'`
@@ -357,6 +346,10 @@ fi
 %{_libdir}/libpam_misc.so
 
 %changelog
+* Thu Mar 31 2005 Tomas Mraz <tmraz@redhat.com> 0.79-1
+- upgrade to the new upstream release
+- moved pam_loginuid to pam-redhat repository
+
 * Wed Mar 23 2005 Tomas Mraz <tmraz@redhat.com> 0.78-9
 - fix wrong logging in pam_console handlers
 - add executing ainit handler for alsa sound dmix
