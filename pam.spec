@@ -2,7 +2,7 @@
 Summary: A security tool which provides authentication for applications.
 Name: pam
 Version: 0.75
-Release: 11
+Release: 12
 License: GPL or BSD
 Group: System Environment/Base
 Source0: pam-redhat-%{version}-%{release}.tar.gz
@@ -196,12 +196,12 @@ fi
 /lib/security/pam_xauth.so
 /lib/security/pam_filter
 %dir /etc/security
-%config /etc/security/access.conf
-%config /etc/security/time.conf
-%config /etc/security/group.conf
-%config /etc/security/limits.conf
-%config /etc/security/pam_env.conf
-%config /etc/security/console.perms
+%config(noreplace) /etc/security/access.conf
+%config(noreplace) /etc/security/time.conf
+%config(noreplace) /etc/security/group.conf
+%config(noreplace) /etc/security/limits.conf
+%config(noreplace) /etc/security/pam_env.conf
+%config(noreplace) /etc/security/console.perms
 %dir /etc/security/console.apps
 %dir /var/run/console
 %{_mandir}/man5/*
@@ -217,6 +217,11 @@ fi
 %{_mandir}/man3/*
 
 %changelog
+* Thu Sep  6 2001 Nalin Dahyabhai <nalin@redhat.com> 0.75-12
+- noreplace configuration files in /etc/security
+- pam_console: update pam_console_apply and man pages to reflect
+  /var/lock -> /var/run move
+
 * Wed Sep  5 2001 Nalin Dahyabhai <nalin@redhat.com> 0.75-11
 - pam_unix: fix the fix for #42394
 
