@@ -5,12 +5,13 @@
 
 %define pwdb_version 0.62
 %define db_version 4.3.27
+%define db_conflicting_version 4.4.0
 %define pam_redhat_release 3
 
 Summary: A security tool which provides authentication for applications.
 Name: pam
 Version: 0.78
-Release: 4
+Release: 5
 License: GPL or BSD
 Group: System Environment/Base
 Source0: ftp.us.kernel.org:/pub/linux/libs/pam/pre/library/Linux-PAM-%{version}.tar.bz2
@@ -30,6 +31,7 @@ Patch34: pam-0.77-dbpam.patch
 Patch60: pam-0.78-selinux.patch
 Patch61: pam-pwdbselinux.patch
 Patch84: pam-0.77-unix-passwd-parse.patch
+Patch85: pam-0.78-console-vfprintf.patch
 
 BuildRoot: %{_tmppath}/%{name}-root
 Requires: cracklib, cracklib-dicts, glib2, initscripts >= 3.94
@@ -46,7 +48,7 @@ URL: http://www.us.kernel.org/pub/linux/libs/pam/index.html
 # We internalize libdb to get a non-threaded copy, but we should at least try
 # to coexist with the system's copy of libdb, which will be used to make the
 # files for use by pam_userdb (either by db_load or Perl's DB_File module).
-Requires: db4 = %{db_version}
+Conflicts: db4 >= %{db_conflicting_version}
 
 %description
 PAM (Pluggable Authentication Modules) is a system security tool that
@@ -81,6 +83,7 @@ cp $RPM_SOURCE_DIR/system-auth.pamd .
 %patch61 -p1 -b .pwdbselinux 
 %endif
 %patch84 -p1 -b .passwd-parse
+%patch85 -p1 -b .vfprintf
 
 for readme in modules/pam_*/README ; do
 	cp -f ${readme} doc/txts/README.`dirname ${readme} | sed -e 's|^modules/||'`
@@ -344,6 +347,12 @@ fi
 %{_libdir}/libpam_misc.so
 
 %changelog
+* Mon Feb 21 2005 Tomas Mraz <tmraz@redhat.com>
+- don't log garbage in pam_console_apply (#147879)
+
+* Tue Jan 18 2005 Tomas Mraz <tmraz@redhat.com>
+- don't require exact db4 version only conflict with incompatible one
+
 * Wed Jan 12 2005 Tomas Mraz <tmraz@redhat.com> 0.78-4
 - updated pam-redhat from elvis CVS
 - removed obsolete patches
