@@ -10,7 +10,7 @@
 Summary: A security tool which provides authentication for applications.
 Name: pam
 Version: 0.77
-Release: 51
+Release: 52
 License: GPL or BSD
 Group: System Environment/Base
 Source0: ftp.us.kernel.org:/pub/linux/libs/pam/pre/library/Linux-PAM-%{version}.tar.bz2
@@ -62,6 +62,7 @@ Patch36: pam-0.77-skip-aconf-install.patch
 Patch37: pam-0.77-log-changes.patch
 Patch38: pam-0.77-64bit.patch
 Patch39: pam-0.77-fencepost.patch
+Patch40: pam-0.77-grubb_leak.patch
 Patch60: pam-selinux.patch
 Patch61: pam-pwdbselinux.patch
 
@@ -149,6 +150,7 @@ cp $RPM_SOURCE_DIR/install-sh .
 %patch60 -p1 -b .selinux
 %patch61 -p1 -b .pwdbselinux 
 %endif
+%patch40 -p1 -b .grubb_leak
 
 for readme in modules/pam_*/README ; do
 	cp -f ${readme} doc/txts/README.`dirname ${readme} | sed -e 's|^modules/||'`
@@ -416,6 +418,13 @@ fi
 %{_libdir}/libpam_misc.so
 
 %changelog
+* Tue Jul 27 2004 Alan Cox <alan@redhat.com> 0.77-52
+- First chunk of Steve Grubb's resource leak and other fixes
+
+* Tue Jul 27 2004 Alan Cox <alan@redhat.com> 0.77-51
+- Fixed build testing of modules
+- Fixed dependancies
+
 * Tue Jul 20 2004 Dan Walsh <dwalsh@redhat.com> 0.77-50
 - Change unix_chkpwd to return pam error codes
 
