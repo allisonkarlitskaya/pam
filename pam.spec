@@ -11,7 +11,7 @@
 Summary: A security tool which provides authentication for applications.
 Name: pam
 Version: 0.78
-Release: 8
+Release: 9
 License: GPL or BSD
 Group: System Environment/Base
 Source0: ftp.us.kernel.org:/pub/linux/libs/pam/pre/library/Linux-PAM-%{version}.tar.bz2
@@ -32,6 +32,9 @@ Patch60: pam-0.78-selinux.patch
 Patch61: pam-pwdbselinux.patch
 Patch84: pam-0.77-unix-passwd-parse.patch
 Patch90: pam-0.78-loginuid.patch
+Patch91: pam-0.78-console-wrong-log.patch
+Patch92: pam-0.78-console-alsa-init.patch
+Patch93: pam-0.78-console-perms-dri.patch
 
 BuildRoot: %{_tmppath}/%{name}-root
 Requires: cracklib, cracklib-dicts, glib2, initscripts >= 3.94
@@ -84,6 +87,9 @@ cp $RPM_SOURCE_DIR/system-auth.pamd .
 %endif
 %patch84 -p1 -b .passwd-parse
 %patch90 -p1 -b .loginuid
+%patch91 -p1 -b .wrong-log
+%patch92 -p1 -b .alsa-init
+%patch93 -p1 -b .dri
 
 for readme in modules/pam_*/README ; do
 	cp -f ${readme} doc/txts/README.`dirname ${readme} | sed -e 's|^modules/||'`
@@ -351,6 +357,11 @@ fi
 %{_libdir}/libpam_misc.so
 
 %changelog
+* Wed Mar 23 2005 Tomas Mraz <tmraz@redhat.com> 0.78-9
+- fix wrong logging in pam_console handlers
+- add executing ainit handler for alsa sound dmix
+- #147879, #112777 - change permissions for dri devices
+
 * Fri Mar 18 2005 Tomas Mraz <tmraz@redhat.com> 0.78-8
 - remove ownership and permissions handling from pam_console call
   pam_console_apply as a handler instead
