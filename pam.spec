@@ -9,7 +9,7 @@
 Summary: A security tool which provides authentication for applications.
 Name: pam
 Version: 0.75
-Release: 39
+Release: 40
 License: GPL or BSD
 Group: System Environment/Base
 Source0: ftp.us.kernel.org:/pub/linux/libs/pam/pre/library/Linux-PAM-%{version}.tar.bz2
@@ -343,6 +343,7 @@ fi
 %{_libdir}/security/pam_filter
 %dir %{_sysconfdir}/security
 %config(noreplace) %{_sysconfdir}/security/access.conf
+%config(noreplace) %{_sysconfdir}/security/chroot.conf
 %config(noreplace) %{_sysconfdir}/security/time.conf
 %config(noreplace) %{_sysconfdir}/security/group.conf
 %config(noreplace) %{_sysconfdir}/security/limits.conf
@@ -369,6 +370,11 @@ fi
 #%{_libdir}/libpam_misc.so
 
 %changelog
+* Fri Aug  2 2002 Nalin Dahyabhai <nalin@redhat.com> 0.75-40
+- pam_timestamp_check: check that stdio descriptors are open before we're
+  invoked
+- add missing chroot.conf
+
 * Mon Jul 29 2002 Nalin Dahyabhai <nalin@redhat.com> 0.75-39
 - pam_timestamp: sundry fixes, use "unknown" as the tty when none is found
 
