@@ -1,23 +1,23 @@
 %define build6x 0
 
-%define _libdir /lib
 %define _sbindir /sbin
 %define _sysconfdir /etc
 
-%define pwdb_version 0.61.2
+%define pwdb_version 0.62
 
 Summary: A security tool which provides authentication for applications.
 Name: pam
 Version: 0.75
-Release: 40
+Release: 46.8.0
 License: GPL or BSD
 Group: System Environment/Base
 Source0: ftp.us.kernel.org:/pub/linux/libs/pam/pre/library/Linux-PAM-%{version}.tar.bz2
-Source1: pam-redhat-%{version}-%{release}.tar.gz
-Source2: pwdb-%{pwdb_version}.tar.gz
-Source3: other.pamd
-Source4: system-auth.pamd
-Source5: install-sh
+Source1: ftp.us.kernel.org:/pub/linux/libs/pam/pre/library/Linux-PAM-%{version}.tar.bz2.sign
+Source2: pam-redhat-%{version}-46.tar.gz
+Source3: pwdb-%{pwdb_version}.tar.gz
+Source4: other.pamd
+Source5: system-auth.pamd
+Source6: install-sh
 Patch1: pam-0.75-headers.patch
 Patch2: pam-0.75-accessdoc.patch
 Patch3: pam-0.75-build.patch
@@ -72,12 +72,15 @@ Patch52: pam-0.75-pwdb-static.patch
 Patch53: pam-0.75-unix-log_success.patch
 Patch54: pam-0.75-misc-err.patch
 Patch55: pam-0.75-unix-aixhash.patch
+Patch56: pam-0.75-sgml2latex.patch
+Patch57: pam-0.75-multicrack.patch
+Patch58: pam-0.75-isa.patch
 
 BuildRoot: %{_tmppath}/%{name}-root
 Requires: cracklib, cracklib-dicts, glib, initscripts >= 3.94
 Obsoletes: pamconfig
 Prereq: grep, mktemp, sed, fileutils, textutils, /sbin/ldconfig
-BuildPrereq: autoconf, bison, glib-devel, sed, fileutils, cracklib
+BuildPrereq: autoconf, bison, glib-devel, sed, fileutils, cracklib, cracklib-dicts
 BuildPrereq: perl
 %if ! %{build6x}
 BuildPrereq: db4-devel
@@ -102,7 +105,7 @@ contains header files and static libraries used for building both
 PAM-aware applications and modules for use with PAM.
 
 %prep
-%setup -q -n Linux-PAM-%{version} -a 1 -a 2
+%setup -q -n Linux-PAM-%{version} -a 2 -a 3
 cp $RPM_SOURCE_DIR/other.pamd .
 cp $RPM_SOURCE_DIR/system-auth.pamd .
 cp $RPM_SOURCE_DIR/install-sh .
@@ -160,6 +163,10 @@ cp $RPM_SOURCE_DIR/install-sh .
 %patch53 -p1 -b .unix-log_success
 %patch54 -p1 -b .misc-err
 %patch55 -p1 -b .unix-aixhash
+%patch56 -p1 -b .doc
+%patch57 -p1 -b .multicrack
+%patch58 -p1 -b .isa
+
 for readme in modules/pam_*/README ; do
 	cp -f ${readme} doc/txts/README.`dirname ${readme} | sed -e 's|^modules/||'`
 done
@@ -171,23 +178,24 @@ CFLAGS="-fPIC $RPM_OPT_FLAGS" ; export CFLAGS
 topdir=`pwd`/pwdb-instroot
 test -d ${topdir}         || mkdir ${topdir}
 test -d ${topdir}/include || mkdir ${topdir}/include
-test -d ${topdir}/lib     || mkdir ${topdir}/lib
+test -d ${topdir}/%{_lib}     || mkdir ${topdir}/%{_lib}
 
 pushd pwdb-%{pwdb_version}
 make
-make install INCLUDED=${topdir}/include/pwdb LIBDIR=${topdir}/lib LDCONFIG=:
-rm ${topdir}/lib/*.so*
+make install INCLUDED=${topdir}/include/pwdb LIBDIR=${topdir}/%{_lib} LDCONFIG=:
+rm ${topdir}/%{_lib}/*.so*
 popd
 
 CPPFLAGS=-I${topdir}/include ; export CPPFLAGS
-LDFLAGS=-L${topdir}/lib ; export LDFLAGS
-%configure --enable-static-libpam --enable-fakeroot=$RPM_BUILD_ROOT
+export LIBNAME="%{_lib}"
+LDFLAGS=-L${topdir}/%{_lib} ; export LDFLAGS
+%configure --libdir=/%{_lib} --enable-static-libpam --enable-fakeroot=$RPM_BUILD_ROOT --enable-isadir=../../%{_lib}/security
 make
 
 %install
 [ "$RPM_BUILD_ROOT" != "/" ] && rm -rf $RPM_BUILD_ROOT
 # Install the binaries, libraries, and modules.
-make install
+make install FAKEROOT=$RPM_BUILD_ROOT
 
 # Install default configuration files.
 install -d -m 755 $RPM_BUILD_ROOT%{_sysconfdir}/pam.d
@@ -207,17 +215,17 @@ install -m 644 doc/man/*.8 $RPM_BUILD_ROOT%{_mandir}/man8/
 
 # Move static libraries and make new .so links -- this depends on the value
 # of _libdir not changing, and *not* being /usr/lib.
-install -d -m 755 $RPM_BUILD_ROOT/usr/lib
+install -d -m 755 $RPM_BUILD_ROOT%{_libdir}
 for lib in libpam libpamc libpam_misc ; do
-ln -sf ../..%{_libdir}/${lib}.so.%{version} $RPM_BUILD_ROOT/usr/lib/${lib}.so
-ln -sf ${lib}.so.%{version} $RPM_BUILD_ROOT%{_libdir}/${lib}.so
-mv $RPM_BUILD_ROOT%{_libdir}/${lib}.a $RPM_BUILD_ROOT/usr/lib/
+ln -sf ../../%{_lib}/${lib}.so.%{version} $RPM_BUILD_ROOT%{_libdir}/${lib}.so
+ln -sf ${lib}.so.%{version} $RPM_BUILD_ROOT/%{_lib}/${lib}.so
+mv $RPM_BUILD_ROOT/%{_lib}/${lib}.a $RPM_BUILD_ROOT%{_libdir}/
 done
 
 # Make sure every module subdirectory gave us a module.  Yes, this is hackish.
 for dir in modules/pam_* ; do
 if [ -d ${dir} ] ; then
-	if ! ls -1 $RPM_BUILD_ROOT%{_libdir}/security/`basename ${dir}`*.so ; then
+	if ! ls -1 $RPM_BUILD_ROOT/%{_lib}/security/`basename ${dir}`*.so ; then
 		echo ERROR `basename ${dir}` did not build a module.
 		exit 1
 	fi
@@ -226,6 +234,16 @@ done
 
 # Install the pwdb configuration file.
 install -m644 pwdb-%{pwdb_version}/conf/pwdb.conf $RPM_BUILD_ROOT%{_sysconfdir}/
+
+# Remove unwanted files from the buildroot.
+rm $RPM_BUILD_ROOT/%{_lib}/security/pam_radius.so
+rm -f doc/txts/README.pam_radius
+
+# Duplicate doc file sets.
+rm -fr $RPM_BUILD_ROOT/usr/doc/Linux-PAM
+
+# Create /lib/security in case it isn't the same as /%{_lib}/security.
+install -m755 -d $RPM_BUILD_ROOT/lib/security
 
 %clean
 [ "$RPM_BUILD_ROOT" != "/" ] && rm -rf $RPM_BUILD_ROOT
@@ -293,54 +311,57 @@ fi
 %doc Copyright
 %doc doc/html doc/ps doc/txts
 %doc doc/specs/rfc86.0.txt
-%{_libdir}/libpam.so.*
-%{_libdir}/libpamc.so.*
-%{_libdir}/libpam_misc.so.*
+/%{_lib}/libpam.so.*
+/%{_lib}/libpamc.so.*
+/%{_lib}/libpam_misc.so.*
 %{_sbindir}/pam_console_apply
 %{_sbindir}/pam_tally
 %{_sbindir}/pam_timestamp_check
 %{_sbindir}/pwdb_chkpwd
 %{_sbindir}/unix_chkpwd
-%dir %{_libdir}/security
-%{_libdir}/security/pam_access.so
-%{_libdir}/security/pam_chroot.so
-%{_libdir}/security/pam_console.so
-%{_libdir}/security/pam_cracklib.so
-%{_libdir}/security/pam_deny.so
-%{_libdir}/security/pam_env.so
-%{_libdir}/security/pam_filter.so
-%{_libdir}/security/pam_ftp.so
-%{_libdir}/security/pam_group.so
-%{_libdir}/security/pam_issue.so
-%{_libdir}/security/pam_lastlog.so
-%{_libdir}/security/pam_limits.so
-%{_libdir}/security/pam_listfile.so
-%{_libdir}/security/pam_localuser.so
-%{_libdir}/security/pam_mail.so
-%{_libdir}/security/pam_mkhomedir.so
-%{_libdir}/security/pam_motd.so
-%{_libdir}/security/pam_nologin.so
-%{_libdir}/security/pam_permit.so
-%{_libdir}/security/pam_pwdb.so
-%{_libdir}/security/pam_rhosts_auth.so
-%{_libdir}/security/pam_rootok.so
-%{_libdir}/security/pam_securetty.so
-%{_libdir}/security/pam_shells.so
-%{_libdir}/security/pam_stack.so
-%{_libdir}/security/pam_stress.so
-%{_libdir}/security/pam_tally.so
-%{_libdir}/security/pam_time.so
-%{_libdir}/security/pam_timestamp.so
-%{_libdir}/security/pam_unix.so
-%{_libdir}/security/pam_unix_acct.so
-%{_libdir}/security/pam_unix_auth.so
-%{_libdir}/security/pam_unix_passwd.so
-%{_libdir}/security/pam_unix_session.so
-%{_libdir}/security/pam_userdb.so
-%{_libdir}/security/pam_warn.so
-%{_libdir}/security/pam_wheel.so
-%{_libdir}/security/pam_xauth.so
-%{_libdir}/security/pam_filter
+%if %{_lib} != lib
+%dir /lib/security
+%endif
+%dir /%{_lib}/security
+/%{_lib}/security/pam_access.so
+/%{_lib}/security/pam_chroot.so
+/%{_lib}/security/pam_console.so
+/%{_lib}/security/pam_cracklib.so
+/%{_lib}/security/pam_deny.so
+/%{_lib}/security/pam_env.so
+/%{_lib}/security/pam_filter.so
+/%{_lib}/security/pam_ftp.so
+/%{_lib}/security/pam_group.so
+/%{_lib}/security/pam_issue.so
+/%{_lib}/security/pam_lastlog.so
+/%{_lib}/security/pam_limits.so
+/%{_lib}/security/pam_listfile.so
+/%{_lib}/security/pam_localuser.so
+/%{_lib}/security/pam_mail.so
+/%{_lib}/security/pam_mkhomedir.so
+/%{_lib}/security/pam_motd.so
+/%{_lib}/security/pam_nologin.so
+/%{_lib}/security/pam_permit.so
+/%{_lib}/security/pam_pwdb.so
+/%{_lib}/security/pam_rhosts_auth.so
+/%{_lib}/security/pam_rootok.so
+/%{_lib}/security/pam_securetty.so
+/%{_lib}/security/pam_shells.so
+/%{_lib}/security/pam_stack.so
+/%{_lib}/security/pam_stress.so
+/%{_lib}/security/pam_tally.so
+/%{_lib}/security/pam_time.so
+/%{_lib}/security/pam_timestamp.so
+/%{_lib}/security/pam_unix.so
+/%{_lib}/security/pam_unix_acct.so
+/%{_lib}/security/pam_unix_auth.so
+/%{_lib}/security/pam_unix_passwd.so
+/%{_lib}/security/pam_unix_session.so
+/%{_lib}/security/pam_userdb.so
+/%{_lib}/security/pam_warn.so
+/%{_lib}/security/pam_wheel.so
+/%{_lib}/security/pam_xauth.so
+/%{_lib}/security/pam_filter
 %dir %{_sysconfdir}/security
 %config(noreplace) %{_sysconfdir}/security/access.conf
 %config(noreplace) %{_sysconfdir}/security/chroot.conf
@@ -358,18 +379,54 @@ fi
 %defattr(-,root,root)
 %{_includedir}/security/
 %{_mandir}/man3/*
-/usr/lib/libpam.a
-/usr/lib/libpam.so
-/usr/lib/libpamc.a
-/usr/lib/libpamc.so
-/usr/lib/libpam_misc.a
-/usr/lib/libpam_misc.so
+%{_libdir}/libpam.a
+%{_libdir}/libpam.so
+%{_libdir}/libpamc.a
+%{_libdir}/libpamc.so
+%{_libdir}/libpam_misc.a
+%{_libdir}/libpam_misc.so
 # At some point these will (and should) go away.
 #%{_libdir}/libpam.so
 #%{_libdir}/libpamc.so
 #%{_libdir}/libpam_misc.so
 
 %changelog
+* Thu Feb  6 2003 Nalin Dahyabhai <nalin@redhat.com> 0.75-46.8.0
+- don't use $ISA in the default "other" and "system-auth" configurations
+
+* Tue Dec 17 2002 Nalin Dahyabhai <nalin@redhat.com>
+- rebuild
+
+* Tue Dec 17 2002 Nalin Dahyabhai <nalin@redhat.com> 0.75-46
+- pam_xauth: reintroduce ACL support, per the original white paper
+- pam_xauth: default root's export ACL to none instead of everyone, fixing
+  insecure default outlined by Andreas Beck in Bedatec 200212140001
+
+* Mon Dec  2 2002 Nalin Dahyabhai <nalin@redhat.com> 0.75-45
+- create /lib/security, even if it isn't /%%{_lib}/security, because we
+  can't locate /lib/security/$ISA without it (noted by Arnd Bergmann)
+- clear out the duplicate docs directory created during %%install
+
+* Thu Nov 21 2002 Nalin Dahyabhai <nalin@redhat.com> 0.75-44
+- fix syntax errors in pam_console's yacc parser which newer bison chokes on
+- forcibly set FAKEROOT at make install time
+
+* Tue Oct 22 2002 Nalin Dahyabhai <nalin@redhat.com> 0.75-43
+- patch to interpret $ISA in case the fist module load attempt fails
+- use $ISA in default configs
+
+* Fri Oct 04 2002 Elliot Lee <sopwith@redhat.com> 0.75-42
+- Since cracklib-dicts location will not be correctly detected without 
+  that package being installed, add buildreq for cracklib-dicts.
+- Add patch57: makes configure use $LIBNAME when searching for cracklib 
+  dicts, and error out if not found.
+
+* Thu Sep 12 2002 Than Ngo <than@redhat.com> 0.75-41.1
+- Fixed pam config files
+
+* Wed Sep 11 2002 Than Ngo <than@redhat.com> 0.75-41
+- Added fix to install libs in correct directory on 64bit machine
+
 * Fri Aug  2 2002 Nalin Dahyabhai <nalin@redhat.com> 0.75-40
 - pam_timestamp_check: check that stdio descriptors are open before we're
   invoked
