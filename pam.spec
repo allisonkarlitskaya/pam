@@ -10,7 +10,7 @@
 Summary: A security tool which provides authentication for applications.
 Name: pam
 Version: 0.77
-Release: 44
+Release: 47
 License: GPL or BSD
 Group: System Environment/Base
 Source0: ftp.us.kernel.org:/pub/linux/libs/pam/pre/library/Linux-PAM-%{version}.tar.bz2
@@ -61,6 +61,7 @@ Patch35: pam-0.77-sigchld.patch
 Patch36: pam-0.77-skip-aconf-install.patch
 Patch37: pam-0.77-log-changes.patch
 Patch38: pam-0.77-64bit.patch
+Patch39: pam-0.77-fencepost.patch
 Patch60: pam-selinux.patch
 Patch61: pam-pwdbselinux.patch
 
@@ -71,7 +72,8 @@ Prereq: grep, mktemp, sed, fileutils, textutils, /sbin/ldconfig
 BuildPrereq: autoconf, bison, flex, glib-devel, sed, fileutils, cracklib, cracklib-dicts
 BuildPrereq: perl
 %if %{WITH_SELINUX}
-BuildPrereq: libselinux-devel
+BuildPrereq: libselinux-devel >= 1.8
+Requires: libselinux >= 1.8
 %endif
 URL: http://www.us.kernel.org/pub/linux/libs/pam/index.html
 
@@ -142,6 +144,7 @@ cp $RPM_SOURCE_DIR/install-sh .
 %patch36 -p1 -b .skip-aconf-install
 %patch37 -p1 -b .log-changes
 %patch38 -p1 -b .64bit
+%patch39 -p1 -b .fencepost
 %if %{WITH_SELINUX}
 %patch60 -p1 -b .selinux
 %patch61 -p1 -b .pwdbselinux 
@@ -413,6 +416,16 @@ fi
 %{_libdir}/libpam_misc.so
 
 %changelog
+* Mon Jun 21 2004 Alan Cox <alan@redhat.com>
+- Fixed the pam_limits fencepost error (#79989) since nobody seems to
+  be doing it
+
+* Tue Jun 15 2004 Elliot Lee <sopwith@redhat.com>
+- rebuilt
+
+* Wed Jun 9 2004 Dan Walsh <dwalsh@redhat.com> 0.77-45
+- Add requires libselinux > 1.8
+
 * Thu Jun 3 2004 Dan Walsh <dwalsh@redhat.com> 0.77-44
 - Add MLS Support to selinux patch
 
