@@ -11,7 +11,7 @@
 Summary: A security tool which provides authentication for applications.
 Name: pam
 Version: 0.79
-Release: 1
+Release: 2
 License: GPL or BSD
 Group: System Environment/Base
 Source0: ftp.us.kernel.org:/pub/linux/libs/pam/pre/library/Linux-PAM-%{version}.tar.bz2
@@ -29,6 +29,7 @@ Patch28: pam-0.75-sgml2latex.patch
 Patch34: pam-0.77-dbpam.patch
 Patch60: pam-0.78-selinux.patch
 Patch61: pam-pwdbselinux.patch
+Patch70: pam-0.79-tally-null-data.patch
 
 BuildRoot: %{_tmppath}/%{name}-root
 Requires: cracklib, cracklib-dicts >= 2.8, glib2, initscripts >= 3.94
@@ -78,6 +79,7 @@ cp $RPM_SOURCE_DIR/system-auth.pamd .
 %if %{WITH_SELINUX}
 %patch60 -p1 -b .selinux
 %patch61 -p1 -b .pwdbselinux 
+%patch70 -p1 -b .null-data
 %endif
 
 for readme in modules/pam_*/README ; do
@@ -346,6 +348,9 @@ fi
 %{_libdir}/libpam_misc.so
 
 %changelog
+* Sun Apr  3 2005 Tomas Mraz <tmraz@redhat.com> 0.79-2
+- fix NULL deref in pam_tally when it's used in account phase
+
 * Thu Mar 31 2005 Tomas Mraz <tmraz@redhat.com> 0.79-1
 - upgrade to the new upstream release
 - moved pam_loginuid to pam-redhat repository
