@@ -10,7 +10,7 @@
 Summary: A security tool which provides authentication for applications.
 Name: pam
 Version: 0.77
-Release: 62
+Release: 63
 License: GPL or BSD
 Group: System Environment/Base
 Source0: ftp.us.kernel.org:/pub/linux/libs/pam/pre/library/Linux-PAM-%{version}.tar.bz2
@@ -61,7 +61,6 @@ Patch35: pam-0.77-sigchld.patch
 Patch36: pam-0.77-skip-aconf-install.patch
 Patch37: pam-0.77-log-changes.patch
 Patch38: pam-0.77-64bit.patch
-Patch39: pam-0.77-fencepost.patch
 Patch40: pam-0.77-grubb_leak.patch
 Patch60: pam-selinux.patch
 Patch61: pam-pwdbselinux.patch
@@ -75,7 +74,7 @@ Patch74: pam-0.77-env-noabort.patch
 Patch75: pam-0.77-stack-convoverwrite.patch
 Patch76: pam-0.77-console-addperms.patch
 Patch78: pam-0.77-console-manfix.patch
-
+Patch79: pam-0.77-limits-logins.patch
 
 BuildRoot: %{_tmppath}/%{name}-root
 Requires: cracklib, cracklib-dicts, glib2, initscripts >= 3.94
@@ -156,7 +155,6 @@ cp $RPM_SOURCE_DIR/install-sh .
 %patch36 -p1 -b .skip-aconf-install
 %patch37 -p1 -b .log-changes
 %patch38 -p1 -b .64bit
-%patch39 -p1 -b .fencepost
 %if %{WITH_SELINUX}
 %patch60 -p1 -b .selinux
 %patch61 -p1 -b .pwdbselinux 
@@ -172,6 +170,7 @@ cp $RPM_SOURCE_DIR/install-sh .
 %patch75 -p1 -b .stack-convoverwrite
 %patch76 -p1 -b .add-perms
 %patch78 -p1 -b .man-fix
+%patch79 -p1 -b .logins
 
 for readme in modules/pam_*/README ; do
 	cp -f ${readme} doc/txts/README.`dirname ${readme} | sed -e 's|^modules/||'`
@@ -441,6 +440,12 @@ fi
 %{_libdir}/libpam_misc.so
 
 %changelog
+* Tue Oct 19 2004 Tomas Mraz <tmraz@redhat.com> 0.77-63
+- Fix checking of group %group syntax in pam_limits
+- Drop fencepost patch as it was already fixed 
+  by upstream change from 0.75 to 0.77
+- Fix brokenshadow patch
+
 * Mon Oct 11 2004 Tomas Mraz <tmraz@redhat.com> 0.77-62
 - Added bluetooth, raw1394 and flash to console.perms
 - pam_console manpage fix 
