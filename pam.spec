@@ -10,7 +10,7 @@
 Summary: A security tool which provides authentication for applications.
 Name: pam
 Version: 0.77
-Release: 43
+Release: 44
 License: GPL or BSD
 Group: System Environment/Base
 Source0: ftp.us.kernel.org:/pub/linux/libs/pam/pre/library/Linux-PAM-%{version}.tar.bz2
@@ -413,6 +413,12 @@ fi
 %{_libdir}/libpam_misc.so
 
 %changelog
+* Thu Jun 3 2004 Dan Walsh <dwalsh@redhat.com> 0.77-44
+- Add MLS Support to selinux patch
+
+* Wed Jun 2 2004 Dan Walsh <dwalsh@redhat.com> 0.77-43
+- Modify pam_selinux to use open and close param
+
 * Fri May 28 2004 Dan Walsh <dwalsh@redhat.com> 0.77-42
 - Split pam module into two parts open and close
 
