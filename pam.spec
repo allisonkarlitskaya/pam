@@ -10,7 +10,7 @@
 Summary: A security tool which provides authentication for applications.
 Name: pam
 Version: 0.77
-Release: 30
+Release: 38
 License: GPL or BSD
 Group: System Environment/Base
 Source0: ftp.us.kernel.org:/pub/linux/libs/pam/pre/library/Linux-PAM-%{version}.tar.bz2
@@ -59,6 +59,7 @@ Patch33: pam-0.77-nss-reentrant.patch
 Patch34: pam-0.77-dbpam.patch
 Patch35: pam-0.77-sigchld.patch
 Patch36: pam-0.77-skip-aconf-install.patch
+Patch37: pam-0.77-log-changes.patch
 Patch60: pam-selinux.patch
 Patch61: pam-pwdbselinux.patch
 
@@ -138,6 +139,7 @@ cp $RPM_SOURCE_DIR/install-sh .
 %patch34 -p1 -b .dbpam
 %patch35 -p1 -b .sigchld
 %patch36 -p1 -b .skip-aconf-install
+%patch37 -p1 -b .log-changes
 %if %{WITH_SELINUX}
 %patch60 -p1 -b .selinux
 %patch61 -p1 -b .pwdbselinux 
@@ -412,6 +414,33 @@ fi
 %{_libdir}/libpam_misc.so
 
 %changelog
+* Wed Mar 3 2004 Dan Walsh <dwalsh@redhat.com> 0.77-38
+- Fix error handling of pam_unix
+
+* Tue Mar 02 2004 Elliot Lee <sopwith@redhat.com>
+- rebuilt
+
+* Thu Feb 26 2004 Dan Walsh <dwalsh@redhat.com> 0.77-36
+- fix tty handling
+
+* Thu Feb 26 2004 Dan Walsh <dwalsh@redhat.com> 0.77-35
+- remove tty closing and opening from pam_selinux, it does not work.
+
+* Fri Feb 13 2004 Elliot Lee <sopwith@redhat.com>
+- rebuilt
+
+* Tue Feb 12 2004 Nalin Dahyabhai <nalin@redhat.com>
+- pam_unix: also log successful password changes when using shadowed passwords
+
+* Tue Feb 10 2004 Dan Walsh <dwalsh@redhat.com> 0.77-33
+- close and reopen terminal after changing context.
+
+* Thu Feb 5 2004 Dan Walsh <dwalsh@redhat.com> 0.77-32
+- Check for valid tty
+
+* Tue Feb 3 2004 Dan Walsh <dwalsh@redhat.com> 0.77-31
+- Check for multiple > 1
+
 * Mon Feb 2 2004 Dan Walsh <dwalsh@redhat.com> 0.77-30
 - fix is_selinux_enabled call for pam_rootok
 
