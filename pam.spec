@@ -2,7 +2,7 @@
 Summary: A security tool which provides authentication for applications.
 Name: pam
 Version: 0.75
-Release: 9
+Release: 10
 License: GPL or BSD
 Group: System Environment/Base
 Source0: pam-redhat-%{version}-%{release}.tar.gz
@@ -192,7 +192,7 @@ fi
 %config /etc/security/pam_env.conf
 %config /etc/security/console.perms
 %dir /etc/security/console.apps
-%dir /var/lock/console
+%dir /var/run/console
 %{_mandir}/man5/*
 %{_mandir}/man8/*
 
@@ -205,6 +205,13 @@ fi
 %{_mandir}/man3/*
 
 %changelog
+* Mon Aug 13 2001 Nalin Dahyabhai <nalin@redhat.com>
+- pam_xauth: fix errors due to uninitialized data structure (fix from Tse Huong
+  Choo)
+- pam_xauth: random cleanups
+- pam_console: use /var/run/console instead of /var/lock/console at install-time
+- pam_unix: fix preserving of permissions on files which are manipulated
+
 * Fri Aug 10 2001 Bill Nottingham <notting@redhat.com>
 - fix segfault in pam_securetty
 
