@@ -2,7 +2,7 @@
 Summary: A security tool which provides authentication for applications.
 Name: pam
 Version: 0.75
-Release: 10
+Release: 11
 License: GPL or BSD
 Group: System Environment/Base
 Source0: pam-redhat-%{version}-%{release}.tar.gz
@@ -55,8 +55,19 @@ make
 [ "$RPM_BUILD_ROOT" != "/" ] && rm -rf $RPM_BUILD_ROOT
 make install
 install -d -m 755 $RPM_BUILD_ROOT/etc/pam.d
+install -d -m 755 $RPM_BUILD_ROOT%{_libdir}
 install -m 644 other.pamd $RPM_BUILD_ROOT/etc/pam.d/other
 install -m 644 system-auth.pamd $RPM_BUILD_ROOT/etc/pam.d/system-auth
+
+# move the static libraries
+mv $RPM_BUILD_ROOT/lib/*.a $RPM_BUILD_ROOT%{_libdir}/
+
+# make new .so links
+pushd $RPM_BUILD_ROOT%{_libdir}
+for lib in ../../lib/*.so.%{version} ; do
+	ln -s ${lib} `basename ${lib} .%{version}`
+done
+popd
 
 # forcibly strip the helpers
 strip $RPM_BUILD_ROOT/sbin/* ||:
@@ -198,14 +209,34 @@ fi
 
 %files devel
 %defattr(-,root,root)
-/lib/libpam.so
-/lib/libpam_misc.so
-/lib/libpam_misc.a
+%{_libdir}/libpam.so
+%{_libdir}/libpam.a
+%{_libdir}/libpam_misc.so
+%{_libdir}/libpam_misc.a
 /usr/include/security/
 %{_mandir}/man3/*
 
 %changelog
-* Mon Aug 13 2001 Nalin Dahyabhai <nalin@redhat.com>
+* Wed Sep  5 2001 Nalin Dahyabhai <nalin@redhat.com> 0.75-11
+- pam_unix: fix the fix for #42394
+
+* Tue Sep  4 2001 Nalin Dahyabhai <nalin@redhat.com>
+- modules: use getpwnam_r and friends instead of non-reentrant versions
+- pam_console: clear generated .c and .h files in "clean" makefile target
+
+* Thu Aug 30 2001 Nalin Dahyabhai <nalin@redhat.com>
+- pam_stack: perform deep copy of conversation structures
+- include the static libpam in the -devel subpackage (#52321)
+- move development .so and .a files to %%{_libdir}
+- pam_unix: don't barf on empty passwords (#51846)
+- pam_unix: redo compatibility with "hash,age" data wrt bigcrypt (#42394)
+- console.perms: add usb camera, scanner, and rio devices (#15528)
+- pam_cracklib: initialize all options properly (#49613)
+
+* Wed Aug 22 2001 Nalin Dahyabhai <nalin@redhat.com>
+- pam_limits: don't rule out negative priorities
+
+* Mon Aug 13 2001 Nalin Dahyabhai <nalin@redhat.com> 0.75-10
 - pam_xauth: fix errors due to uninitialized data structure (fix from Tse Huong
   Choo)
 - pam_xauth: random cleanups
