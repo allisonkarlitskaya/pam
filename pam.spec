@@ -1,23 +1,21 @@
-%if %{?WITH_SELINUX:0}%{!?WITH_SELINUX:1}
-%define WITH_SELINUX 0
-%endif
+%define WITH_SELINUX 1
 %define build6x 0
 
 %define _sbindir /sbin
 %define _sysconfdir /etc
 
 %define pwdb_version 0.62
-%define db_version 4.1.25
+%define db_version 4.2.52
 
 Summary: A security tool which provides authentication for applications.
 Name: pam
 Version: 0.77
-Release: 15
+Release: 30
 License: GPL or BSD
 Group: System Environment/Base
 Source0: ftp.us.kernel.org:/pub/linux/libs/pam/pre/library/Linux-PAM-%{version}.tar.bz2
 Source1: ftp.us.kernel.org:/pub/linux/libs/pam/pre/library/Linux-PAM-%{version}.tar.bz2.sign
-Source2: pam-redhat-%{version}-4.tar.gz
+Source2: pam-redhat-%{version}-5.tar.gz
 Source3: pwdb-%{pwdb_version}.tar.gz
 Source4: db-%{db_version}.tar.gz
 Source5: other.pamd
@@ -103,11 +101,6 @@ cp $RPM_SOURCE_DIR/other.pamd .
 cp $RPM_SOURCE_DIR/system-auth.pamd .
 cp $RPM_SOURCE_DIR/install-sh .
 
-pushd db-%{db_version}
-cd dist
-./s_config
-popd
-
 %patch0  -p1 -b .modutil-thread
 %patch1  -p1 -b .include_path
 %patch2  -p1 -b .build
@@ -163,9 +156,9 @@ test -d ${topdir}         || mkdir ${topdir}
 test -d ${topdir}/include || mkdir ${topdir}/include
 test -d ${topdir}/%{_lib} || mkdir ${topdir}/%{_lib}
 
-pushd db-%{db_version}/dist
+pushd db-%{db_version}/build_unix
 echo db_cv_mutex=UNIX/fcntl > config.cache
-./configure -C \
+../dist/configure -C \
 	--disable-compat185 \
 	--disable-cxx \
 	--disable-diagnostic \
@@ -176,11 +169,10 @@ echo db_cv_mutex=UNIX/fcntl > config.cache
 	--disable-shared \
 	--with-pic \
 	--with-uniquename=_pam \
+	--with-mutex="UNIX/fcntl" \
 	--prefix=${topdir} \
 	--includedir=${topdir}/include \
 	--libdir=${topdir}/%{_lib}
-# XXX hack out O_DIRECT support in db4 for now.
-perl -pi -e 's/#define HAVE_O_DIRECT 1/#undef HAVE_O_DIRECT/' db_config.h
 make
 make install
 popd
@@ -202,7 +194,7 @@ LDFLAGS=-L${topdir}/%{_lib} ; export LDFLAGS
 make
 
 %install
-[ "$RPM_BUILD_ROOT" != "/" ] && rm -rf $RPM_BUILD_ROOT
+rm -rf $RPM_BUILD_ROOT
 # Install the binaries, libraries, and modules.
 make install FAKEROOT=$RPM_BUILD_ROOT LDCONFIG=:
 
@@ -269,7 +261,7 @@ for module in $RPM_BUILD_ROOT/%{_lib}/security/pam*.so ; do
 done
 
 %clean
-[ "$RPM_BUILD_ROOT" != "/" ] && rm -rf $RPM_BUILD_ROOT
+rm -rf $RPM_BUILD_ROOT
 
 %if ! %{build6x}
 %pre
@@ -420,6 +412,54 @@ fi
 %{_libdir}/libpam_misc.so
 
 %changelog
+* Mon Feb 2 2004 Dan Walsh <dwalsh@redhat.com> 0.77-30
+- fix is_selinux_enabled call for pam_rootok
+
+* Wed Jan 28 2004 Dan Walsh <dwalsh@redhat.com> 0.77-29
+- More fixes to pam_selinux,pam_rootok
+
+* Wed Jan 28 2004 Dan Walsh <dwalsh@redhat.com> 0.77-28
+- turn on selinux
+
+* Wed Jan 28 2004 Dan Walsh <dwalsh@redhat.com> 0.77-27
+- Fix rootok check.
+
+* Mon Jan 26 2004 Dan Walsh <dwalsh@redhat.com> 0.77-26
+- fix is_selinux_enabled call
+
+* Sun Jan 25 2004 Dan Walsh <dwalsh@redhat.com> 0.77-25
+- Check if ROOTOK for SELinux
+
+* Thu Jan 15 2004 Dan Walsh <dwalsh@redhat.com> 0.77-24
+- Fix tty handling for pts in pam_selinux
+
+* Thu Jan 15 2004 Dan Walsh <dwalsh@redhat.com> 0.77-23
+- Need to add qualifier context for sudo situation
+
+* Thu Jan 15 2004 Dan Walsh <dwalsh@redhat.com> 0.77-22
+- Fix pam_selinux to use prevcon instead of pam_user so it will work for su.
+
+* Fri Dec 12 2003 Bill Nottingham <notting@redhat.com> 0.77-21.sel
+- add alsa devs to console.perms
+
+* Thu Dec 11 2003 Jeff Johnson <jbj@jbj.org> 0.77-20.sel
+- rebuild with db-4.2.52.
+- build db4 in build_unix, not dist.
+
+* Wed Nov 26 2003 Dan Walsh <dwalsh@redhat.com> 0.77-19.sel
+- Change unix_chkpwd to handle unix_passwd and unix_acct
+- This eliminates the need for pam modules to have read/write access to /etc/shadow.
+
+* Thu Nov 20 2003 Dan Walsh <dwalsh@redhat.com> 0.77-18.sel
+- Cleanup unix_chkpwd
+
+* Mon Nov 03 2003 Dan Walsh <dwalsh@redhat.com> 0.77-17.sel
+- Fix tty handling 
+- Add back multiple handling
+
+* Mon Oct 27 2003 Dan Walsh <dwalsh@redhat.com> 0.77-16.sel
+- Remove Multiple from man page of pam_selinux
+
 * Thu Oct 23 2003 Nalin Dahyabhai <nalin@redhat.com> 0.77-15
 - don't install _pam_aconf.h -- apps don't use it, other PAM headers which
   are installed don't use it, and its contents may be different for arches
@@ -503,7 +543,7 @@ fi
 
 * Mon Jun  9 2003 Nalin Dahyabhai <nalin@redhat.com> 0.75-49
 - modify calls to getlogin() to check the directory of the current TTY before
-  searching for an entry in the utmp/utmpx file
+  searching for an entry in the utmp/utmpx file (#98020, #98826, CAN-2003-0388)
 
 * Wed Jun 04 2003 Elliot Lee <sopwith@redhat.com>
 - rebuilt
