@@ -9,7 +9,7 @@
 Summary: A security tool which provides authentication for applications.
 Name: pam
 Version: 0.78
-Release: 1
+Release: 2
 License: GPL or BSD
 Group: System Environment/Base
 Source0: ftp.us.kernel.org:/pub/linux/libs/pam/pre/library/Linux-PAM-%{version}.tar.bz2
@@ -38,6 +38,7 @@ Patch81: pam-0.77-stack-memleaks.patch
 Patch82: pam-0.77-timestamp-test-login.patch
 Patch84: pam-0.77-unix-passwd-parse.patch
 Patch85: pam-0.77-console-auth.patch
+Patch86: pam-0.78-console-apply-onfile.patch
 
 BuildRoot: %{_tmppath}/%{name}-root
 Requires: cracklib, cracklib-dicts, glib2, initscripts >= 3.94
@@ -98,6 +99,7 @@ cp $RPM_SOURCE_DIR/system-auth.pamd .
 %patch82 -p1 -b .test-login
 %patch84 -p1 -b .passwd-parse
 %patch85 -p1 -b .auth
+%patch86 -p1 -b .apply-onfile
 
 for readme in modules/pam_*/README ; do
 	cp -f ${readme} doc/txts/README.`dirname ${readme} | sed -e 's|^modules/||'`
@@ -361,6 +363,9 @@ fi
 %{_libdir}/libpam_misc.so
 
 %changelog
+* Thu Nov 25 2004 Tomas Mraz <tmraz@redhat.com> 0.78-2
+- add argument to pam_console_apply to restrict its work to specified files
+
 * Tue Nov 23 2004 Tomas Mraz <tmraz@redhat.com> 0.78-1
 - update to Linux-PAM-0.78
 - #140451 parse passwd entries correctly and test for failure
