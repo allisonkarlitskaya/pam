@@ -11,7 +11,7 @@
 Summary: A security tool which provides authentication for applications.
 Name: pam
 Version: 0.78
-Release: 6
+Release: 7
 License: GPL or BSD
 Group: System Environment/Base
 Source0: ftp.us.kernel.org:/pub/linux/libs/pam/pre/library/Linux-PAM-%{version}.tar.bz2
@@ -32,6 +32,7 @@ Patch60: pam-0.78-selinux.patch
 Patch61: pam-pwdbselinux.patch
 Patch84: pam-0.77-unix-passwd-parse.patch
 Patch85: pam-0.78-console-glib-dynamic.patch
+Patch90: pam-0.78-loginuid.patch
 
 BuildRoot: %{_tmppath}/%{name}-root
 Requires: cracklib, cracklib-dicts, glib2, initscripts >= 3.94
@@ -84,6 +85,7 @@ cp $RPM_SOURCE_DIR/system-auth.pamd .
 %endif
 %patch84 -p1 -b .passwd-parse
 %patch85 -p1 -b .glib-dynamic
+%patch90 -p1 -b .loginuid
 
 for readme in modules/pam_*/README ; do
 	cp -f ${readme} doc/txts/README.`dirname ${readme} | sed -e 's|^modules/||'`
@@ -292,6 +294,7 @@ fi
 /%{_lib}/security/pam_limits.so
 /%{_lib}/security/pam_listfile.so
 /%{_lib}/security/pam_localuser.so
+/%{_lib}/security/pam_loginuid.so
 /%{_lib}/security/pam_mail.so
 /%{_lib}/security/pam_mkhomedir.so
 /%{_lib}/security/pam_motd.so
@@ -350,6 +353,10 @@ fi
 %{_libdir}/libpam_misc.so
 
 %changelog
+* Mon Mar 14 2005 Tomas Mraz <tmraz@redhat.com> 0.78-7
+- add pam_loginuid module for setting the the login uid for auditing purposes
+  (by Steve Grubb)
+
 * Thu Mar 10 2005 Tomas Mraz <tmraz@redhat.com> 0.78-6
 - add functionality for running handler executables from pam_console
   when console lock was obtained/lost
