@@ -10,7 +10,7 @@
 Summary: A security tool which provides authentication for applications.
 Name: pam
 Version: 0.77
-Release: 41
+Release: 43
 License: GPL or BSD
 Group: System Environment/Base
 Source0: ftp.us.kernel.org:/pub/linux/libs/pam/pre/library/Linux-PAM-%{version}.tar.bz2
@@ -413,6 +413,9 @@ fi
 %{_libdir}/libpam_misc.so
 
 %changelog
+* Fri May 28 2004 Dan Walsh <dwalsh@redhat.com> 0.77-42
+- Split pam module into two parts open and close
+
 * Tue May 18 2004 Phil Knirsch <pknirsch@redhat.com> 0.77-41
 - Fixed 64bit segfault in pam_succeed_if module.
 
