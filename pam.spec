@@ -9,7 +9,7 @@
 Summary: A security tool which provides authentication for applications.
 Name: pam
 Version: 0.75
-Release: 31
+Release: 32
 License: GPL or BSD
 Group: System Environment/Base
 Source0: ftp.us.kernel.org:/pub/linux/libs/pam/pre/library/Linux-PAM-%{version}.tar.bz2
@@ -70,6 +70,7 @@ Patch51: pam-0.75-macros.patch
 Patch52: pam-0.75-pwdb-static.patch
 Patch53: pam-0.75-unix-log_success.patch
 Patch54: pam-0.75-misc-err.patch
+Patch55: pam-0.75-unix-aixhash.patch
 
 BuildRoot: %{_tmppath}/%{name}-root
 Requires: cracklib, cracklib-dicts, glib, initscripts >= 3.94
@@ -157,6 +158,7 @@ cp %{_datadir}/automake/install-sh .
 %patch52 -p1 -b .pwdb-static
 %patch53 -p1 -b .unix-log_success
 %patch54 -p1 -b .misc-err
+%patch55 -p1 -b .unix-aixhash
 for readme in modules/pam_*/README ; do
 	cp -f ${readme} doc/txts/README.`dirname ${readme} | sed -e 's|^modules/||'`
 done
@@ -364,6 +366,9 @@ fi
 #%{_libdir}/libpam_misc.so
 
 %changelog
+* Tue Apr  9 2002 Nalin Dahyabhai <nalin@redhat.com> 0.75-32
+- pam_unix: be more compatible with AIX-style shadowing (#19236)
+
 * Thu Mar 28 2002 Nalin Dahyabhai <nalin@redhat.com> 0.75-31
 - libpam_misc: fix possible infinite loop in misc_conv (#62195)
 - pam_xauth: fix cases where DISPLAY is "localhost:screen" and the xauth
