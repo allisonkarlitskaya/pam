@@ -193,12 +193,14 @@ install -m755 -d $RPM_BUILD_ROOT/lib/security
 # installed can actually be loaded by a minimal PAM-aware application.
 for module in $RPM_BUILD_ROOT/%{_lib}/security/pam*.so ; do
 	if ! $RPM_SOURCE_DIR/dlopen.sh -lpam -ldl -L$RPM_BUILD_ROOT/%{_lib} ${module} ; then
+		echo ERROR module: ${module} cannot be loaded.
 		exit 1
 	fi
 # And for good measure, make sure that none of the modules pull in threading
 # libraries, which if loaded in a non-threaded application, can cause Very
 # Bad Things to happen.
 	if env LD_PRELOAD=$RPM_BUILD_ROOT/%{_lib}/libpam.so ldd -r ${module} | fgrep -q libpthread ; then
+		echo ERROR module: ${module} pulls threading libraries.
 		exit 1
 	fi
 done
@@ -347,6 +349,9 @@ fi
 %{_libdir}/libpam_misc.so
 
 %changelog
+* Tue Mar  1 2005 Tomas Mraz <tmraz@redhat.com> 0.78-5
+- echo why tests failed when rebuilding
+
 * Mon Feb 21 2005 Tomas Mraz <tmraz@redhat.com>
 - don't log garbage in pam_console_apply (#147879)
 
