@@ -40,7 +40,7 @@ for arg in $@ ; do
 	-I*|-D*|-f*|-m*|-g*|-O*|-W*)
 		cflags="$cflags $arg"
 		;;
-	-l*)
+	-l*|-L*)
 		ldflags="$ldflags $arg"
 		;;
 	/*)

@@ -10,7 +10,7 @@
 Summary: A security tool which provides authentication for applications.
 Name: pam
 Version: 0.77
-Release: 50
+Release: 51
 License: GPL or BSD
 Group: System Environment/Base
 Source0: ftp.us.kernel.org:/pub/linux/libs/pam/pre/library/Linux-PAM-%{version}.tar.bz2
@@ -68,9 +68,9 @@ Patch61: pam-pwdbselinux.patch
 BuildRoot: %{_tmppath}/%{name}-root
 Requires: cracklib, cracklib-dicts, glib2, initscripts >= 3.94
 Obsoletes: pamconfig
-Prereq: grep, mktemp, sed, fileutils, textutils, /sbin/ldconfig
-BuildPrereq: autoconf, bison, flex, glib-devel, sed, fileutils, cracklib, cracklib-dicts
-BuildPrereq: perl
+Prereq: grep, mktemp, sed, coreutils, /sbin/ldconfig
+BuildPrereq: autoconf, bison, flex, glib2-devel, sed, cracklib, cracklib-dicts
+BuildPrereq: perl, pkgconfig
 %if %{WITH_SELINUX}
 BuildPrereq: libselinux-devel >= 1.8
 Requires: libselinux >= 1.8
@@ -256,7 +256,7 @@ install -m755 -d $RPM_BUILD_ROOT/lib/security
 # Check for module problems.  Specifically, check that every module we just
 # installed can actually be loaded by a minimal PAM-aware application.
 for module in $RPM_BUILD_ROOT/%{_lib}/security/pam*.so ; do
-	if ! $RPM_SOURCE_DIR/dlopen.sh -lpam -ldl ${module} ; then
+	if ! $RPM_SOURCE_DIR/dlopen.sh -lpam -ldl -L$RPM_BUILD_ROOT/%{_lib} ${module} ; then
 		exit 1
 	fi
 # And for good measure, make sure that none of the modules pull in threading
