@@ -1,5 +1,4 @@
 %define WITH_SELINUX 1
-%define build6x 0
 
 %define _sbindir /sbin
 %define _sysconfdir /etc
@@ -9,76 +8,35 @@
 
 Summary: A security tool which provides authentication for applications.
 Name: pam
-Version: 0.77
-Release: 67
+Version: 0.78
+Release: 1
 License: GPL or BSD
 Group: System Environment/Base
 Source0: ftp.us.kernel.org:/pub/linux/libs/pam/pre/library/Linux-PAM-%{version}.tar.bz2
 Source1: ftp.us.kernel.org:/pub/linux/libs/pam/pre/library/Linux-PAM-%{version}.tar.bz2.sign
-Source2: pam-redhat-%{version}-5.tar.gz
+Source2: pam-redhat-%{version}-1.tar.gz
 Source3: pwdb-%{pwdb_version}.tar.gz
 Source4: db-%{db_version}.tar.gz
 Source5: other.pamd
 Source6: system-auth.pamd
-Source7: install-sh
 Source8: dlopen.sh
-Patch0: pam-0.77-modutil-thread.patch
-Patch1: pam-0.77-include_path.patch
-Patch2: pam-0.77-build.patch
-Patch3: pam-0.75-linkage.patch
 Patch4: pam-0.75-prompt.patch
-Patch5: pam-0.75-return.patch
-Patch6: pam-0.75-security.patch
-Patch7: pam-0.77-string.patch
-Patch8: pam-0.77-userdb.patch
-Patch9: pam-0.75-group-reinit.patch
 Patch10: pam-0.77-lastlog-utmp.patch
-Patch11: pam-0.77-securetty-fail.patch
-Patch12: pam-0.75-time.patch
-Patch13: pam-0.77-issue.patch
-Patch14: pam-0.77-doc-rhl.patch
-Patch15: pam-0.77-bigcrypt-main.patch
-Patch16: pam-0.77-cracklib-init.patch
-Patch17: pam-0.77-filter-comments.patch
-Patch18: pam-0.75-unix-loop.patch
-Patch19: pam-0.77-unix-preserve.patch
-Patch20: pam-0.77-unix-brokenshadow.patch
-Patch21: pam-0.77-unix-hpux-aging.patch
-Patch22: pam-0.77-unix-nis.patch
-Patch23: pam-0.77-unix-nullok.patch
-Patch24: pam-0.77-issue-heap.patch
-Patch25: pam-0.75-listfile-tty.patch
-Patch26: pam-0.77-misc-err.patch
-Patch27: pam-0.77-unix-aixhash.patch
+Patch21: pam-0.78-unix-hpux-aging.patch
 Patch28: pam-0.75-sgml2latex.patch
-Patch29: pam-0.77-multicrack.patch
-Patch30: pam-0.75-isa.patch
-Patch31: pam-0.77-utmp-dev.patch
-Patch32: pam-0.77-pwdb-static.patch
-Patch33: pam-0.77-nss-reentrant.patch
+Patch29: pam-0.78-multicrack.patch
 Patch34: pam-0.77-dbpam.patch
-Patch35: pam-0.77-sigchld.patch
-Patch36: pam-0.77-skip-aconf-install.patch
-Patch37: pam-0.77-log-changes.patch
-Patch38: pam-0.77-64bit.patch
-Patch40: pam-0.77-grubb_leak.patch
-Patch60: pam-selinux.patch
+Patch40: pam-0.78-grubb-leak.patch
+Patch60: pam-0.78-selinux.patch
 Patch61: pam-pwdbselinux.patch
-Patch62: pam-0.77-closefd.patch
 Patch63: pam-0.77-consolelock.patch
-Patch70: pam-0.77-pwd-lock.patch
-Patch71: pam-0.77-nullok-override.patch
-Patch72: pam-0.77-remove-getgrlist.patch
-Patch73: pam-0.77-succif-quiet.patch
-Patch74: pam-0.77-env-noabort.patch
 Patch75: pam-0.77-stack-convoverwrite.patch
 Patch76: pam-0.77-console-addperms.patch
 Patch78: pam-0.77-console-manfix.patch
-Patch79: pam-0.77-limits-logins.patch
 Patch80: pam-0.77-console-xcrash.patch
 Patch81: pam-0.77-stack-memleaks.patch
 Patch82: pam-0.77-timestamp-test-login.patch
-Patch83: pam-0.77-unix-logfail.patch
+Patch84: pam-0.77-unix-passwd-parse.patch
 
 BuildRoot: %{_tmppath}/%{name}-root
 Requires: cracklib, cracklib-dicts, glib2, initscripts >= 3.94
@@ -118,67 +76,26 @@ PAM-aware applications and modules for use with PAM.
 %setup -q -n Linux-PAM-%{version} -a 2 -a 3 -a 4
 cp $RPM_SOURCE_DIR/other.pamd .
 cp $RPM_SOURCE_DIR/system-auth.pamd .
-cp $RPM_SOURCE_DIR/install-sh .
 
-%patch0  -p1 -b .modutil-thread
-%patch1  -p1 -b .include_path
-%patch2  -p1 -b .build
-%patch3  -p1 -b .linkage
 %patch4  -p1 -b .prompt
-%patch5  -p1 -b .return
-%patch6  -p1 -b .security
-%patch7  -p1 -b .string
-%patch8  -p1 -b .userdb
-%patch9  -p1 -b .group-reinit
 %patch10 -p1 -b .lastlog-utmp
-%patch11 -p1 -b .securetty-fail
-%patch12 -p1 -b .time
-%patch13 -p1 -b .issue
-%patch14 -p1 -b .doc-rhl
-%patch15 -p1 -b .bigcrypt-main
-%patch16 -p1 -b .cracklib-init
-%patch17 -p1 -b .filter-comments
-%patch18 -p1 -b .unix-loop
-%patch19 -p1 -b .unix-preserve
-%patch20 -p1 -b .unix-brokenshadow
 %patch21 -p1 -b .unix-hpux-aging
-%patch22 -p1 -b .unix-nis
-%patch23 -p1 -b .unix-nullok
-%patch24 -p1 -b .issue-heap
-%patch25 -p1 -b .listfile-tty
-%patch26 -p1 -b .misc-err
-%patch27 -p1 -b .unix-aixhash
 %patch28 -p1 -b .doc
 %patch29 -p1 -b .multicrack
-%patch30 -p1 -b .isa
-%patch31 -p1 -b .utmp-dev
-%patch32 -p1 -b .pwdb-static
-%patch33 -p1 -b .nss-reentrant
 %patch34 -p1 -b .dbpam
-%patch35 -p1 -b .sigchld
-%patch36 -p1 -b .skip-aconf-install
-%patch37 -p1 -b .log-changes
-%patch38 -p1 -b .64bit
+%patch40 -p1 -b .grubb-leak
 %if %{WITH_SELINUX}
 %patch60 -p1 -b .selinux
 %patch61 -p1 -b .pwdbselinux 
 %endif
-%patch40 -p1 -b .grubb_leak
-%patch62 -p1 -b .closefd 
 %patch63 -p1 -b .consolelock
-%patch70 -p1 -b .pwd-lock
-%patch71 -p1 -b .nullok-override
-%patch72 -p1 -b .remove-getgrlist
-%patch73 -p1 -b .succif-quiet
-%patch74 -p1 -b .env-noabort
 %patch75 -p1 -b .stack-convoverwrite
 %patch76 -p1 -b .add-perms
 %patch78 -p1 -b .man-fix
-%patch79 -p1 -b .logins
 %patch80 -p1 -b .xcrash
 %patch81 -p1 -b .mem-leak
 %patch82 -p1 -b .test-login
-%patch83 -p1 -b .logfail
+%patch84 -p1 -b .passwd-parse
 
 for readme in modules/pam_*/README ; do
 	cp -f ${readme} doc/txts/README.`dirname ${readme} | sed -e 's|^modules/||'`
@@ -301,7 +218,6 @@ done
 %clean
 rm -rf $RPM_BUILD_ROOT
 
-%if ! %{build6x}
 %pre
 # Figure whether or not we're using shadow/md5 passwords if we're upgrading.
 if [ -f %{_sysconfdir}/pam.d/other ] ; then
@@ -325,11 +241,7 @@ if [ -f %{_sysconfdir}/pam.d/other ] ; then
 	fi
 fi
 exit 0
-%endif
 
-%if %{build6x}
-%post -p /sbin/ldconfig
-%else
 %post
 /sbin/ldconfig
 if [ ! -f /etc/shadow ] ; then
@@ -351,7 +263,6 @@ if [ "$USEMD5" = "no" ] ; then
 		rm -f $tmp
 	fi
 fi
-%endif
 
 %postun -p /sbin/ldconfig
 
@@ -448,6 +359,10 @@ fi
 %{_libdir}/libpam_misc.so
 
 %changelog
+* Tue Nov 23 2004 Tomas Mraz <tmraz@redhat.com> 0.78-1
+- update to Linux-PAM-0.78
+- #140451 parse passwd entries correctly and test for failure
+
 * Fri Nov 12 2004 Jeff Johnson <jbj@jbj.org> 0.77-67
 - rebuild against db-4.3.21.
 
