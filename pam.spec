@@ -10,7 +10,7 @@
 Summary: A security tool which provides authentication for applications.
 Name: pam
 Version: 0.77
-Release: 60
+Release: 61
 License: GPL or BSD
 Group: System Environment/Base
 Source0: ftp.us.kernel.org:/pub/linux/libs/pam/pre/library/Linux-PAM-%{version}.tar.bz2
@@ -73,6 +73,7 @@ Patch71: pam-0.77-nullok-override.patch
 Patch72: pam-0.77-remove-getgrlist.patch
 Patch73: pam-0.77-succif-quiet.patch
 Patch74: pam-0.77-env-noabort.patch
+Patch75: pam-0.77-stack-convoverwrite.patch
 
 BuildRoot: %{_tmppath}/%{name}-root
 Requires: cracklib, cracklib-dicts, glib2, initscripts >= 3.94
@@ -167,6 +168,7 @@ cp $RPM_SOURCE_DIR/install-sh .
 %patch72 -p1 -b .remove-getgrlist
 %patch73 -p1 -b .succif-quiet
 %patch74 -p1 -b .env-noabort
+%patch75 -p1 -b .stack-convoverwrite
 
 for readme in modules/pam_*/README ; do
 	cp -f ${readme} doc/txts/README.`dirname ${readme} | sed -e 's|^modules/||'`
@@ -227,6 +229,7 @@ make install FAKEROOT=$RPM_BUILD_ROOT LDCONFIG=:
 install -d -m 755 $RPM_BUILD_ROOT%{_sysconfdir}/pam.d
 install -m 644 other.pamd $RPM_BUILD_ROOT%{_sysconfdir}/pam.d/other
 install -m 644 system-auth.pamd $RPM_BUILD_ROOT%{_sysconfdir}/pam.d/system-auth
+install -m 600 /dev/null $RPM_BUILD_ROOT%{_sysconfdir}/security/opasswd
 
 # Forcibly strip binaries.
 strip $RPM_BUILD_ROOT%{_sbindir}/* ||:
@@ -417,6 +420,7 @@ fi
 %config(noreplace) %{_sysconfdir}/security/limits.conf
 %config(noreplace) %{_sysconfdir}/security/pam_env.conf
 %config(noreplace) %{_sysconfdir}/security/time.conf
+%config(noreplace) %{_sysconfdir}/security/opasswd
 %dir %{_sysconfdir}/security/console.apps
 %dir /var/run/console
 %{_mandir}/man5/*
@@ -434,8 +438,10 @@ fi
 %{_libdir}/libpam_misc.so
 
 %changelog
-* Mon Oct 11 2004 Tomas Mraz <tmraz@redhat.com>
-- pam_env shouldn't abort on missing /etc/environment
+* Mon Oct 11 2004 Tomas Mraz <tmraz@redhat.com> 0.77-61
+- #129328 pam_env shouldn't abort on missing /etc/environment
+- #126985 pam_stack should always copy the conversation function 
+- #127524 add /etc/security/opasswd to files
 
 * Tue Sep 28 2004 Phil Knirsch <pknirsch@redhat.com> 0.77-60
 - Drop last patch again, fixed now correctly elsewhere
