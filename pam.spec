@@ -1,17 +1,76 @@
 %define build6x 0
+
+%define _libdir /lib
+%define _sbindir /sbin
+%define _sysconfdir /etc
+
 Summary: A security tool which provides authentication for applications.
 Name: pam
 Version: 0.75
-Release: 14
+Release: 16
 License: GPL or BSD
 Group: System Environment/Base
-Source0: pam-redhat-%{version}-%{release}.tar.gz
-Source1: other.pamd
+Source0: ftp.us.kernel.org:/pub/linux/libs/pam/pre/library/Linux-PAM-%{version}.tar.bz2
+Source1: pam-redhat-%{version}-%{release}.tar.gz
+Source2: other.pamd
+Source3: system-auth.pamd
+Patch1: pam-0.75-headers.patch
+Patch2: pam-0.75-accessdoc.patch
+Patch3: pam-0.75-build.patch
+Patch4: pam-0.75-cached.patch
+Patch5: pam-0.75-const.patch
+Patch6: pam-0.75-linkage.patch
+Patch7: pam-0.75-mandir.patch
+Patch8: pam-0.75-primary.patch
+Patch9: pam-0.75-prompt.patch
+Patch11: pam-0.75-return.patch
+Patch12: pam-0.75-security.patch
+Patch13: pam-0.75-string.patch
+Patch14: pam-0.75-typo.patch
+Patch15: pam-0.75-trust.patch
+Patch16: pam-0.75-userdb.patch
+Patch17: pam-0.75-wheeldoc.patch
+Patch18: pam-0.75-wrap.patch
+Patch19: pam-0.75-cracklib-distance.patch
+Patch20: pam-0.75-group-reinit.patch
+Patch21: pam-0.75-lastlog-utmp.patch
+Patch22: pam-0.75-limits-locks.patch
+Patch23: pam-0.75-null.patch
+Patch24: pam-0.75-sigchld.patch
+Patch25: pam-0.75-pwdb-compare.patch
+Patch26: pam-0.75-securetty-pts.patch
+Patch27: pam-0.75-securetty-fail.patch
+Patch28: pam-0.75-syntax.patch
+Patch29: pam-0.75-time.patch
+Patch30: pam-0.75-issue.patch
+Patch31: pam-0.75-doc-rhl.patch
+Patch32: pam-0.75-bigcrypt-main.patch
+Patch33: pam-0.75-cracklib-init.patch
+Patch34: pam-0.75-filter-comments.patch
+Patch35: pam-0.75-unixdoc.patch
+Patch36: pam-0.75-unix-loop.patch
+Patch37: pam-0.75-unix-preserve.patch
+Patch38: pam-0.75-unix-retval.patch
+Patch39: pam-0.75-unix-brokenshadow.patch
+Patch40: pam-0.75-unix-nis.patch
+Patch41: pam-0.75-unix-nullok.patch
+Patch42: pam-0.75-wheel-usertouser.patch
+Patch43: pam-0.75-mkhomedir-recurse.patch
+Patch44: pam-0.75-limits-root.patch
+Patch45: pam-0.75-issue-seg.patch
+Patch46: pam-0.75-listfile-tty.patch
+Patch47: pam-0.75-tally-init.patch
+Patch48: pam-0.75-rhosts-plus.patch
+Patch49: pam-0.75-limits-retval.patch
+Patch50: pam-0.75-reentrant.patch
+Patch51: pam-0.75-macros.patch
+
 BuildRoot: %{_tmppath}/%{name}-root
 Requires: cracklib, cracklib-dicts, glib, pwdb >= 0.54-2, initscripts >= 3.94
 Obsoletes: pamconfig
 Prereq: grep, mktemp, sed, fileutils, textutils, /sbin/ldconfig
-BuildPrereq: bison, glib-devel, sed, fileutils, autoconf
+BuildPrereq: autoconf, automake, bison, glib-devel, sed, fileutils, cracklib
+BuildPrereq: pwdb
 %if ! %{build6x}
 BuildPrereq: db3-devel
 %endif
@@ -35,52 +94,102 @@ contains header files and static libraries used for building both
 PAM-aware applications and modules for use with PAM.
 
 %prep
-%setup -q
+%setup -q -n Linux-PAM-%{version} -a 1
+cp $RPM_SOURCE_DIR/other.pamd .
+cp $RPM_SOURCE_DIR/system-auth.pamd .
+cp %{_datadir}/automake/install-sh .
+%patch1 -p1 -b .headers
+%patch2 -p1 -b .accessdoc
+%patch3 -p1 -b .build
+%patch4 -p1 -b .cached
+%patch5 -p1 -b .const
+%patch6 -p1 -b .linkage
+%patch7 -p1 -b .mandir
+%patch8 -p1 -b .primary
+%patch9 -p1 -b .prompt
+%patch11 -p1 -b .return
+%patch12 -p1 -b .security
+%patch13 -p1 -b .string
+%patch14 -p1 -b .typo
+%patch15 -p1 -b .trust
+%patch16 -p1 -b .userdb
+%patch17 -p1 -b .wheeldoc
+%patch18 -p1 -b .wrap
+%patch19 -p1 -b .cracklib-distance
+%patch20 -p1 -b .group-reinit
+%patch21 -p1 -b .lastlog-utmp
+%patch22 -p1 -b .limits-locks
+%patch23 -p1 -b .null
+%patch24 -p1 -b .sigchld
+%patch25 -p1 -b .pwdb-compare
+%patch26 -p1 -b .securetty-pts
+%patch27 -p1 -b .securetty-fail
+%patch28 -p1 -b .syntax
+%patch29 -p1 -b .time
+%patch30 -p1 -b .issue
+%patch31 -p1 -b .doc-rhl
+%patch32 -p1 -b .bigcrypt-main
+%patch33 -p1 -b .cracklib-init
+%patch34 -p1 -b .filter-comments
+%patch35 -p1 -b .unix-doc
+%patch36 -p1 -b .unix-loop
+%patch37 -p1 -b .unix-preserve
+%patch38 -p1 -b .unix-retval
+%patch39 -p1 -b .unix-brokenshadow
+%patch40 -p1 -b .unix-nis
+%patch41 -p1 -b .unix-nullok
+%patch42 -p1 -b .wheel-usertouser
+%patch43 -p1 -b .mkhomedir-recurse
+%patch44 -p1 -b .limits-root
+%patch45 -p1 -b .issue-seg
+%patch46 -p1 -b .listfile-tty
+%patch47 -p1 -b .tally-init
+%patch48 -p1 -b .rhosts-plus
+%patch49 -p1 -b .limits-retval
+%patch50 -p1 -b .reentrant
+%patch51 -p1 -b .macros
 for readme in modules/pam_*/README ; do
-	cp -fv ${readme} doc/txts/README.`dirname ${readme} | sed -e 's|^modules/||'`
+	cp -f ${readme} doc/txts/README.`dirname ${readme} | sed -e 's|^modules/||'`
 done
 autoconf
 
 %build
-CFLAGS="$RPM_OPT_FLAGS -fPIC" \
-./configure \
-	--prefix=/ \
-	--infodir=%{_infodir} \
-	--mandir=%{_mandir} \
-	--enable-static-libpam \
-	--enable-fakeroot=$RPM_BUILD_ROOT
+CFLAGS="-fPIC $RPM_OPT_FLAGS" ; export CFLAGS
+%configure --enable-static-libpam --enable-fakeroot=$RPM_BUILD_ROOT
 make
 
 %install
 [ "$RPM_BUILD_ROOT" != "/" ] && rm -rf $RPM_BUILD_ROOT
+# Install the binaries, libraries, and modules.
 make install
-install -d -m 755 $RPM_BUILD_ROOT/etc/pam.d
-install -d -m 755 $RPM_BUILD_ROOT%{_libdir}
-install -m 644 other.pamd $RPM_BUILD_ROOT/etc/pam.d/other
-install -m 644 system-auth.pamd $RPM_BUILD_ROOT/etc/pam.d/system-auth
 
-# move the static libraries
-mv $RPM_BUILD_ROOT/lib/*.a $RPM_BUILD_ROOT%{_libdir}/
+# Install default configuration files.
+install -d -m 755 $RPM_BUILD_ROOT%{_sysconfdir}/pam.d
+install -m 644 other.pamd $RPM_BUILD_ROOT%{_sysconfdir}/pam.d/other
+install -m 644 system-auth.pamd $RPM_BUILD_ROOT%{_sysconfdir}/pam.d/system-auth
 
-# make new .so links
-pushd $RPM_BUILD_ROOT%{_libdir}
-for lib in ../../lib/*.so.%{version} ; do
-	ln -s ${lib} `basename ${lib} .%{version}`
-done
-popd
-
-# forcibly strip the helpers
-strip $RPM_BUILD_ROOT/sbin/* ||:
+# Forcibly strip binaries.
+strip $RPM_BUILD_ROOT%{_sbindir}/* ||:
 
 # Install man pages.
+install -d -m 755 $RPM_BUILD_ROOT%{_mandir}/man{3,5,8}
 install -m 644 doc/man/*.3 $RPM_BUILD_ROOT%{_mandir}/man3/
 install -m 644 doc/man/*.8 $RPM_BUILD_ROOT%{_mandir}/man8/
 
-# Make sure every module built.  Yes, this is hackish.
+# Move static libraries and make new .so links -- this depends on the value
+# of _libdir not changing, and *not* being /usr/lib.
+install -d -m 755 $RPM_BUILD_ROOT/usr/lib
+for lib in libpam libpamc libpam_misc ; do
+ln -sf ../..%{_libdir}/${lib}.so.%{version} $RPM_BUILD_ROOT/usr/lib/${lib}.so
+ln -sf ${lib}.so.%{version} $RPM_BUILD_ROOT%{_libdir}/${lib}.so
+mv $RPM_BUILD_ROOT%{_libdir}/${lib}.a $RPM_BUILD_ROOT/usr/lib/
+done
+
+# Make sure every module subdirectory gave us a module.  Yes, this is hackish.
 for dir in modules/pam_* ; do
 if [ -d ${dir} ] ; then
-	if ! ls -1 $RPM_BUILD_ROOT/lib/security/`basename ${dir}`*.so ; then
-		echo ERROR `basename ${dir}` module did not build.
+	if ! ls -1 $RPM_BUILD_ROOT%{_libdir}/security/`basename ${dir}`*.so ; then
+		echo ERROR `basename ${dir}` did not build a module.
 		exit 1
 	fi
 fi
@@ -92,7 +201,7 @@ done
 %if ! %{build6x}
 %pre
 # Figure whether or not we're using shadow/md5 passwords if we're upgrading.
-if [ -f /etc/pam.d/other ] ; then
+if [ -f %{_sysconfdir}/pam.d/other ] ; then
 	USEMD5=
 	if [ -f /etc/sysconfig/authconfig ] ; then
 		. /etc/sysconfig/authconfig
@@ -151,76 +260,149 @@ fi
 %doc Copyright
 %doc doc/html doc/ps doc/txts
 %doc doc/specs/rfc86.0.txt
-/lib/libpam.so.*
-/lib/libpam_misc.so.*
-/sbin/*_chkpwd
-/sbin/pam_console_apply
-/sbin/pam_tally
-%dir /lib/security
-/lib/security/pam_access.so
-/lib/security/pam_chroot.so
-/lib/security/pam_console.so
-/lib/security/pam_cracklib.so
-/lib/security/pam_deny.so
-/lib/security/pam_env.so
-/lib/security/pam_filter.so
-/lib/security/pam_ftp.so
-/lib/security/pam_group.so
-/lib/security/pam_issue.so
-/lib/security/pam_lastlog.so
-/lib/security/pam_limits.so
-/lib/security/pam_listfile.so
-/lib/security/pam_localuser.so
-/lib/security/pam_mail.so
-/lib/security/pam_mkhomedir.so
-/lib/security/pam_motd.so
-/lib/security/pam_nologin.so
-/lib/security/pam_permit.so
-/lib/security/pam_pwdb.so
-/lib/security/pam_rhosts_auth.so
-/lib/security/pam_rootok.so
-/lib/security/pam_securetty.so
-/lib/security/pam_shells.so
-/lib/security/pam_stack.so
-/lib/security/pam_stress.so
-/lib/security/pam_tally.so
-/lib/security/pam_time.so
-/lib/security/pam_unix.so
-/lib/security/pam_unix_acct.so
-/lib/security/pam_unix_auth.so
-/lib/security/pam_unix_passwd.so
-/lib/security/pam_unix_session.so
-/lib/security/pam_userdb.so
-/lib/security/pam_warn.so
-/lib/security/pam_wheel.so
-/lib/security/pam_xauth.so
-/lib/security/pam_filter
-%dir /etc/security
-%config(noreplace) /etc/security/access.conf
-%config(noreplace) /etc/security/time.conf
-%config(noreplace) /etc/security/group.conf
-%config(noreplace) /etc/security/limits.conf
-%config(noreplace) /etc/security/pam_env.conf
-%config(noreplace) /etc/security/console.perms
-%dir /etc/security/console.apps
+%{_libdir}/libpam.so.*
+%{_libdir}/libpam_misc.so.*
+%{_sbindir}/pam_console_apply
+%{_sbindir}/pam_tally
+%{_sbindir}/pwdb_chkpwd
+%{_sbindir}/unix_chkpwd
+%dir %{_libdir}/security
+%{_libdir}/security/pam_access.so
+%{_libdir}/security/pam_chroot.so
+%{_libdir}/security/pam_console.so
+%{_libdir}/security/pam_cracklib.so
+%{_libdir}/security/pam_deny.so
+%{_libdir}/security/pam_env.so
+%{_libdir}/security/pam_filter.so
+%{_libdir}/security/pam_ftp.so
+%{_libdir}/security/pam_group.so
+%{_libdir}/security/pam_issue.so
+%{_libdir}/security/pam_lastlog.so
+%{_libdir}/security/pam_limits.so
+%{_libdir}/security/pam_listfile.so
+%{_libdir}/security/pam_localuser.so
+%{_libdir}/security/pam_mail.so
+%{_libdir}/security/pam_mkhomedir.so
+%{_libdir}/security/pam_motd.so
+%{_libdir}/security/pam_nologin.so
+%{_libdir}/security/pam_permit.so
+%{_libdir}/security/pam_pwdb.so
+%{_libdir}/security/pam_rhosts_auth.so
+%{_libdir}/security/pam_rootok.so
+%{_libdir}/security/pam_securetty.so
+%{_libdir}/security/pam_shells.so
+%{_libdir}/security/pam_stack.so
+%{_libdir}/security/pam_stress.so
+%{_libdir}/security/pam_tally.so
+%{_libdir}/security/pam_time.so
+%{_libdir}/security/pam_unix.so
+%{_libdir}/security/pam_unix_acct.so
+%{_libdir}/security/pam_unix_auth.so
+%{_libdir}/security/pam_unix_passwd.so
+%{_libdir}/security/pam_unix_session.so
+%{_libdir}/security/pam_userdb.so
+%{_libdir}/security/pam_warn.so
+%{_libdir}/security/pam_wheel.so
+%{_libdir}/security/pam_xauth.so
+%{_libdir}/security/pam_filter
+%dir %{_sysconfdir}/security
+%config(noreplace) %{_sysconfdir}/security/access.conf
+%config(noreplace) %{_sysconfdir}/security/time.conf
+%config(noreplace) %{_sysconfdir}/security/group.conf
+%config(noreplace) %{_sysconfdir}/security/limits.conf
+%config(noreplace) %{_sysconfdir}/security/pam_env.conf
+%config(noreplace) %{_sysconfdir}/security/console.perms
+%dir %{_sysconfdir}/security/console.apps
 %dir /var/run/console
 %{_mandir}/man5/*
 %{_mandir}/man8/*
 
 %files devel
 %defattr(-,root,root)
-/lib/libpam.so
-/lib/libpam_misc.so
-%{_libdir}/libpam.so
-%{_libdir}/libpam.a
-%{_libdir}/libpam_misc.so
-%{_libdir}/libpam_misc.a
-/usr/include/security/
+%{_includedir}/security/
 %{_mandir}/man3/*
+/usr/lib/libpam.a
+/usr/lib/libpam.so
+/usr/lib/libpamc.a
+/usr/lib/libpamc.so
+/usr/lib/libpam_misc.a
+/usr/lib/libpam_misc.so
+# At some point these will (and should) go away.
+%{_libdir}/libpam.so
+%{_libdir}/libpamc.so
+%{_libdir}/libpam_misc.so
 
 %changelog
+* Wed Oct 24 2001 Nalin Dahyabhai <nalin@redhat.com> 0.75-16
+- pam_xauth: always return PAM_SUCCESS or PAM_SESSION_ERR instead of PAM_IGNORE,
+  matching the previous behavior (libpam treats PAM_IGNORE from a single module
+  in a stack as a session error, leading to false error messages if we just
+  return PAM_IGNORE for all cases)
+
+* Mon Oct 22 2001 Nalin Dahyabhai <nalin@redhat.com> 0.75-15
+- reorder patches so that the reentrancy patch is applied last -- we never
+  came to a consensus on how to guard against the bugs in calling applications
+  which this sort of change addresses, and having them last allows for dropping
+  in a better strategy for addressing this later on
+
+* Mon Oct 15 2001 Nalin Dahyabhai <nalin@redhat.com>
+- pam_rhosts: allow "+hostname" as a synonym for "hostname" to jive better
+  with the hosts.equiv(5) man page
+- use the automake install-sh instead of the autoconf install-sh, which
+  disappeared somewhere between 2.50 and now
+
+* Mon Oct  8 2001 Nalin Dahyabhai <nalin@redhat.com>
+- add pwdb as a buildprereq
+
+* Fri Oct  5 2001 Nalin Dahyabhai <nalin@redhat.com>
+- pam_tally: don't try to read past the end of faillog -- it probably contains
+  garbage, which if written into the file later on will confuse /usr/bin/faillog
+
+* Thu Oct  4 2001 Nalin Dahyabhai <nalin@redhat.com>
+- pam_limits: don't just return if the user is root -- we'll want to set the
+  priority (it could be negative to elevate root's sessions)
+- pam_issue: fix off-by-one error allocating space for the prompt string
+
+* Wed Oct  3 2001 Nalin Dahyabhai <nalin@redhat.com>
+- pam_mkhomedir: recurse into subdirectories properly
+- pam_mkhomedir: handle symlinks
+- pam_mkhomedir: skip over special items in the skeleton directory
+
+* Tue Oct  2 2001 Nalin Dahyabhai <nalin@redhat.com>
+- add cracklib as a buildprereq
+- pam_wheel: don't ignore out if the user is attempting to switch to a
+  unprivileged user (this lets pam_wheel do its thing when users attempt
+  to get to system accounts or accounts of other unprivileged users)
+
+* Fri Sep 28 2001 Nalin Dahyabhai <nalin@redhat.com>
+- pam_xauth: close a possible DoS due to use of dotlock-style locking in
+  world-writable directories by relocating the temporary file to the target
+  user's home directory
+- general: include headers local to this tree using relative paths so that
+  system headers for PAM won't be pulled in, in case include paths don't
+  take care of it
+
+* Thu Sep 27 2001 Nalin Dahyabhai <nalin@redhat.com>
+- pam_xauth: rewrite to skip refcounting and just use a temporary file
+  created using mkstemp() in /tmp
+
+* Tue Sep 25 2001 Nalin Dahyabhai <nalin@redhat.com>
+- pam_userdb: fix the key_only flag so that the null-terminator of the
+  user-password string isn't expected to be part of the key in the db file,
+  matching the behavior of db_load 3.2.9
+
+* Mon Sep 24 2001 Nalin Dahyabhai <nalin@redhat.com>
+- pam_unix: use crypt() instead of bigcrypt() when salted field is less than
+  the critical size which lets us know it was generated with bigcrypt()
+- use a wrapper to handle ERANGE errors when calling get....._r functions:
+  defining PAM_GETPWNAM_R and such (for getpwnam, getpwuid, getgrnam,
+  getgrgid, and getspnam) before including _pam_macros.h will cause them
+  to be implemented as static functions, similar to how defining PAM_SM_xxx
+  is used to control whether or not PAM declares prototypes for certain
+  functions
+
 * Mon Sep 24 2001 Nalin Dahyabhai <nalin@redhat.com> 0.75-14
-- argh, compare entire salt, always
+- pam_unix: argh, compare entire pruned salt string with crypted result, always
 
 * Sat Sep  8 2001 Bill Nottingham <notting@redhat.com> 0.75-13
 - ship /lib/lib{pam,pam_misc}.so for legacy package builds
@@ -677,4 +859,3 @@ fi
 * Fri Dec 18 1998 Cristian Gafton <gafton@redhat.com>
 - upgrade to ver 0.65
 - build the package out of internal CVS server
-
