@@ -10,7 +10,7 @@
 Summary: A security tool which provides authentication for applications.
 Name: pam
 Version: 0.77
-Release: 65
+Release: 66
 License: GPL or BSD
 Group: System Environment/Base
 Source0: ftp.us.kernel.org:/pub/linux/libs/pam/pre/library/Linux-PAM-%{version}.tar.bz2
@@ -78,6 +78,7 @@ Patch79: pam-0.77-limits-logins.patch
 Patch80: pam-0.77-console-xcrash.patch
 Patch81: pam-0.77-stack-memleaks.patch
 Patch82: pam-0.77-timestamp-test-login.patch
+Patch83: pam-0.77-unix-logfail.patch
 
 BuildRoot: %{_tmppath}/%{name}-root
 Requires: cracklib, cracklib-dicts, glib2, initscripts >= 3.94
@@ -177,6 +178,7 @@ cp $RPM_SOURCE_DIR/install-sh .
 %patch80 -p1 -b .xcrash
 %patch81 -p1 -b .mem-leak
 %patch82 -p1 -b .test-login
+%patch83 -p1 -b .logfail
 
 for readme in modules/pam_*/README ; do
 	cp -f ${readme} doc/txts/README.`dirname ${readme} | sed -e 's|^modules/||'`
@@ -446,6 +448,10 @@ fi
 %{_libdir}/libpam_misc.so
 
 %changelog
+* Thu Nov 11 2004 Tomas Mraz <tmraz@redhat.com> 0.77-66
+- #77646 log failures when renaming the files when changing password
+- Log failure on missing /etc/security/opasswd when remember option is present
+
 * Wed Nov 10 2004 Tomas Mraz <tmraz@redhat.com>
 - #87628 pam_timestamp remembers authorization after logout
 - #116956 fixed memory leaks in pam_stack
