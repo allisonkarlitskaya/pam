@@ -10,7 +10,7 @@
 Summary: A security tool which provides authentication for applications.
 Name: pam
 Version: 0.77
-Release: 63
+Release: 64
 License: GPL or BSD
 Group: System Environment/Base
 Source0: ftp.us.kernel.org:/pub/linux/libs/pam/pre/library/Linux-PAM-%{version}.tar.bz2
@@ -75,6 +75,7 @@ Patch75: pam-0.77-stack-convoverwrite.patch
 Patch76: pam-0.77-console-addperms.patch
 Patch78: pam-0.77-console-manfix.patch
 Patch79: pam-0.77-limits-logins.patch
+Patch80: pam-0.77-console-xcrash.patch
 
 BuildRoot: %{_tmppath}/%{name}-root
 Requires: cracklib, cracklib-dicts, glib2, initscripts >= 3.94
@@ -171,6 +172,7 @@ cp $RPM_SOURCE_DIR/install-sh .
 %patch76 -p1 -b .add-perms
 %patch78 -p1 -b .man-fix
 %patch79 -p1 -b .logins
+%patch80 -p1 -b .xcrash
 
 for readme in modules/pam_*/README ; do
 	cp -f ${readme} doc/txts/README.`dirname ${readme} | sed -e 's|^modules/||'`
@@ -440,6 +442,9 @@ fi
 %{_libdir}/libpam_misc.so
 
 %changelog
+* Wed Oct 20 2004 Tomas Mraz <tmraz@redhat.com> 0.77-64
+- #134941 pam_console should check X11 socket only on login
+
 * Tue Oct 19 2004 Tomas Mraz <tmraz@redhat.com> 0.77-63
 - Fix checking of group %group syntax in pam_limits
 - Drop fencepost patch as it was already fixed 
