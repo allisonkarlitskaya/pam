@@ -10,7 +10,7 @@
 Summary: A security tool which provides authentication for applications.
 Name: pam
 Version: 0.77
-Release: 49
+Release: 50
 License: GPL or BSD
 Group: System Environment/Base
 Source0: ftp.us.kernel.org:/pub/linux/libs/pam/pre/library/Linux-PAM-%{version}.tar.bz2
@@ -416,6 +416,9 @@ fi
 %{_libdir}/libpam_misc.so
 
 %changelog
+* Tue Jul 20 2004 Dan Walsh <dwalsh@redhat.com> 0.77-50
+- Change unix_chkpwd to return pam error codes
+
 * Sat Jul 10 2004 Alan Cox <alan@redhat.com>
 - Fixed the pam glib2 dependancy issue
 
