@@ -1,9 +1,9 @@
 %define build6x 0
 Summary: A security tool which provides authentication for applications.
 Name: pam
-Version: 0.74
-Release: 22
-Copyright: GPL or BSD
+Version: 0.75
+Release: 9
+License: GPL or BSD
 Group: System Environment/Base
 Source0: pam-redhat-%{version}-%{release}.tar.gz
 Source1: other.pamd
@@ -18,9 +18,9 @@ BuildPrereq: db3-devel
 URL: http://www.us.kernel.org/pub/linux/libs/pam/index.html
 
 %description
-PAM (Pluggable Authentication Modules) is a system security tool
-which allows system administrators to set authentication policy
-without having to recompile programs which do authentication.
+PAM (Pluggable Authentication Modules) is a system security tool that
+allows system administrators to set authentication policy without
+having to recompile programs that handle authentication.
 
 %package devel
 Group: Development/Libraries
@@ -28,11 +28,11 @@ Summary: Files needed for developing PAM-aware applications and modules for PAM.
 Requires: pam = %{version}-%{release}
 
 %description devel
-PAM (Pluggable Authentication Modules) is a system security tool
-which allows system administrators to set authentication policy
-without having to recompile programs which do authentication.  This
-package contains header files and static libraries used for building
-both PAM-aware applications and modules for use with PAM.
+PAM (Pluggable Authentication Modules) is a system security tool that
+allows system administrators to set authentication policy without
+having to recompile programs that handle authentication. This package
+contains header files and static libraries used for building both
+PAM-aware applications and modules for use with PAM.
 
 %prep
 %setup -q
@@ -205,6 +205,56 @@ fi
 %{_mandir}/man3/*
 
 %changelog
+* Fri Aug 10 2001 Bill Nottingham <notting@redhat.com>
+- fix segfault in pam_securetty
+
+* Thu Aug  9 2001 Nalin Dahyabhai <nalin@redhat.com>
+- pam_console: use /var/run/console instead of /var/lock/console for lock files
+- pam_issue: read the right number of bytes from the file
+
+* Mon Jul  9 2001 Nalin Dahyabhai <nalin@redhat.com>
+- pam_wheel: don't error out if the group has no members, but is the user's
+  primary GID (reported by David Vos)
+- pam_unix: preserve permissions on files which are manipulated (#43706)
+- pam_securetty: check if the user is the superuser before checking the tty,
+  thereby allowing regular users access to services which don't set the
+  PAM_TTY item (#39247)
+- pam_access: define NIS and link with libnsl (#36864)
+
+* Thu Jul  5 2001 Nalin Dahyabhai <nalin@redhat.com>
+- link libpam_misc against libpam
+
+* Tue Jul  3 2001 Nalin Dahyabhai <nalin@redhat.com>
+- pam_chroot: chdir() before chroot()
+
+* Fri Jun 29 2001 Nalin Dahyabhai <nalin@redhat.com>
+- pam_console: fix logic bug when changing permissions on single
+  file and/or lists of files
+- pam_console: return the proper error code (reported and patches
+  for both from Frederic Crozat)
+- change deprecated Copyright: tag in .spec file to License:
+
+* Mon Jun 25 2001 Nalin Dahyabhai <nalin@redhat.com>
+- console.perms: change js* to js[0-9]*
+- include pam_aconf.h in more modules (patches from Harald Welte)
+
+* Thu May 24 2001 Nalin Dahyabhai <nalin@redhat.com>
+- console.perms: add apm_bios to the list of devices the console owner can use
+- console.perms: add beep to the list of sound devices
+
+* Mon May  7 2001 Nalin Dahyabhai <nalin@redhat.com>
+- link pam_console_apply statically with libglib (#38891)
+
+* Mon Apr 30 2001 Nalin Dahyabhai <nalin@redhat.com>
+- pam_access: compare IP addresses with the terminating ".", as documented
+  (patch from Carlo Marcelo Arenas Belon, I think) (#16505)
+
+* Mon Apr 23 2001 Nalin Dahyabhai <nalin@redhat.com>
+- merge up to 0.75
+- pam_unix: temporarily ignore SIGCHLD while running the helper
+- pam_pwdb: temporarily ignore SIGCHLD while running the helper
+- pam_dispatch: default to uncached behavior if the cached chain is empty
+
 * Fri Apr  6 2001 Nalin Dahyabhai <nalin@redhat.com>
 - correct speling errors in various debug messages and doc files (#33494)
 
@@ -295,7 +345,7 @@ fi
 - overhaul pam_stack to account for abstraction libpam now provides
 
 * Tue Jan 23 2001 Nalin Dahyabhai <nalin@redhat.com>
-- remove pam_radius
+- remove pam_radius at request of author
 
 * Mon Jan 22 2001 Nalin Dahyabhai <nalin@redhat.com>
 - merge to 0.74
