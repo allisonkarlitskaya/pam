@@ -10,7 +10,7 @@
 Summary: A security tool which provides authentication for applications.
 Name: pam
 Version: 0.77
-Release: 52
+Release: 53
 License: GPL or BSD
 Group: System Environment/Base
 Source0: ftp.us.kernel.org:/pub/linux/libs/pam/pre/library/Linux-PAM-%{version}.tar.bz2
@@ -65,6 +65,7 @@ Patch39: pam-0.77-fencepost.patch
 Patch40: pam-0.77-grubb_leak.patch
 Patch60: pam-selinux.patch
 Patch61: pam-pwdbselinux.patch
+Patch62: pam-0.77-closefd.patch
 
 BuildRoot: %{_tmppath}/%{name}-root
 Requires: cracklib, cracklib-dicts, glib2, initscripts >= 3.94
@@ -151,6 +152,7 @@ cp $RPM_SOURCE_DIR/install-sh .
 %patch61 -p1 -b .pwdbselinux 
 %endif
 %patch40 -p1 -b .grubb_leak
+%patch62 -p1 -b .closefd 
 
 for readme in modules/pam_*/README ; do
 	cp -f ${readme} doc/txts/README.`dirname ${readme} | sed -e 's|^modules/||'`
@@ -418,6 +420,9 @@ fi
 %{_libdir}/libpam_misc.so
 
 %changelog
+* Thu Jul 29 2004 Dan Walsh <dwalsh@redhat.com> 0.77-53
+- Close fd[1] before pam_modutilread so that unix_verify will complete 
+
 * Tue Jul 27 2004 Alan Cox <alan@redhat.com> 0.77-52
 - First chunk of Steve Grubb's resource leak and other fixes
 
