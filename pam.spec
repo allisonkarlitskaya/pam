@@ -10,7 +10,7 @@
 Summary: A security tool which provides authentication for applications.
 Name: pam
 Version: 0.77
-Release: 47
+Release: 48
 License: GPL or BSD
 Group: System Environment/Base
 Source0: ftp.us.kernel.org:/pub/linux/libs/pam/pre/library/Linux-PAM-%{version}.tar.bz2
@@ -66,7 +66,7 @@ Patch60: pam-selinux.patch
 Patch61: pam-pwdbselinux.patch
 
 BuildRoot: %{_tmppath}/%{name}-root
-Requires: cracklib, cracklib-dicts, glib, initscripts >= 3.94
+Requires: cracklib, cracklib-dicts, glib2, initscripts >= 3.94
 Obsoletes: pamconfig
 Prereq: grep, mktemp, sed, fileutils, textutils, /sbin/ldconfig
 BuildPrereq: autoconf, bison, flex, glib-devel, sed, fileutils, cracklib, cracklib-dicts
@@ -416,6 +416,9 @@ fi
 %{_libdir}/libpam_misc.so
 
 %changelog
+* Sat Jul 10 2004 Alan Cox <alan@redhat.com>
+- Fixed the pam glib2 dependancy issue
+
 * Mon Jun 21 2004 Alan Cox <alan@redhat.com>
 - Fixed the pam_limits fencepost error (#79989) since nobody seems to
   be doing it
