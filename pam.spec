@@ -7,11 +7,11 @@
 Summary: A security tool which provides authentication for applications.
 Name: pam
 Version: 0.75
-Release: 16
+Release: 19
 License: GPL or BSD
 Group: System Environment/Base
 Source0: ftp.us.kernel.org:/pub/linux/libs/pam/pre/library/Linux-PAM-%{version}.tar.bz2
-Source1: pam-redhat-%{version}-%{release}.tar.gz
+Source1: pam-redhat-%{version}-18.tar.gz
 Source2: other.pamd
 Source3: system-auth.pamd
 Patch1: pam-0.75-headers.patch
@@ -70,7 +70,7 @@ Requires: cracklib, cracklib-dicts, glib, pwdb >= 0.54-2, initscripts >= 3.94
 Obsoletes: pamconfig
 Prereq: grep, mktemp, sed, fileutils, textutils, /sbin/ldconfig
 BuildPrereq: autoconf, automake, bison, glib-devel, sed, fileutils, cracklib
-BuildPrereq: pwdb
+BuildPrereq: pwdb, perl
 %if ! %{build6x}
 BuildPrereq: db3-devel
 %endif
@@ -261,6 +261,7 @@ fi
 %doc doc/html doc/ps doc/txts
 %doc doc/specs/rfc86.0.txt
 %{_libdir}/libpam.so.*
+%{_libdir}/libpamc.so.*
 %{_libdir}/libpam_misc.so.*
 %{_sbindir}/pam_console_apply
 %{_sbindir}/pam_tally
@@ -333,6 +334,16 @@ fi
 %{_libdir}/libpam_misc.so
 
 %changelog
+* Fri Nov  9 2001 Nalin Dahyabhai <nalin@redhat.com> 0.75-19
+- fix a bug in the getpwnam_r wrapper which sometimes resulted in false
+  positives for non-existent users
+
+* Wed Nov  7 2001 Nalin Dahyabhai <nalin@redhat.com> 0.75-18
+- include libpamc in the pam package (#55651)
+
+* Fri Nov  2 2001 Nalin Dahyabhai <nalin@redhat.com> 0.75-17
+- pam_xauth: don't free a string after passing it to putenv()
+
 * Wed Oct 24 2001 Nalin Dahyabhai <nalin@redhat.com> 0.75-16
 - pam_xauth: always return PAM_SUCCESS or PAM_SESSION_ERR instead of PAM_IGNORE,
   matching the previous behavior (libpam treats PAM_IGNORE from a single module
