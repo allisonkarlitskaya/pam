@@ -10,7 +10,7 @@
 Summary: A security tool which provides authentication for applications.
 Name: pam
 Version: 0.77
-Release: 38
+Release: 41
 License: GPL or BSD
 Group: System Environment/Base
 Source0: ftp.us.kernel.org:/pub/linux/libs/pam/pre/library/Linux-PAM-%{version}.tar.bz2
@@ -60,6 +60,7 @@ Patch34: pam-0.77-dbpam.patch
 Patch35: pam-0.77-sigchld.patch
 Patch36: pam-0.77-skip-aconf-install.patch
 Patch37: pam-0.77-log-changes.patch
+Patch38: pam-0.77-64bit.patch
 Patch60: pam-selinux.patch
 Patch61: pam-pwdbselinux.patch
 
@@ -140,6 +141,7 @@ cp $RPM_SOURCE_DIR/install-sh .
 %patch35 -p1 -b .sigchld
 %patch36 -p1 -b .skip-aconf-install
 %patch37 -p1 -b .log-changes
+%patch38 -p1 -b .64bit
 %if %{WITH_SELINUX}
 %patch60 -p1 -b .selinux
 %patch61 -p1 -b .pwdbselinux 
@@ -333,9 +335,6 @@ fi
 /%{_lib}/libpam_misc.so.*
 %{_sbindir}/pam_console_apply
 %{_sbindir}/pam_tally
-%if %{WITH_SELINUX}
-%{_sbindir}/pam_selinux_check
-%endif
 %{_sbindir}/pam_timestamp_check
 %{_sbindir}/pwdb_chkpwd
 %{_sbindir}/unix_chkpwd
@@ -414,6 +413,15 @@ fi
 %{_libdir}/libpam_misc.so
 
 %changelog
+* Tue May 18 2004 Phil Knirsch <pknirsch@redhat.com> 0.77-41
+- Fixed 64bit segfault in pam_succeed_if module.
+
+* Thu Apr 14 2004 Dan Walsh <dwalsh@redhat.com> 0.77-40
+- Apply changes from audit.
+
+* Tue Apr 12 2004 Dan Walsh <dwalsh@redhat.com> 0.77-39
+- Change to only report failure on relabel if debug
+
 * Wed Mar 3 2004 Dan Walsh <dwalsh@redhat.com> 0.77-38
 - Fix error handling of pam_unix
 
