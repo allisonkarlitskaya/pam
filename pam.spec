@@ -1,20 +1,41 @@
+%define build6x 0
+%define builddevel 0
 Summary: A security tool which provides authentication for applications.
 Name: pam
 Version: 0.72
-Release: 26
+Release: 37
 Copyright: GPL or BSD
 Group: System Environment/Base
 Source0: pam-redhat-%{version}-%{release}.tar.gz
 Source1: other.pamd
 BuildRoot: %{_tmppath}/%{name}-root
-Requires: cracklib, cracklib-dicts, pwdb >= 0.54-2, initscripts >= 3.94
+Requires: cracklib, cracklib-dicts, glib, pwdb >= 0.54-2, initscripts >= 3.94
 Obsoletes: pamconfig
-Url: http://www.us.kernel.org/pub/linux/libs/pam/index.html
+Prereq: grep, mktemp, textutils, /sbin/ldconfig
+BuildPrereq: bison, glib-devel
+%if ! %{build6x}
+BuildPrereq: db3-devel
+%endif
+URL: http://www.us.kernel.org/pub/linux/libs/pam/index.html
 
 %description
 PAM (Pluggable Authentication Modules) is a system security tool
 which allows system administrators to set authentication policy
 without having to recompile programs which do authentication.
+
+%if %{builddevel}
+%package devel
+Group: Development/Libraries
+Summary: Files needed for developing PAM-aware applications and modules for PAM.
+Requires: pam = %{version}-%{release}
+
+%description devel
+PAM (Pluggable Authentication Modules) is a system security tool
+which allows system administrators to set authentication policy
+without having to recompile programs which do authentication.  This
+package contains header files and static libraries used for building
+both PAM-aware applications and modules for use with PAM.
+%endif
 
 %prep
 %setup -q
@@ -45,11 +66,75 @@ install -m 644 system-auth.pamd $RPM_BUILD_ROOT/etc/pam.d/system-auth
 }
 # forcibly strip the helpers
 strip $RPM_BUILD_ROOT/sbin/* ||:
+# Install man pages.
+mkdir -p $RPM_BUILD_ROOT%{_mandir}/man3/
+mkdir -p $RPM_BUILD_ROOT%{_mandir}/man8/
+install -m 644 doc/man/*.3 $RPM_BUILD_ROOT%{_mandir}/man3/
+install -m 644 doc/man/*.8 $RPM_BUILD_ROOT%{_mandir}/man8/
+
+# Make sure every module built.
+for dir in modules/pam_* ; do
+if [ -d ${dir} ] ; then
+	if ! ls -1 $RPM_BUILD_ROOT/lib/security/`basename ${dir}`*.so ; then
+		echo ERROR `basename ${dir}` module did not build.
+		exit 1
+	fi
+fi
+done
 
 %clean
 rm -rf $RPM_BUILD_ROOT
 
+%if ! %{build6x}
+%pre
+# Figure whether or not we're using shadow/md5 passwords if we're upgrading.
+if [ -f /etc/pam.d/other ] ; then
+	USEMD5=
+	if [ -f /etc/sysconfig/authconfig ] ; then
+		. /etc/sysconfig/authconfig
+	fi
+	if [ -z "$USEMD5" ] ; then
+		if [ -f /etc/shadow ] ; then
+			passwdfiles="/etc/passwd /etc/shadow"
+		else
+			passwdfiles="/etc/passwd"
+		fi
+		if cut -f2 -d: $passwdfiles | grep -q '^\$1\$' ; then
+			echo USEMD5=yes >> /etc/sysconfig/authconfig
+			USEMD5=yes
+		else
+			echo USEMD5=no  >> /etc/sysconfig/authconfig
+			USEMD5=no
+		fi
+	fi
+fi
+%endif
+
+%if %{build6x}
 %post -p /sbin/ldconfig
+%else
+%post
+/sbin/ldconfig
+if [ ! -f /etc/shadow ] ; then
+	tmp=`mktemp /etc/pam.d/pam-post.XXXXXX`
+	if [ -n "$tmp" ] ; then
+		sed 's| shadow||g' /etc/pam.d/system-auth > $tmp && \
+		cat $tmp > /etc/pam.d/system-auth
+		rm -f $tmp
+	fi
+fi
+if [ -f /etc/sysconfig/authconfig ] ; then
+	. /etc/sysconfig/authconfig
+fi
+if [ "$USEMD5" = "no" ] ; then
+	tmp=`mktemp /etc/pam.d/pam-post.XXXXXX`
+	if [ -n "$tmp" ] ; then
+		sed 's| md5||g' /etc/pam.d/system-auth > $tmp && \
+		cat $tmp > /etc/pam.d/system-auth
+		rm -f $tmp
+	fi
+fi
+%endif
 
 %postun -p /sbin/ldconfig
 
@@ -61,12 +146,50 @@ rm -rf $RPM_BUILD_ROOT
 %doc Copyright
 %doc doc/html doc/ps doc/txts
 %doc doc/specs/rfc86.0.txt
-/lib/libpam.so*
-/lib/libpam_misc.so*
-/lib/libpam_misc.a
-/usr/include/security/*.h
-/sbin/*
-/lib/security
+/lib/libpam.so.*
+/lib/libpam_misc.so.*
+/sbin/*_chkpwd
+/sbin/pam_tally
+%dir /lib/security
+/lib/security/pam_access.so
+/lib/security/pam_chroot.so
+/lib/security/pam_console.so
+/lib/security/pam_cracklib.so
+/lib/security/pam_deny.so
+/lib/security/pam_env.so
+/lib/security/pam_filter.so
+/lib/security/pam_ftp.so
+/lib/security/pam_group.so
+/lib/security/pam_issue.so
+/lib/security/pam_lastlog.so
+/lib/security/pam_limits.so
+/lib/security/pam_listfile.so
+/lib/security/pam_localuser.so
+/lib/security/pam_mail.so
+/lib/security/pam_mkhomedir.so
+/lib/security/pam_motd.so
+/lib/security/pam_nologin.so
+/lib/security/pam_permit.so
+/lib/security/pam_pwdb.so
+/lib/security/pam_radius.so
+/lib/security/pam_rhosts_auth.so
+/lib/security/pam_rootok.so
+/lib/security/pam_securetty.so
+/lib/security/pam_shells.so
+/lib/security/pam_stack.so
+/lib/security/pam_stress.so
+/lib/security/pam_tally.so
+/lib/security/pam_time.so
+/lib/security/pam_unix.so
+/lib/security/pam_unix_acct.so
+/lib/security/pam_unix_auth.so
+/lib/security/pam_unix_passwd.so
+/lib/security/pam_unix_session.so
+/lib/security/pam_userdb.so
+/lib/security/pam_warn.so
+/lib/security/pam_wheel.so
+/lib/security/pam_xauth.so
+/lib/security/pam_filter
 %config /etc/security/access.conf
 %config /etc/security/time.conf
 %config /etc/security/group.conf
@@ -78,7 +201,81 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man5/*
 %{_mandir}/man8/*
 
+%if %{builddevel}
+%files devel
+%defattr(-,root,root)
+%endif
+/lib/libpam.so
+/lib/libpam_misc.so
+/lib/libpam_misc.a
+/usr/include/security/
+%{_mandir}/man3/*
+
 %changelog
+* Thu Nov 30 2000 Nalin Dahyabhai <nalin@redhat.com>
+- redo similar() using a distance algorithm and drop the default dif_ok to 5
+
+* Wed Nov 29 2000 Nalin Dahyabhai <nalin@redhat.com>
+- fix similar() function in pam_cracklib (#14740)
+- fix example in access.conf (#21467)
+- add conditional compilation for building for 6.2 (for pam_userdb)
+- tweak post to not use USESHADOW any more
+
+* Tue Nov 28 2000 Nalin Dahyabhai <nalin@redhat.com>
+- make EINVAL setting lock limits in pam_limits non-fatal, because it's a 2.4ism
+
+* Tue Nov 21 2000 Nalin Dahyabhai <nalin@redhat.com>
+- revert to DB 3.1, which is what we were supposed to be using from the get-go
+
+* Mon Nov 20 2000 Nalin Dahyabhai <nalin@redhat.com>
+- add RLIMIT_LOCKS to pam_limits (patch from Jes Sorensen) (#20542)
+- link pam_userdb to Berkeley DB 2.x to match 6.2's setup correctly
+
+* Mon Nov  6 2000 Matt Wilson <msw@redhat.com>
+- remove prereq on sh-utils, test ([) is built in to bash
+
+* Thu Oct 19 2000 Nalin Dahyabhai <nalin@redhat.com>
+- fix the pam_userdb module breaking
+
+* Wed Oct 18 2000 Nalin Dahyabhai <nalin@redhat.com>
+- fix pam_unix likeauth argument for authenticate(),setcred(),setcred()
+
+* Tue Oct 17 2000 Nalin Dahyabhai <nalin@redhat.com>
+- tweak pre script to be called in all upgrade cases
+- get pam_unix to only care about the significant pieces of passwords it checks
+- add /usr/include/db1/db.h as a build prereq to pull in the right include
+  files, no matter whether they're in glibc-devel or db1-devel
+- pam_userdb.c: include db1/db.h instead of db.h
+
+* Wed Oct 11 2000 Nalin Dahyabhai <nalin@redhat.com>
+- add BuildPrereq for bison (suggested by Bryan Stillwell)
+
+* Fri Oct  6 2000 Nalin Dahyabhai <nalin@redhat.com>
+- patch from Dmitry V. Levin to have pam_stack propagate the PAM fail_delay
+- roll back the README for pam_xauth to actually be the right one
+- tweak pam_stack to use the parent's service name when calling the substack
+
+* Wed Oct  4 2000 Nalin Dahyabhai <nalin@redhat.com>
+- create /etc/sysconfig/authconfig at install-time if upgrading
+
+* Mon Oct  2 2000 Nalin Dahyabhai <nalin@redhat.com>
+- modify the files list to make sure #16456 stays fixed
+- make pam_stack track PAM_AUTHTOK and PAM_OLDAUTHTOK items
+- add pam_chroot module
+- self-hosting fixes from the -devel split
+- update generated docs in the tree
+
+* Tue Sep 12 2000 Nalin Dahyabhai <nalin@redhat.com>
+- split off a -devel subpackage
+- install the developer man pages
+
+* Sun Sep 10 2000 Bill Nottingham <notting@redhat.com>
+- build libraries before modules
+
+* Wed Sep  6 2000 Nalin Dahyabhai <nalin@redhat.com>
+- fix problems when looking for headers in /usr/include (#17236)
+- clean up a couple of compile warnings
+
 * Tue Aug 22 2000 Nalin Dahyabhai <nalin@redhat.com>
 - give users /dev/cdrom* instead of /dev/cdrom in console.perms (#16768)
 - add nvidia control files to console.perms
