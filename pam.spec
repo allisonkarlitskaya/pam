@@ -10,7 +10,7 @@
 Summary: A security tool which provides authentication for applications.
 Name: pam
 Version: 0.77
-Release: 54
+Release: 55
 License: GPL or BSD
 Group: System Environment/Base
 Source0: ftp.us.kernel.org:/pub/linux/libs/pam/pre/library/Linux-PAM-%{version}.tar.bz2
@@ -67,6 +67,7 @@ Patch60: pam-selinux.patch
 Patch61: pam-pwdbselinux.patch
 Patch62: pam-0.77-closefd.patch
 Patch63: pam-0.77-consolelock.patch
+Patch64: pam-0.77-console-pmu-perms.patch
 
 BuildRoot: %{_tmppath}/%{name}-root
 Requires: cracklib, cracklib-dicts, glib2, initscripts >= 3.94
@@ -155,6 +156,7 @@ cp $RPM_SOURCE_DIR/install-sh .
 %patch40 -p1 -b .grubb_leak
 %patch62 -p1 -b .closefd 
 %patch63 -p1 -b .consolelock
+%patch64 -p1 -b .pmu-perms
 
 for readme in modules/pam_*/README ; do
 	cp -f ${readme} doc/txts/README.`dirname ${readme} | sed -e 's|^modules/||'`
@@ -422,6 +424,9 @@ fi
 %{_libdir}/libpam_misc.so
 
 %changelog
+* Mon Aug 30 2004 Warren Togami <wtogami@redhat.com> 0.77-55
+- #126024 /dev/pmu console perms
+
 * Wed Aug 4 2004 Dan Walsh <dwalsh@redhat.com> 0.77-54
 - Move pam_console.lock to /var/run/console/
 
