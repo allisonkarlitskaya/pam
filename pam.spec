@@ -10,7 +10,7 @@
 Summary: A security tool which provides authentication for applications.
 Name: pam
 Version: 0.77
-Release: 58
+Release: 59
 License: GPL or BSD
 Group: System Environment/Base
 Source0: ftp.us.kernel.org:/pub/linux/libs/pam/pre/library/Linux-PAM-%{version}.tar.bz2
@@ -72,6 +72,7 @@ Patch70: pam-0.77-pwd-lock.patch
 Patch71: pam-0.77-nullok-override.patch
 Patch72: pam-0.77-remove-getgrlist.patch
 Patch73: pam-0.77-succif-quiet.patch
+Patch74: pam-0.77-defaultconf.patch
 
 BuildRoot: %{_tmppath}/%{name}-root
 Requires: cracklib, cracklib-dicts, glib2, initscripts >= 3.94
@@ -165,6 +166,7 @@ cp $RPM_SOURCE_DIR/install-sh .
 %patch71 -p1 -b .nullok-override
 %patch72 -p1 -b .remove-getgrlist
 %patch73 -p1 -b .succif-quiet
+%patch74 -p1 -b .defaultconf
 
 for readme in modules/pam_*/README ; do
 	cp -f ${readme} doc/txts/README.`dirname ${readme} | sed -e 's|^modules/||'`
@@ -432,6 +434,9 @@ fi
 %{_libdir}/libpam_misc.so
 
 %changelog
+* Thu Sep 23 2004 Phil Knirsch <pknirsch@redhat.com> 0.77-59
+- Fixed bug in pam_env where wrong initializer was used
+
 * Fri Sep 17 2004 Dan Walsh <dwalsh@redhat.com> 0.77-58
 - rebuild selinux patch using checkPasswdAccess
 
