@@ -8,12 +8,12 @@
 Summary: A security tool which provides authentication for applications.
 Name: pam
 Version: 0.75
-Release: 48
+Release: 50
 License: GPL or BSD
 Group: System Environment/Base
 Source0: ftp.us.kernel.org:/pub/linux/libs/pam/pre/library/Linux-PAM-%{version}.tar.bz2
 Source1: ftp.us.kernel.org:/pub/linux/libs/pam/pre/library/Linux-PAM-%{version}.tar.bz2.sign
-Source2: pam-redhat-%{version}-%{release}.tar.gz
+Source2: pam-redhat-%{version}-52.tar.gz
 Source3: pwdb-%{pwdb_version}.tar.gz
 Source4: other.pamd
 Source5: system-auth.pamd
@@ -75,6 +75,7 @@ Patch55: pam-0.75-unix-aixhash.patch
 Patch56: pam-0.75-sgml2latex.patch
 Patch57: pam-0.75-multicrack.patch
 Patch58: pam-0.75-isa.patch
+Patch59: pam-0.75-utmp-dev.patch
 
 BuildRoot: %{_tmppath}/%{name}-root
 Requires: cracklib, cracklib-dicts, glib, initscripts >= 3.94
@@ -166,6 +167,7 @@ cp $RPM_SOURCE_DIR/install-sh .
 %patch56 -p1 -b .doc
 %patch57 -p1 -b .multicrack
 %patch58 -p1 -b .isa
+%patch59 -p1 -b .utmp-dev
 
 for readme in modules/pam_*/README ; do
 	cp -f ${readme} doc/txts/README.`dirname ${readme} | sed -e 's|^modules/||'`
@@ -342,6 +344,7 @@ fi
 /%{_lib}/security/pam_motd.so
 /%{_lib}/security/pam_nologin.so
 /%{_lib}/security/pam_permit.so
+/%{_lib}/security/pam_postgresok.so
 /%{_lib}/security/pam_pwdb.so
 /%{_lib}/security/pam_rhosts_auth.so
 /%{_lib}/security/pam_rootok.so
@@ -391,6 +394,23 @@ fi
 #%{_libdir}/libpam_misc.so
 
 %changelog
+* Thu Jul 24 2003 Nalin Dahyabhai <nalin@redhat.com> 0.75-50
+- pam_postgresok: add
+- pam_xauth: add targetuser= argument
+
+* Thu Jul  3 2003 Nalin Dahyabhai <nalin@redhat.com>
+- pam_timestamp: use a message authentication code to validate timestamp files
+
+* Mon Jun 30 2003 Nalin Dahyabhai <nalin@redhat.com> 0.75-48.1
+- rebuild
+
+* Mon Jun  9 2003 Nalin Dahyabhai <nalin@redhat.com> 0.75-49
+- modify calls to getlogin() to check the directory of the current TTY before
+  searching for an entry in the utmp/utmpx file
+
+* Wed Jun 04 2003 Elliot Lee <sopwith@redhat.com>
+- rebuilt
+
 * Mon Feb 10 2003 Bill Nottingham <notting@redhat.com> 0.75-48
 - set handler for SIGCHLD to SIG_DFL around *_chkpwd, not SIG_IGN
 
