@@ -10,7 +10,7 @@
 Summary: A security tool which provides authentication for applications.
 Name: pam
 Version: 0.77
-Release: 64
+Release: 65
 License: GPL or BSD
 Group: System Environment/Base
 Source0: ftp.us.kernel.org:/pub/linux/libs/pam/pre/library/Linux-PAM-%{version}.tar.bz2
@@ -442,6 +442,9 @@ fi
 %{_libdir}/libpam_misc.so
 
 %changelog
+* Wed Oct 20 2004 Tomas Mraz <tmraz@redhat.com> 0.77-65
+- #74062 modify the pwd-lock patch to remove NIS passwd changing deadlock
+
 * Wed Oct 20 2004 Tomas Mraz <tmraz@redhat.com> 0.77-64
 - #134941 pam_console should check X11 socket only on login
 
