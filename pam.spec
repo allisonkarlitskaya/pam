@@ -348,6 +348,9 @@ fi
 %{_libdir}/libpam_misc.so
 
 %changelog
+* Tue Apr  5 2005 Tomas Mraz <tmraz@redhat.com>
+- #153711 fix wrong logging in pam_selinux when restoring tty label
+
 * Sun Apr  3 2005 Tomas Mraz <tmraz@redhat.com> 0.79-2
 - fix NULL deref in pam_tally when it's used in account phase
 
