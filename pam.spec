@@ -4,12 +4,12 @@
 %define _sysconfdir /etc
 
 %define pwdb_version 0.62
-%define db_version 4.3.21
+%define db_version 4.3.27
 
 Summary: A security tool which provides authentication for applications.
 Name: pam
 Version: 0.78
-Release: 2
+Release: 3
 License: GPL or BSD
 Group: System Environment/Base
 Source0: ftp.us.kernel.org:/pub/linux/libs/pam/pre/library/Linux-PAM-%{version}.tar.bz2
@@ -363,6 +363,9 @@ fi
 %{_libdir}/libpam_misc.so
 
 %changelog
+* Mon Jan  3 2005 Jeff Johnson <jbj@redhat.com> 0.78-3
+- depend on db-4.3.27, not db-4.3.21.
+
 * Thu Nov 25 2004 Tomas Mraz <tmraz@redhat.com> 0.78-2
 - add argument to pam_console_apply to restrict its work to specified files
 
