@@ -7,7 +7,7 @@
 Summary: A security tool which provides authentication for applications.
 Name: pam
 Version: 0.75
-Release: 19
+Release: 19s.1
 License: GPL or BSD
 Group: System Environment/Base
 Source0: ftp.us.kernel.org:/pub/linux/libs/pam/pre/library/Linux-PAM-%{version}.tar.bz2
@@ -334,6 +334,9 @@ fi
 %{_libdir}/libpam_misc.so
 
 %changelog
+* Wed Mar 18 2003 D. Marlin <dmarlin@redhat.com>
+- new s390 release number and rebuild for s390 (bug #85960)
+
 * Fri Nov  9 2001 Nalin Dahyabhai <nalin@redhat.com> 0.75-19
 - fix a bug in the getpwnam_r wrapper which sometimes resulted in false
   positives for non-existent users
