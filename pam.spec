@@ -31,6 +31,7 @@ Patch34: pam-0.77-dbpam.patch
 Patch60: pam-0.78-selinux.patch
 Patch61: pam-pwdbselinux.patch
 Patch84: pam-0.77-unix-passwd-parse.patch
+Patch85: pam-0.78-console-glib-dynamic.patch
 
 BuildRoot: %{_tmppath}/%{name}-root
 Requires: cracklib, cracklib-dicts, glib2, initscripts >= 3.94
@@ -82,6 +83,7 @@ cp $RPM_SOURCE_DIR/system-auth.pamd .
 %patch61 -p1 -b .pwdbselinux 
 %endif
 %patch84 -p1 -b .passwd-parse
+%patch85 -p1 -b .glib-dynamic
 
 for readme in modules/pam_*/README ; do
 	cp -f ${readme} doc/txts/README.`dirname ${readme} | sed -e 's|^modules/||'`
