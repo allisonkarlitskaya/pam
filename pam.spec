@@ -9,7 +9,7 @@
 Summary: A security tool which provides authentication for applications.
 Name: pam
 Version: 0.75
-Release: 32
+Release: 39
 License: GPL or BSD
 Group: System Environment/Base
 Source0: ftp.us.kernel.org:/pub/linux/libs/pam/pre/library/Linux-PAM-%{version}.tar.bz2
@@ -17,6 +17,7 @@ Source1: pam-redhat-%{version}-%{release}.tar.gz
 Source2: pwdb-%{pwdb_version}.tar.gz
 Source3: other.pamd
 Source4: system-auth.pamd
+Source5: install-sh
 Patch1: pam-0.75-headers.patch
 Patch2: pam-0.75-accessdoc.patch
 Patch3: pam-0.75-build.patch
@@ -76,10 +77,10 @@ BuildRoot: %{_tmppath}/%{name}-root
 Requires: cracklib, cracklib-dicts, glib, initscripts >= 3.94
 Obsoletes: pamconfig
 Prereq: grep, mktemp, sed, fileutils, textutils, /sbin/ldconfig
-BuildPrereq: autoconf, automake, bison, glib-devel, sed, fileutils, cracklib
+BuildPrereq: autoconf, bison, glib-devel, sed, fileutils, cracklib
 BuildPrereq: perl
 %if ! %{build6x}
-BuildPrereq: db3-devel
+BuildPrereq: db4-devel
 %endif
 URL: http://www.us.kernel.org/pub/linux/libs/pam/index.html
 
@@ -104,7 +105,7 @@ PAM-aware applications and modules for use with PAM.
 %setup -q -n Linux-PAM-%{version} -a 1 -a 2
 cp $RPM_SOURCE_DIR/other.pamd .
 cp $RPM_SOURCE_DIR/system-auth.pamd .
-cp %{_datadir}/automake/install-sh .
+cp $RPM_SOURCE_DIR/install-sh .
 %patch1 -p1 -b .headers
 %patch2 -p1 -b .accessdoc
 %patch3 -p1 -b .build
@@ -197,7 +198,7 @@ install -m 644 system-auth.pamd $RPM_BUILD_ROOT%{_sysconfdir}/pam.d/system-auth
 strip $RPM_BUILD_ROOT%{_sbindir}/* ||:
 
 # Remove docs for modules we exclude from the files manifest.
-rm doc/*/*pam_timestamp*
+#rm doc/*/*pam_timestamp*
 
 # Install man pages.
 install -d -m 755 $RPM_BUILD_ROOT%{_mandir}/man{3,5,8}
@@ -297,6 +298,7 @@ fi
 %{_libdir}/libpam_misc.so.*
 %{_sbindir}/pam_console_apply
 %{_sbindir}/pam_tally
+%{_sbindir}/pam_timestamp_check
 %{_sbindir}/pwdb_chkpwd
 %{_sbindir}/unix_chkpwd
 %dir %{_libdir}/security
@@ -328,6 +330,7 @@ fi
 %{_libdir}/security/pam_stress.so
 %{_libdir}/security/pam_tally.so
 %{_libdir}/security/pam_time.so
+%{_libdir}/security/pam_timestamp.so
 %{_libdir}/security/pam_unix.so
 %{_libdir}/security/pam_unix_acct.so
 %{_libdir}/security/pam_unix_auth.so
@@ -366,6 +369,30 @@ fi
 #%{_libdir}/libpam_misc.so
 
 %changelog
+* Mon Jul 29 2002 Nalin Dahyabhai <nalin@redhat.com> 0.75-39
+- pam_timestamp: sundry fixes, use "unknown" as the tty when none is found
+
+* Thu Jun 27 2002 Nalin Dahyabhai <nalin@redhat.com> 0.75-38
+- pam_timestamp_check: be as smart about figuring out the tty as the module is
+
+* Wed Jun 19 2002 Nalin Dahyabhai <nalin@redhat.com> 0.75-37
+- pam_timestamp_check: remove extra unlink() call spotted by Havoc
+
+* Mon Jun 17 2002 Nalin Dahyabhai <nalin@redhat.com> 0.75-36
+- pam_timestamp: chown intermediate directories when creating them
+- pam_timestamp_check: add -d flag to poll
+
+* Thu May 23 2002 Nalin Dahyabhai <nalin@redhat.com> 0.75-35
+- pam_timestamp: add some sanity checks
+- pam_timestamp_check: add
+
+* Wed May 22 2002 Nalin Dahyabhai <nalin@redhat.com> 0.75-34
+- pam_timestamp: add a 'verbose' option
+
+* Thu May 16 2002 Nalin Dahyabhai <nalin@redhat.com> 0.75-33
+- rebuild with db4
+- just bundle install-sh into the source package
+
 * Tue Apr  9 2002 Nalin Dahyabhai <nalin@redhat.com> 0.75-32
 - pam_unix: be more compatible with AIX-style shadowing (#19236)
 
