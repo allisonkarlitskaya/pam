@@ -8,12 +8,12 @@
 Summary: A security tool which provides authentication for applications.
 Name: pam
 Version: 0.75
-Release: 46.8.0
+Release: 48
 License: GPL or BSD
 Group: System Environment/Base
 Source0: ftp.us.kernel.org:/pub/linux/libs/pam/pre/library/Linux-PAM-%{version}.tar.bz2
 Source1: ftp.us.kernel.org:/pub/linux/libs/pam/pre/library/Linux-PAM-%{version}.tar.bz2.sign
-Source2: pam-redhat-%{version}-46.tar.gz
+Source2: pam-redhat-%{version}-%{release}.tar.gz
 Source3: pwdb-%{pwdb_version}.tar.gz
 Source4: other.pamd
 Source5: system-auth.pamd
@@ -391,16 +391,15 @@ fi
 #%{_libdir}/libpam_misc.so
 
 %changelog
-* Thu Feb  6 2003 Nalin Dahyabhai <nalin@redhat.com> 0.75-46.8.0
-- don't use $ISA in the default "other" and "system-auth" configurations
+* Mon Feb 10 2003 Bill Nottingham <notting@redhat.com> 0.75-48
+- set handler for SIGCHLD to SIG_DFL around *_chkpwd, not SIG_IGN
 
-* Tue Dec 17 2002 Nalin Dahyabhai <nalin@redhat.com>
-- rebuild
+* Wed Jan 22 2003 Tim Powers <timp@redhat.com> 0.75-47
+- rebuilt
 
 * Tue Dec 17 2002 Nalin Dahyabhai <nalin@redhat.com> 0.75-46
 - pam_xauth: reintroduce ACL support, per the original white paper
-- pam_xauth: default root's export ACL to none instead of everyone, fixing
-  insecure default outlined by Andreas Beck in Bedatec 200212140001
+- pam_xauth: default root's export ACL to none instead of everyone
 
 * Mon Dec  2 2002 Nalin Dahyabhai <nalin@redhat.com> 0.75-45
 - create /lib/security, even if it isn't /%%{_lib}/security, because we
