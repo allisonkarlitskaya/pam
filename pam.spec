@@ -32,6 +32,7 @@ Patch60: pam-0.78-selinux.patch
 Patch61: pam-pwdbselinux.patch
 Patch84: pam-0.77-unix-passwd-parse.patch
 Patch85: pam-0.78-console-vfprintf.patch
+Patch86: pam-0.78-console-config.patch
 
 BuildRoot: %{_tmppath}/%{name}-root
 Requires: cracklib, cracklib-dicts, glib2, initscripts >= 3.94
@@ -84,6 +85,7 @@ cp $RPM_SOURCE_DIR/system-auth.pamd .
 %endif
 %patch84 -p1 -b .passwd-parse
 %patch85 -p1 -b .vfprintf
+%patch86 -p1 -b .config
 
 for readme in modules/pam_*/README ; do
 	cp -f ${readme} doc/txts/README.`dirname ${readme} | sed -e 's|^modules/||'`
@@ -351,6 +353,8 @@ fi
 %changelog
 * Tue Mar  1 2005 Tomas Mraz <tmraz@redhat.com> 0.78-5
 - echo why tests failed when rebuilding
+- fixed some warnings and errors in pam_console for gcc4 build
+- improved parsing pam_console config file
 
 * Mon Feb 21 2005 Tomas Mraz <tmraz@redhat.com>
 - don't log garbage in pam_console_apply (#147879)
