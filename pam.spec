@@ -1,92 +1,84 @@
+%if %{?WITH_SELINUX:0}%{!?WITH_SELINUX:1}
+%define WITH_SELINUX 0
+%endif
 %define build6x 0
 
 %define _sbindir /sbin
 %define _sysconfdir /etc
 
 %define pwdb_version 0.62
+%define db_version 4.1.25
 
 Summary: A security tool which provides authentication for applications.
 Name: pam
-Version: 0.75
-Release: 50
+Version: 0.77
+Release: 15
 License: GPL or BSD
 Group: System Environment/Base
 Source0: ftp.us.kernel.org:/pub/linux/libs/pam/pre/library/Linux-PAM-%{version}.tar.bz2
 Source1: ftp.us.kernel.org:/pub/linux/libs/pam/pre/library/Linux-PAM-%{version}.tar.bz2.sign
-Source2: pam-redhat-%{version}-52.tar.gz
+Source2: pam-redhat-%{version}-4.tar.gz
 Source3: pwdb-%{pwdb_version}.tar.gz
-Source4: other.pamd
-Source5: system-auth.pamd
-Source6: install-sh
-Patch1: pam-0.75-headers.patch
-Patch2: pam-0.75-accessdoc.patch
-Patch3: pam-0.75-build.patch
-Patch4: pam-0.75-cached.patch
-Patch5: pam-0.75-const.patch
-Patch6: pam-0.75-linkage.patch
-Patch7: pam-0.75-mandir.patch
-Patch8: pam-0.75-primary.patch
-Patch9: pam-0.75-prompt.patch
-Patch11: pam-0.75-return.patch
-Patch12: pam-0.75-security.patch
-Patch13: pam-0.75-string.patch
-Patch14: pam-0.75-typo.patch
-Patch15: pam-0.75-trust.patch
-Patch16: pam-0.75-userdb.patch
-Patch17: pam-0.75-wheeldoc.patch
-Patch18: pam-0.75-wrap.patch
-Patch19: pam-0.75-cracklib-distance.patch
-Patch20: pam-0.75-group-reinit.patch
-Patch21: pam-0.75-lastlog-utmp.patch
-Patch22: pam-0.75-limits-locks.patch
-Patch23: pam-0.75-null.patch
-Patch24: pam-0.75-sigchld.patch
-Patch25: pam-0.75-pwdb-compare.patch
-Patch26: pam-0.75-securetty-pts.patch
-Patch27: pam-0.75-securetty-fail.patch
-Patch28: pam-0.75-syntax.patch
-Patch29: pam-0.75-time.patch
-Patch30: pam-0.75-issue.patch
-Patch31: pam-0.75-doc-rhl.patch
-Patch32: pam-0.75-bigcrypt-main.patch
-Patch33: pam-0.75-cracklib-init.patch
-Patch34: pam-0.75-filter-comments.patch
-Patch35: pam-0.75-unixdoc.patch
-Patch36: pam-0.75-unix-loop.patch
-Patch37: pam-0.75-unix-preserve.patch
-Patch38: pam-0.75-unix-retval.patch
-Patch39: pam-0.75-unix-brokenshadow.patch
-Patch40: pam-0.75-unix-nis.patch
-Patch41: pam-0.75-unix-nullok.patch
-Patch42: pam-0.75-wheel-usertouser.patch
-Patch43: pam-0.75-mkhomedir-recurse.patch
-Patch44: pam-0.75-limits-root.patch
-Patch45: pam-0.75-issue-seg.patch
-Patch46: pam-0.75-listfile-tty.patch
-Patch47: pam-0.75-tally-init.patch
-Patch48: pam-0.75-rhosts-plus.patch
-Patch49: pam-0.75-limits-retval.patch
-Patch50: pam-0.75-reentrant.patch
-Patch51: pam-0.75-macros.patch
-Patch52: pam-0.75-pwdb-static.patch
-Patch53: pam-0.75-unix-log_success.patch
-Patch54: pam-0.75-misc-err.patch
-Patch55: pam-0.75-unix-aixhash.patch
-Patch56: pam-0.75-sgml2latex.patch
-Patch57: pam-0.75-multicrack.patch
-Patch58: pam-0.75-isa.patch
-Patch59: pam-0.75-utmp-dev.patch
+Source4: db-%{db_version}.tar.gz
+Source5: other.pamd
+Source6: system-auth.pamd
+Source7: install-sh
+Source8: dlopen.sh
+Patch0: pam-0.77-modutil-thread.patch
+Patch1: pam-0.77-include_path.patch
+Patch2: pam-0.77-build.patch
+Patch3: pam-0.75-linkage.patch
+Patch4: pam-0.75-prompt.patch
+Patch5: pam-0.75-return.patch
+Patch6: pam-0.75-security.patch
+Patch7: pam-0.77-string.patch
+Patch8: pam-0.77-userdb.patch
+Patch9: pam-0.75-group-reinit.patch
+Patch10: pam-0.77-lastlog-utmp.patch
+Patch11: pam-0.77-securetty-fail.patch
+Patch12: pam-0.75-time.patch
+Patch13: pam-0.77-issue.patch
+Patch14: pam-0.77-doc-rhl.patch
+Patch15: pam-0.77-bigcrypt-main.patch
+Patch16: pam-0.77-cracklib-init.patch
+Patch17: pam-0.77-filter-comments.patch
+Patch18: pam-0.75-unix-loop.patch
+Patch19: pam-0.77-unix-preserve.patch
+Patch20: pam-0.77-unix-brokenshadow.patch
+Patch21: pam-0.77-unix-hpux-aging.patch
+Patch22: pam-0.77-unix-nis.patch
+Patch23: pam-0.77-unix-nullok.patch
+Patch24: pam-0.77-issue-heap.patch
+Patch25: pam-0.75-listfile-tty.patch
+Patch26: pam-0.77-misc-err.patch
+Patch27: pam-0.77-unix-aixhash.patch
+Patch28: pam-0.75-sgml2latex.patch
+Patch29: pam-0.77-multicrack.patch
+Patch30: pam-0.75-isa.patch
+Patch31: pam-0.77-utmp-dev.patch
+Patch32: pam-0.77-pwdb-static.patch
+Patch33: pam-0.77-nss-reentrant.patch
+Patch34: pam-0.77-dbpam.patch
+Patch35: pam-0.77-sigchld.patch
+Patch36: pam-0.77-skip-aconf-install.patch
+Patch60: pam-selinux.patch
+Patch61: pam-pwdbselinux.patch
 
 BuildRoot: %{_tmppath}/%{name}-root
 Requires: cracklib, cracklib-dicts, glib, initscripts >= 3.94
 Obsoletes: pamconfig
 Prereq: grep, mktemp, sed, fileutils, textutils, /sbin/ldconfig
-BuildPrereq: autoconf, bison, glib-devel, sed, fileutils, cracklib, cracklib-dicts
+BuildPrereq: autoconf, bison, flex, glib-devel, sed, fileutils, cracklib, cracklib-dicts
 BuildPrereq: perl
-%if ! %{build6x}
-BuildPrereq: db4-devel
+%if %{WITH_SELINUX}
+BuildPrereq: libselinux-devel
 %endif
 URL: http://www.us.kernel.org/pub/linux/libs/pam/index.html
+
+# We internalize libdb to get a non-threaded copy, but we should at least try
+# to coexist with the system's copy of libdb, which will be used to make the
+# files for use by pam_userdb (either by db_load or Perl's DB_File module).
+Requires: db4 = %{db_version}
 
 %description
 PAM (Pluggable Authentication Modules) is a system security tool that
@@ -106,68 +98,57 @@ contains header files and static libraries used for building both
 PAM-aware applications and modules for use with PAM.
 
 %prep
-%setup -q -n Linux-PAM-%{version} -a 2 -a 3
+%setup -q -n Linux-PAM-%{version} -a 2 -a 3 -a 4
 cp $RPM_SOURCE_DIR/other.pamd .
 cp $RPM_SOURCE_DIR/system-auth.pamd .
 cp $RPM_SOURCE_DIR/install-sh .
-%patch1 -p1 -b .headers
-%patch2 -p1 -b .accessdoc
-%patch3 -p1 -b .build
-%patch4 -p1 -b .cached
-%patch5 -p1 -b .const
-%patch6 -p1 -b .linkage
-%patch7 -p1 -b .mandir
-%patch8 -p1 -b .primary
-%patch9 -p1 -b .prompt
-%patch11 -p1 -b .return
-%patch12 -p1 -b .security
-%patch13 -p1 -b .string
-%patch14 -p1 -b .typo
-%patch15 -p1 -b .trust
-%patch16 -p1 -b .userdb
-%patch17 -p1 -b .wheeldoc
-%patch18 -p1 -b .wrap
-%patch19 -p1 -b .cracklib-distance
-%patch20 -p1 -b .group-reinit
-%patch21 -p1 -b .lastlog-utmp
-%patch22 -p1 -b .limits-locks
-%patch23 -p1 -b .null
-%patch24 -p1 -b .sigchld
-%patch25 -p1 -b .pwdb-compare
-%patch26 -p1 -b .securetty-pts
-%patch27 -p1 -b .securetty-fail
-%patch28 -p1 -b .syntax
-%patch29 -p1 -b .time
-%patch30 -p1 -b .issue
-%patch31 -p1 -b .doc-rhl
-%patch32 -p1 -b .bigcrypt-main
-%patch33 -p1 -b .cracklib-init
-%patch34 -p1 -b .filter-comments
-%patch35 -p1 -b .unix-doc
-%patch36 -p1 -b .unix-loop
-%patch37 -p1 -b .unix-preserve
-%patch38 -p1 -b .unix-retval
-%patch39 -p1 -b .unix-brokenshadow
-%patch40 -p1 -b .unix-nis
-%patch41 -p1 -b .unix-nullok
-%patch42 -p1 -b .wheel-usertouser
-%patch43 -p1 -b .mkhomedir-recurse
-%patch44 -p1 -b .limits-root
-%patch45 -p1 -b .issue-seg
-%patch46 -p1 -b .listfile-tty
-%patch47 -p1 -b .tally-init
-%patch48 -p1 -b .rhosts-plus
-%patch49 -p1 -b .limits-retval
-%patch50 -p1 -b .reentrant
-%patch51 -p1 -b .macros
-%patch52 -p1 -b .pwdb-static
-%patch53 -p1 -b .unix-log_success
-%patch54 -p1 -b .misc-err
-%patch55 -p1 -b .unix-aixhash
-%patch56 -p1 -b .doc
-%patch57 -p1 -b .multicrack
-%patch58 -p1 -b .isa
-%patch59 -p1 -b .utmp-dev
+
+pushd db-%{db_version}
+cd dist
+./s_config
+popd
+
+%patch0  -p1 -b .modutil-thread
+%patch1  -p1 -b .include_path
+%patch2  -p1 -b .build
+%patch3  -p1 -b .linkage
+%patch4  -p1 -b .prompt
+%patch5  -p1 -b .return
+%patch6  -p1 -b .security
+%patch7  -p1 -b .string
+%patch8  -p1 -b .userdb
+%patch9  -p1 -b .group-reinit
+%patch10 -p1 -b .lastlog-utmp
+%patch11 -p1 -b .securetty-fail
+%patch12 -p1 -b .time
+%patch13 -p1 -b .issue
+%patch14 -p1 -b .doc-rhl
+%patch15 -p1 -b .bigcrypt-main
+%patch16 -p1 -b .cracklib-init
+%patch17 -p1 -b .filter-comments
+%patch18 -p1 -b .unix-loop
+%patch19 -p1 -b .unix-preserve
+%patch20 -p1 -b .unix-brokenshadow
+%patch21 -p1 -b .unix-hpux-aging
+%patch22 -p1 -b .unix-nis
+%patch23 -p1 -b .unix-nullok
+%patch24 -p1 -b .issue-heap
+%patch25 -p1 -b .listfile-tty
+%patch26 -p1 -b .misc-err
+%patch27 -p1 -b .unix-aixhash
+%patch28 -p1 -b .doc
+%patch29 -p1 -b .multicrack
+%patch30 -p1 -b .isa
+%patch31 -p1 -b .utmp-dev
+%patch32 -p1 -b .pwdb-static
+%patch33 -p1 -b .nss-reentrant
+%patch34 -p1 -b .dbpam
+%patch35 -p1 -b .sigchld
+%patch36 -p1 -b .skip-aconf-install
+%if %{WITH_SELINUX}
+%patch60 -p1 -b .selinux
+%patch61 -p1 -b .pwdbselinux 
+%endif
 
 for readme in modules/pam_*/README ; do
 	cp -f ${readme} doc/txts/README.`dirname ${readme} | sed -e 's|^modules/||'`
@@ -177,13 +158,35 @@ autoconf
 %build
 CFLAGS="-fPIC $RPM_OPT_FLAGS" ; export CFLAGS
 
-topdir=`pwd`/pwdb-instroot
+topdir=`pwd`/pam-instroot
 test -d ${topdir}         || mkdir ${topdir}
 test -d ${topdir}/include || mkdir ${topdir}/include
-test -d ${topdir}/%{_lib}     || mkdir ${topdir}/%{_lib}
+test -d ${topdir}/%{_lib} || mkdir ${topdir}/%{_lib}
+
+pushd db-%{db_version}/dist
+echo db_cv_mutex=UNIX/fcntl > config.cache
+./configure -C \
+	--disable-compat185 \
+	--disable-cxx \
+	--disable-diagnostic \
+	--disable-dump185 \
+	--disable-java \
+	--disable-rpc \
+	--disable-tcl \
+	--disable-shared \
+	--with-pic \
+	--with-uniquename=_pam \
+	--prefix=${topdir} \
+	--includedir=${topdir}/include \
+	--libdir=${topdir}/%{_lib}
+# XXX hack out O_DIRECT support in db4 for now.
+perl -pi -e 's/#define HAVE_O_DIRECT 1/#undef HAVE_O_DIRECT/' db_config.h
+make
+make install
+popd
 
 pushd pwdb-%{pwdb_version}
-make
+make 
 make install INCLUDED=${topdir}/include/pwdb LIBDIR=${topdir}/%{_lib} LDCONFIG=:
 rm ${topdir}/%{_lib}/*.so*
 popd
@@ -191,13 +194,17 @@ popd
 CPPFLAGS=-I${topdir}/include ; export CPPFLAGS
 export LIBNAME="%{_lib}"
 LDFLAGS=-L${topdir}/%{_lib} ; export LDFLAGS
-%configure --libdir=/%{_lib} --enable-static-libpam --enable-fakeroot=$RPM_BUILD_ROOT --enable-isadir=../../%{_lib}/security
+%configure \
+	--libdir=/%{_lib} \
+	--enable-static-libpam \
+	--enable-fakeroot=$RPM_BUILD_ROOT \
+	--enable-isadir=../../%{_lib}/security
 make
 
 %install
 [ "$RPM_BUILD_ROOT" != "/" ] && rm -rf $RPM_BUILD_ROOT
 # Install the binaries, libraries, and modules.
-make install FAKEROOT=$RPM_BUILD_ROOT
+make install FAKEROOT=$RPM_BUILD_ROOT LDCONFIG=:
 
 # Install default configuration files.
 install -d -m 755 $RPM_BUILD_ROOT%{_sysconfdir}/pam.d
@@ -242,10 +249,24 @@ rm $RPM_BUILD_ROOT/%{_lib}/security/pam_radius.so
 rm -f doc/txts/README.pam_radius
 
 # Duplicate doc file sets.
-rm -fr $RPM_BUILD_ROOT/usr/doc/Linux-PAM
+rm -fr $RPM_BUILD_ROOT/usr/doc/Linux-PAM $RPM_BUILD_ROOT/usr/share/doc/pam
 
 # Create /lib/security in case it isn't the same as /%{_lib}/security.
 install -m755 -d $RPM_BUILD_ROOT/lib/security
+
+# Check for module problems.  Specifically, check that every module we just
+# installed can actually be loaded by a minimal PAM-aware application.
+for module in $RPM_BUILD_ROOT/%{_lib}/security/pam*.so ; do
+	if ! $RPM_SOURCE_DIR/dlopen.sh -lpam -ldl ${module} ; then
+		exit 1
+	fi
+# And for good measure, make sure that none of the modules pull in threading
+# libraries, which if loaded in a non-threaded application, can cause Very
+# Bad Things to happen.
+	if env LD_PRELOAD=$RPM_BUILD_ROOT/%{_lib}/libpam.so ldd -r ${module} | fgrep -q libpthread ; then
+		exit 1
+	fi
+done
 
 %clean
 [ "$RPM_BUILD_ROOT" != "/" ] && rm -rf $RPM_BUILD_ROOT
@@ -311,13 +332,16 @@ fi
 %config(noreplace) /etc/pam.d/other
 %config(noreplace) /etc/pam.d/system-auth
 %doc Copyright
-%doc doc/html doc/ps doc/txts
+%doc doc/html doc/ps doc/txts doc/pdf
 %doc doc/specs/rfc86.0.txt
 /%{_lib}/libpam.so.*
 /%{_lib}/libpamc.so.*
 /%{_lib}/libpam_misc.so.*
 %{_sbindir}/pam_console_apply
 %{_sbindir}/pam_tally
+%if %{WITH_SELINUX}
+%{_sbindir}/pam_selinux_check
+%endif
 %{_sbindir}/pam_timestamp_check
 %{_sbindir}/pwdb_chkpwd
 %{_sbindir}/unix_chkpwd
@@ -329,6 +353,7 @@ fi
 /%{_lib}/security/pam_chroot.so
 /%{_lib}/security/pam_console.so
 /%{_lib}/security/pam_cracklib.so
+/%{_lib}/security/pam_debug.so
 /%{_lib}/security/pam_deny.so
 /%{_lib}/security/pam_env.so
 /%{_lib}/security/pam_filter.so
@@ -348,10 +373,15 @@ fi
 /%{_lib}/security/pam_pwdb.so
 /%{_lib}/security/pam_rhosts_auth.so
 /%{_lib}/security/pam_rootok.so
+/%{_lib}/security/pam_rps.so
+%if %{WITH_SELINUX}
+/%{_lib}/security/pam_selinux.so
+%endif
 /%{_lib}/security/pam_securetty.so
 /%{_lib}/security/pam_shells.so
 /%{_lib}/security/pam_stack.so
 /%{_lib}/security/pam_stress.so
+/%{_lib}/security/pam_succeed_if.so
 /%{_lib}/security/pam_tally.so
 /%{_lib}/security/pam_time.so
 /%{_lib}/security/pam_timestamp.so
@@ -368,11 +398,11 @@ fi
 %dir %{_sysconfdir}/security
 %config(noreplace) %{_sysconfdir}/security/access.conf
 %config(noreplace) %{_sysconfdir}/security/chroot.conf
-%config(noreplace) %{_sysconfdir}/security/time.conf
+%config(noreplace) %{_sysconfdir}/security/console.perms
 %config(noreplace) %{_sysconfdir}/security/group.conf
 %config(noreplace) %{_sysconfdir}/security/limits.conf
 %config(noreplace) %{_sysconfdir}/security/pam_env.conf
-%config(noreplace) %{_sysconfdir}/security/console.perms
+%config(noreplace) %{_sysconfdir}/security/time.conf
 %dir %{_sysconfdir}/security/console.apps
 %dir /var/run/console
 %{_mandir}/man5/*
@@ -388,15 +418,82 @@ fi
 %{_libdir}/libpamc.so
 %{_libdir}/libpam_misc.a
 %{_libdir}/libpam_misc.so
-# At some point these will (and should) go away.
-#%{_libdir}/libpam.so
-#%{_libdir}/libpamc.so
-#%{_libdir}/libpam_misc.so
 
 %changelog
-* Thu Jul 24 2003 Nalin Dahyabhai <nalin@redhat.com> 0.75-50
+* Thu Oct 23 2003 Nalin Dahyabhai <nalin@redhat.com> 0.77-15
+- don't install _pam_aconf.h -- apps don't use it, other PAM headers which
+  are installed don't use it, and its contents may be different for arches
+  on a multilib system
+- check for linkage problems in modules at %%install-time (kill #107093 dead)
+- add buildprereq on flex (#101563)
+
+* Wed Oct 22 2003 Nalin Dahyabhai <nalin@redhat.com>
+- make pam_pwdb.so link with libnsl again so that it loads (#107093)
+- remove now-bogus buildprereq on db4-devel (we use a bundled copy for
+  pam_userdb to avoid symbol collisions with other db libraries in apps)
+
+* Mon Oct 20 2003 Dan Walsh <dwalsh@redhat.com> 0.77-14.sel
+- Add Russell Coker patch to handle /dev/pty
+
+* Fri Oct 17 2003 Dan Walsh <dwalsh@redhat.com> 0.77-13.sel
+- Turn on Selinux 
+
+* Fri Oct 17 2003 Dan Walsh <dwalsh@redhat.com> 0.77-12
+- Fix pam_timestamp to work when 0 seconds have elapsed
+
+* Mon Oct 6 2003 Dan Walsh <dwalsh@redhat.com> 0.77-11
+- Turn off selinux
+
+* Thu Sep 25 2003 Dan Walsh <dwalsh@redhat.com> 0.77-10.sel
+- Turn on Selinux and remove multiple choice of context.  
+
+* Wed Sep 24 2003 Dan Walsh <dwalsh@redhat.com> 0.77-10
+- Turn off selinux
+
+* Wed Sep 24 2003 Dan Walsh <dwalsh@redhat.com> 0.77-9.sel
+- Add Russell's patch to check password
+
+* Wed Sep 17 2003 Dan Walsh <dwalsh@redhat.com> 0.77-8.sel
+- handle ttys correctly in pam_selinux
+
+* Fri Sep 05 2003 Dan Walsh <dwalsh@redhat.com> 0.77-7.sel
+- Clean up memory problems and fix tty handling.
+
+* Mon Jul 28 2003 Dan Walsh <dwalsh@redhat.com> 0.77-6
+- Add manual context selection to pam_selinux
+
+* Mon Jul 28 2003 Dan Walsh <dwalsh@redhat.com> 0.77-5
+- Add pam_selinux
+
+* Mon Jul 28 2003 Dan Walsh <dwalsh@redhat.com> 0.77-4
+- Add SELinux support
+
+* Thu Jul 24 2003 Nalin Dahyabhai <nalin@redhat.com> 0.77-3
 - pam_postgresok: add
-- pam_xauth: add targetuser= argument
+- pam_xauth: add "targetuser" argument
+
+* Tue Jul 22 2003 Nalin Dahyabhai <nalin@redhat.com>
+- pam_succeed_if: fix thinko in argument parsing which would walk past the
+  end of the argument list
+
+* Wed Jul  9 2003 Nalin Dahyabhai <nalin@redhat.com> 0.77-2
+- reapply:
+  - set handler for SIGCHLD to SIG_DFL around *_chkpwd, not SIG_IGN
+
+* Mon Jul  7 2003 Nalin Dahyabhai <nalin@redhat.com> 0.77-1
+- pam_timestamp: fail if the key file doesn't contain enough data
+
+* Thu Jul  3 2003 Nalin Dahyabhai <nalin@redhat.com> 0.77-0
+- update to 0.77 upstream release
+  - pam_limits: limits now affect root as well
+  - pam_nologin: returns PAM_IGNORE instead of PAM_SUCCESS unless "successok"
+    is given as an argument
+  - pam_userdb: correctly return PAM_AUTH_ERR instead of PAM_USER_UNKNOWN when
+    invoked with the "key_only" argument and the database has an entry of the
+    form "user-<wrongpassword>"
+- use a bundled libdb for pam_userdb.so because the system copy uses threads,
+  and demand-loading a shared library which uses threads into an application
+  which doesn't is a Very Bad Idea
 
 * Thu Jul  3 2003 Nalin Dahyabhai <nalin@redhat.com>
 - pam_timestamp: use a message authentication code to validate timestamp files
