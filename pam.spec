@@ -37,6 +37,7 @@ Patch80: pam-0.77-console-xcrash.patch
 Patch81: pam-0.77-stack-memleaks.patch
 Patch82: pam-0.77-timestamp-test-login.patch
 Patch84: pam-0.77-unix-passwd-parse.patch
+Patch85: pam-0.77-console-auth.patch
 
 BuildRoot: %{_tmppath}/%{name}-root
 Requires: cracklib, cracklib-dicts, glib2, initscripts >= 3.94
@@ -96,6 +97,7 @@ cp $RPM_SOURCE_DIR/system-auth.pamd .
 %patch81 -p1 -b .mem-leak
 %patch82 -p1 -b .test-login
 %patch84 -p1 -b .passwd-parse
+%patch85 -p1 -b .auth
 
 for readme in modules/pam_*/README ; do
 	cp -f ${readme} doc/txts/README.`dirname ${readme} | sed -e 's|^modules/||'`
@@ -362,6 +364,7 @@ fi
 * Tue Nov 23 2004 Tomas Mraz <tmraz@redhat.com> 0.78-1
 - update to Linux-PAM-0.78
 - #140451 parse passwd entries correctly and test for failure
+- #137802 allow using pam_console for authentication
 
 * Fri Nov 12 2004 Jeff Johnson <jbj@jbj.org> 0.77-67
 - rebuild against db-4.3.21.
