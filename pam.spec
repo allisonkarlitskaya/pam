@@ -6,17 +6,17 @@
 %define pwdb_version 0.62
 %define db_version 4.3.27
 %define db_conflicting_version 4.4.0
-%define pam_redhat_release 3
+%define pam_redhat_release 4
 
 Summary: A security tool which provides authentication for applications.
 Name: pam
 Version: 0.78
-Release: 5
+Release: 6
 License: GPL or BSD
 Group: System Environment/Base
 Source0: ftp.us.kernel.org:/pub/linux/libs/pam/pre/library/Linux-PAM-%{version}.tar.bz2
 Source1: ftp.us.kernel.org:/pub/linux/libs/pam/pre/library/Linux-PAM-%{version}.tar.bz2.sign
-Source2: pam-redhat-%{version}-%{pam_redhat_release}.tar.gz
+Source2: pam-redhat-%{version}-%{pam_redhat_release}.tar.bz2
 Source3: pwdb-%{pwdb_version}.tar.gz
 Source4: db-%{db_version}.tar.gz
 Source5: other.pamd
@@ -31,8 +31,6 @@ Patch34: pam-0.77-dbpam.patch
 Patch60: pam-0.78-selinux.patch
 Patch61: pam-pwdbselinux.patch
 Patch84: pam-0.77-unix-passwd-parse.patch
-Patch85: pam-0.78-console-vfprintf.patch
-Patch86: pam-0.78-console-config.patch
 
 BuildRoot: %{_tmppath}/%{name}-root
 Requires: cracklib, cracklib-dicts, glib2, initscripts >= 3.94
@@ -84,8 +82,6 @@ cp $RPM_SOURCE_DIR/system-auth.pamd .
 %patch61 -p1 -b .pwdbselinux 
 %endif
 %patch84 -p1 -b .passwd-parse
-%patch85 -p1 -b .vfprintf
-%patch86 -p1 -b .config
 
 for readme in modules/pam_*/README ; do
 	cp -f ${readme} doc/txts/README.`dirname ${readme} | sed -e 's|^modules/||'`
@@ -329,6 +325,7 @@ fi
 %config(noreplace) %{_sysconfdir}/security/access.conf
 %config(noreplace) %{_sysconfdir}/security/chroot.conf
 %config(noreplace) %{_sysconfdir}/security/console.perms
+%config(noreplace) %{_sysconfdir}/security/console.handlers
 %config(noreplace) %{_sysconfdir}/security/group.conf
 %config(noreplace) %{_sysconfdir}/security/limits.conf
 %config(noreplace) %{_sysconfdir}/security/pam_env.conf
@@ -351,6 +348,11 @@ fi
 %{_libdir}/libpam_misc.so
 
 %changelog
+* Thu Mar 10 2005 Tomas Mraz <tmraz@redhat.com> 0.78-6
+- add functionality for running handler executables from pam_console
+  when console lock was obtained/lost
+- removed patches merged to pam-redhat
+
 * Tue Mar  1 2005 Tomas Mraz <tmraz@redhat.com> 0.78-5
 - echo why tests failed when rebuilding
 - fixed some warnings and errors in pam_console for gcc4 build
