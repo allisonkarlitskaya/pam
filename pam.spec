@@ -10,7 +10,7 @@
 Summary: A security tool which provides authentication for applications.
 Name: pam
 Version: 0.77
-Release: 48
+Release: 49
 License: GPL or BSD
 Group: System Environment/Base
 Source0: ftp.us.kernel.org:/pub/linux/libs/pam/pre/library/Linux-PAM-%{version}.tar.bz2
