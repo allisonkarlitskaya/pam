@@ -9,7 +9,7 @@
 Summary: A security tool which provides authentication for applications.
 Name: pam
 Version: 0.75
-Release: 29
+Release: 31
 License: GPL or BSD
 Group: System Environment/Base
 Source0: ftp.us.kernel.org:/pub/linux/libs/pam/pre/library/Linux-PAM-%{version}.tar.bz2
@@ -69,6 +69,7 @@ Patch50: pam-0.75-reentrant.patch
 Patch51: pam-0.75-macros.patch
 Patch52: pam-0.75-pwdb-static.patch
 Patch53: pam-0.75-unix-log_success.patch
+Patch54: pam-0.75-misc-err.patch
 
 BuildRoot: %{_tmppath}/%{name}-root
 Requires: cracklib, cracklib-dicts, glib, initscripts >= 3.94
@@ -155,6 +156,7 @@ cp %{_datadir}/automake/install-sh .
 %patch51 -p1 -b .macros
 %patch52 -p1 -b .pwdb-static
 %patch53 -p1 -b .unix-log_success
+%patch54 -p1 -b .misc-err
 for readme in modules/pam_*/README ; do
 	cp -f ${readme} doc/txts/README.`dirname ${readme} | sed -e 's|^modules/||'`
 done
@@ -362,6 +364,14 @@ fi
 #%{_libdir}/libpam_misc.so
 
 %changelog
+* Thu Mar 28 2002 Nalin Dahyabhai <nalin@redhat.com> 0.75-31
+- libpam_misc: fix possible infinite loop in misc_conv (#62195)
+- pam_xauth: fix cases where DISPLAY is "localhost:screen" and the xauth
+  key is actually stored using the system's hostname (#61524)
+
+* Mon Mar 25 2002 Nalin Dahyabhai <nalin@redhat.com> 0.75-30
+- rebuild
+
 * Mon Mar 25 2002 Nalin Dahyabhai <nalin@redhat.com> 0.75-29
 - rebuild
 
