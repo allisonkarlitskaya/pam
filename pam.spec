@@ -72,6 +72,7 @@ Patch70: pam-0.77-pwd-lock.patch
 Patch71: pam-0.77-nullok-override.patch
 Patch72: pam-0.77-remove-getgrlist.patch
 Patch73: pam-0.77-succif-quiet.patch
+Patch74: pam-0.77-env-noabort.patch
 
 BuildRoot: %{_tmppath}/%{name}-root
 Requires: cracklib, cracklib-dicts, glib2, initscripts >= 3.94
@@ -165,6 +166,7 @@ cp $RPM_SOURCE_DIR/install-sh .
 %patch71 -p1 -b .nullok-override
 %patch72 -p1 -b .remove-getgrlist
 %patch73 -p1 -b .succif-quiet
+%patch74 -p1 -b .env-noabort
 
 for readme in modules/pam_*/README ; do
 	cp -f ${readme} doc/txts/README.`dirname ${readme} | sed -e 's|^modules/||'`
@@ -432,6 +434,9 @@ fi
 %{_libdir}/libpam_misc.so
 
 %changelog
+* Mon Oct 11 2004 Tomas Mraz <tmraz@redhat.com>
+- pam_env shouldn't abort on missing /etc/environment
+
 * Tue Sep 28 2004 Phil Knirsch <pknirsch@redhat.com> 0.77-60
 - Drop last patch again, fixed now correctly elsewhere
 
@@ -444,7 +449,7 @@ fi
 * Mon Sep 13 2004 Jindrich Novy <jnovy@redhat.com>
 - rebuilt
 
-* Mon Sep 13 2004 Tomas Mraz <t8m@centrum.cz> 0.77-56
+* Mon Sep 13 2004 Tomas Mraz <tmraz@redhat.com> 0.77-56
 - #75454 fixed locking when changing password
 - #127054 
 - #125653 removed unnecessary getgrouplist call
