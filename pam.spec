@@ -10,7 +10,7 @@
 Summary: A security tool which provides authentication for applications.
 Name: pam
 Version: 0.77
-Release: 61
+Release: 62
 License: GPL or BSD
 Group: System Environment/Base
 Source0: ftp.us.kernel.org:/pub/linux/libs/pam/pre/library/Linux-PAM-%{version}.tar.bz2
@@ -67,13 +67,16 @@ Patch60: pam-selinux.patch
 Patch61: pam-pwdbselinux.patch
 Patch62: pam-0.77-closefd.patch
 Patch63: pam-0.77-consolelock.patch
-Patch64: pam-0.77-console-pmu-perms.patch
 Patch70: pam-0.77-pwd-lock.patch
 Patch71: pam-0.77-nullok-override.patch
 Patch72: pam-0.77-remove-getgrlist.patch
 Patch73: pam-0.77-succif-quiet.patch
 Patch74: pam-0.77-env-noabort.patch
 Patch75: pam-0.77-stack-convoverwrite.patch
+Patch76: pam-0.77-console-addperms.patch
+Patch77: pam-0.77-console-applytodir.patch
+Patch78: pam-0.77-console-manfix.patch
+
 
 BuildRoot: %{_tmppath}/%{name}-root
 Requires: cracklib, cracklib-dicts, glib2, initscripts >= 3.94
@@ -169,6 +172,9 @@ cp $RPM_SOURCE_DIR/install-sh .
 %patch73 -p1 -b .succif-quiet
 %patch74 -p1 -b .env-noabort
 %patch75 -p1 -b .stack-convoverwrite
+%patch76 -p1 -b .add-perms
+%patch77 -p1 -b .apply-to-dir
+%patch78 -p1 -b .man-fix
 
 for readme in modules/pam_*/README ; do
 	cp -f ${readme} doc/txts/README.`dirname ${readme} | sed -e 's|^modules/||'`
@@ -438,6 +444,11 @@ fi
 %{_libdir}/libpam_misc.so
 
 %changelog
+* Mon Oct 11 2004 Tomas Mraz <tmraz@redhat.com> 0.77-62
+- Added bluetooth, raw1394 and flash to console.perms
+- pam_console manpage fix 
+- Allow to apply console.perms to dir when
+
 * Mon Oct 11 2004 Tomas Mraz <tmraz@redhat.com> 0.77-61
 - #129328 pam_env shouldn't abort on missing /etc/environment
 - #126985 pam_stack should always copy the conversation function 
