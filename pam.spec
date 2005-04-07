@@ -11,7 +11,7 @@
 Summary: A security tool which provides authentication for applications.
 Name: pam
 Version: 0.79
-Release: 2
+Release: 3
 License: GPL or BSD
 Group: System Environment/Base
 Source0: ftp.us.kernel.org:/pub/linux/libs/pam/pre/library/Linux-PAM-%{version}.tar.bz2
@@ -30,6 +30,8 @@ Patch34: pam-0.77-dbpam.patch
 Patch60: pam-0.78-selinux.patch
 Patch61: pam-pwdbselinux.patch
 Patch70: pam-0.79-tally-null-data.patch
+Patch71: pam-0.79-unix-nis.patch
+Patch72: pam-0.79-unix-lsb.patch
 
 BuildRoot: %{_tmppath}/%{name}-root
 Requires: cracklib, cracklib-dicts >= 2.8, glib2, initscripts >= 3.94
@@ -80,6 +82,8 @@ cp $RPM_SOURCE_DIR/system-auth.pamd .
 %patch60 -p1 -b .selinux
 %patch61 -p1 -b .pwdbselinux 
 %patch70 -p1 -b .null-data
+%patch71 -p1 -b .nis
+%patch72 -p1 -b .lsb
 %endif
 
 for readme in modules/pam_*/README ; do
@@ -348,6 +352,11 @@ fi
 %{_libdir}/libpam_misc.so
 
 %changelog
+* Thu Apr  7 2005 Tomas Mraz <tmraz@redhat.com> 0.79-3
+- make pam_unix LSB 2.0 compliant even when SELinux enabled
+- #88127 - change both local and NIS passwords to keep them in sync,
+  also fix a regression in passwd functionality on NIS master server
+
 * Tue Apr  5 2005 Tomas Mraz <tmraz@redhat.com>
 - #153711 fix wrong logging in pam_selinux when restoring tty label
 
