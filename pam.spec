@@ -11,7 +11,7 @@
 Summary: A security tool which provides authentication for applications.
 Name: pam
 Version: 0.79
-Release: 3
+Release: 4
 License: GPL or BSD
 Group: System Environment/Base
 Source0: ftp.us.kernel.org:/pub/linux/libs/pam/pre/library/Linux-PAM-%{version}.tar.bz2
@@ -32,6 +32,7 @@ Patch61: pam-pwdbselinux.patch
 Patch70: pam-0.79-tally-null-data.patch
 Patch71: pam-0.79-unix-nis.patch
 Patch72: pam-0.79-unix-lsb.patch
+Patch73: pam-0.79-misc-flush-first.patch
 
 BuildRoot: %{_tmppath}/%{name}-root
 Requires: cracklib, cracklib-dicts >= 2.8, glib2, initscripts >= 3.94
@@ -84,6 +85,7 @@ cp $RPM_SOURCE_DIR/system-auth.pamd .
 %patch70 -p1 -b .null-data
 %patch71 -p1 -b .nis
 %patch72 -p1 -b .lsb
+%patch73 -p1 -b .flush-first
 %endif
 
 for readme in modules/pam_*/README ; do
@@ -352,6 +354,9 @@ fi
 %{_libdir}/libpam_misc.so
 
 %changelog
+* Fri Apr  8 2005 Tomas Mraz <tmraz@redhat.com> 0.79-4
+- #150537 - flush input first then write the prompt
+
 * Thu Apr  7 2005 Tomas Mraz <tmraz@redhat.com> 0.79-3
 - make pam_unix LSB 2.0 compliant even when SELinux enabled
 - #88127 - change both local and NIS passwords to keep them in sync,
