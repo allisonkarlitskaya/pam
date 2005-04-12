@@ -1,4 +1,5 @@
 %define WITH_SELINUX 1
+%define WITH_AUDIT 1
 
 %define _sbindir /sbin
 %define _sysconfdir /etc
@@ -11,7 +12,7 @@
 Summary: A security tool which provides authentication for applications.
 Name: pam
 Version: 0.79
-Release: 4
+Release: 5
 License: GPL or BSD
 Group: System Environment/Base
 Source0: ftp.us.kernel.org:/pub/linux/libs/pam/pre/library/Linux-PAM-%{version}.tar.bz2
@@ -29,10 +30,13 @@ Patch28: pam-0.75-sgml2latex.patch
 Patch34: pam-0.77-dbpam.patch
 Patch60: pam-0.78-selinux.patch
 Patch61: pam-pwdbselinux.patch
+Patch65: pam-0.77-audit.patch
 Patch70: pam-0.79-tally-null-data.patch
 Patch71: pam-0.79-unix-nis.patch
 Patch72: pam-0.79-unix-lsb.patch
 Patch73: pam-0.79-misc-flush-first.patch
+Patch74: pam-0.79-cleanup.patch
+Patch75: pam-0.79-cleanup-redhat.patch
 
 BuildRoot: %{_tmppath}/%{name}-root
 Requires: cracklib, cracklib-dicts >= 2.8, glib2, initscripts >= 3.94
@@ -41,6 +45,9 @@ Prereq: grep, mktemp, sed, coreutils, /sbin/ldconfig
 BuildPrereq: autoconf, bison, flex, glib2-devel, sed, cracklib,
 BuildPrereq: cracklib-dicts >= 2.8
 BuildPrereq: perl, pkgconfig
+%if %{WITH_AUDIT}
+BuildPrereq: audit-libs-devel >= 0.6.10
+%endif
 %if %{WITH_SELINUX}
 BuildPrereq: libselinux-devel >= 1.17.1
 Requires: libselinux >= 1.17.1
@@ -82,11 +89,16 @@ cp $RPM_SOURCE_DIR/system-auth.pamd .
 %if %{WITH_SELINUX}
 %patch60 -p1 -b .selinux
 %patch61 -p1 -b .pwdbselinux 
+%endif
+%if %{WITH_AUDIT}
+%patch65 -p1 -b .audit
+%endif
 %patch70 -p1 -b .null-data
 %patch71 -p1 -b .nis
 %patch72 -p1 -b .lsb
 %patch73 -p1 -b .flush-first
-%endif
+%patch74 -p1 -b .cleanup
+%patch75 -p1 -b .rhcleanup
 
 for readme in modules/pam_*/README ; do
 	cp -f ${readme} doc/txts/README.`dirname ${readme} | sed -e 's|^modules/||'`
@@ -354,6 +366,11 @@ fi
 %{_libdir}/libpam_misc.so
 
 %changelog
+* Tue Apr 12 2005 Tomas Mraz <tmraz@redhat.com> 0.79-5
+- added auditing patch by Steve Grubb
+- added cleanup patches for bugs found by Steve Grubb
+- don't clear the shadow option of pam_unix if nis option used
+
 * Fri Apr  8 2005 Tomas Mraz <tmraz@redhat.com> 0.79-4
 - #150537 - flush input first then write the prompt
 
