@@ -12,7 +12,7 @@
 Summary: A security tool which provides authentication for applications.
 Name: pam
 Version: 0.79
-Release: 5
+Release: 6
 License: GPL or BSD
 Group: System Environment/Base
 Source0: ftp.us.kernel.org:/pub/linux/libs/pam/pre/library/Linux-PAM-%{version}.tar.bz2
@@ -366,6 +366,9 @@ fi
 %{_libdir}/libpam_misc.so
 
 %changelog
+* Sat Apr 16 2005 Steve Grubb <sgrubb@redhat.com> 0.79-6
+- Adjusted pam audit patch to make exception for ECONNREFUSED
+
 * Tue Apr 12 2005 Tomas Mraz <tmraz@redhat.com> 0.79-5
 - added auditing patch by Steve Grubb
 - added cleanup patches for bugs found by Steve Grubb
