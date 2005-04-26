@@ -12,7 +12,7 @@
 Summary: A security tool which provides authentication for applications.
 Name: pam
 Version: 0.79
-Release: 6
+Release: 7
 License: GPL or BSD
 Group: System Environment/Base
 Source0: ftp.us.kernel.org:/pub/linux/libs/pam/pre/library/Linux-PAM-%{version}.tar.bz2
@@ -37,6 +37,8 @@ Patch72: pam-0.79-unix-lsb.patch
 Patch73: pam-0.79-misc-flush-first.patch
 Patch74: pam-0.79-cleanup.patch
 Patch75: pam-0.79-cleanup-redhat.patch
+Patch76: pam-0.79-xauth-unsetenv.patch
+Patch77: pam-0.79-console-fix-perms.patch
 
 BuildRoot: %{_tmppath}/%{name}-root
 Requires: cracklib, cracklib-dicts >= 2.8, glib2, initscripts >= 3.94
@@ -99,6 +101,8 @@ cp $RPM_SOURCE_DIR/system-auth.pamd .
 %patch73 -p1 -b .flush-first
 %patch74 -p1 -b .cleanup
 %patch75 -p1 -b .rhcleanup
+%patch76 -p1 -b .xauth-unset
+%patch77 -p1 -b .fix-perms
 
 for readme in modules/pam_*/README ; do
 	cp -f ${readme} doc/txts/README.`dirname ${readme} | sed -e 's|^modules/||'`
@@ -366,6 +370,11 @@ fi
 %{_libdir}/libpam_misc.so
 
 %changelog
+* Tue Apr 26 2005 Tomas Mraz <tmraz@redhat.com> 0.79-7
+- pam_xauth: unset the XAUTHORITY variable on error, fix
+  potential memory leaks
+- modify path to IDE floppy devices in console.perms (#155560)
+
 * Sat Apr 16 2005 Steve Grubb <sgrubb@redhat.com> 0.79-6
 - Adjusted pam audit patch to make exception for ECONNREFUSED
 
