@@ -12,7 +12,7 @@
 Summary: A security tool which provides authentication for applications.
 Name: pam
 Version: 0.79
-Release: 7
+Release: 8
 License: GPL or BSD
 Group: System Environment/Base
 Source0: ftp.us.kernel.org:/pub/linux/libs/pam/pre/library/Linux-PAM-%{version}.tar.bz2
@@ -38,7 +38,7 @@ Patch73: pam-0.79-misc-flush-first.patch
 Patch74: pam-0.79-cleanup.patch
 Patch75: pam-0.79-cleanup-redhat.patch
 Patch76: pam-0.79-xauth-unsetenv.patch
-Patch77: pam-0.79-console-fix-perms.patch
+Patch77: pam-0.79-console-perms-d.patch
 
 BuildRoot: %{_tmppath}/%{name}-root
 Requires: cracklib, cracklib-dicts >= 2.8, glib2, initscripts >= 3.94
@@ -102,7 +102,7 @@ cp $RPM_SOURCE_DIR/system-auth.pamd .
 %patch74 -p1 -b .cleanup
 %patch75 -p1 -b .rhcleanup
 %patch76 -p1 -b .xauth-unset
-%patch77 -p1 -b .fix-perms
+%patch77 -p1 -b .perms-d
 
 for readme in modules/pam_*/README ; do
 	cp -f ${readme} doc/txts/README.`dirname ${readme} | sed -e 's|^modules/||'`
@@ -346,7 +346,7 @@ fi
 %dir %{_sysconfdir}/security
 %config(noreplace) %{_sysconfdir}/security/access.conf
 %config(noreplace) %{_sysconfdir}/security/chroot.conf
-%config(noreplace) %{_sysconfdir}/security/console.perms
+%config %{_sysconfdir}/security/console.perms
 %config(noreplace) %{_sysconfdir}/security/console.handlers
 %config(noreplace) %{_sysconfdir}/security/group.conf
 %config(noreplace) %{_sysconfdir}/security/limits.conf
@@ -354,6 +354,8 @@ fi
 %config(noreplace) %{_sysconfdir}/security/time.conf
 %config(noreplace) %{_sysconfdir}/security/opasswd
 %dir %{_sysconfdir}/security/console.apps
+%dir %{_sysconfdir}/security/console.perms.d
+%config %{_sysconfdir}/security/console.perms.d/50-default.perms
 %dir /var/run/console
 %{_mandir}/man5/*
 %{_mandir}/man8/*
@@ -370,6 +372,9 @@ fi
 %{_libdir}/libpam_misc.so
 
 %changelog
+* Mon May  2 2005 Tomas Mraz <tmraz@redhat.com> 0.79-8
+- pam_console: support loading .perms files in the console.perms.d (#156069)
+
 * Tue Apr 26 2005 Tomas Mraz <tmraz@redhat.com> 0.79-7
 - pam_xauth: unset the XAUTHORITY variable on error, fix
   potential memory leaks
