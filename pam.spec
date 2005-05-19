@@ -12,7 +12,7 @@
 Summary: A security tool which provides authentication for applications.
 Name: pam
 Version: 0.79
-Release: 8
+Release: 9
 License: GPL or BSD
 Group: System Environment/Base
 Source0: ftp.us.kernel.org:/pub/linux/libs/pam/pre/library/Linux-PAM-%{version}.tar.bz2
@@ -48,7 +48,7 @@ BuildPrereq: autoconf, bison, flex, glib2-devel, sed, cracklib,
 BuildPrereq: cracklib-dicts >= 2.8
 BuildPrereq: perl, pkgconfig
 %if %{WITH_AUDIT}
-BuildPrereq: audit-libs-devel >= 0.6.10
+BuildPrereq: audit-libs-devel >= 0.8.1
 %endif
 %if %{WITH_SELINUX}
 BuildPrereq: libselinux-devel >= 1.17.1
@@ -372,6 +372,9 @@ fi
 %{_libdir}/libpam_misc.so
 
 %changelog
+* Thu May 19 2005 Tomas Mraz <tmraz@redhat.com> 0.79-9
+- update the pam audit patch to support newest audit library (Steve Grubb)
+
 * Mon May  2 2005 Tomas Mraz <tmraz@redhat.com> 0.79-8
 - pam_console: support loading .perms files in the console.perms.d (#156069)
 
