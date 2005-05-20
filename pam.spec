@@ -181,7 +181,6 @@ install -m 644 doc/man/*.8 $RPM_BUILD_ROOT%{_mandir}/man8/
 install -d -m 755 $RPM_BUILD_ROOT%{_libdir}
 for lib in libpam libpamc libpam_misc ; do
 ln -sf ../../%{_lib}/${lib}.so.%{version} $RPM_BUILD_ROOT%{_libdir}/${lib}.so
-ln -sf ${lib}.so.%{version} $RPM_BUILD_ROOT/%{_lib}/${lib}.so
 mv $RPM_BUILD_ROOT/%{_lib}/${lib}.a $RPM_BUILD_ROOT%{_libdir}/
 done
 
