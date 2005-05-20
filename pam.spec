@@ -372,8 +372,11 @@ fi
 %{_libdir}/libpam_misc.so
 
 %changelog
-* Thu May 19 2005 Tomas Mraz <tmraz@redhat.com> 0.79-9
-- update the pam audit patch to support newest audit library (Steve Grubb)
+* Fri May 20 2005 Tomas Mraz <tmraz@redhat.com> 0.79-9
+- update the pam audit patch to support newest audit library,
+  audit also pam_setcred calls (Steve Grubb)
+- don't use the audit_fd as global static variable
+- don't unset the XAUTHORITY when target user is root
 
 * Mon May  2 2005 Tomas Mraz <tmraz@redhat.com> 0.79-8
 - pam_console: support loading .perms files in the console.perms.d (#156069)
