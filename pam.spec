@@ -181,6 +181,7 @@ install -m 644 doc/man/*.8 $RPM_BUILD_ROOT%{_mandir}/man8/
 install -d -m 755 $RPM_BUILD_ROOT%{_libdir}
 for lib in libpam libpamc libpam_misc ; do
 ln -sf ../../%{_lib}/${lib}.so.%{version} $RPM_BUILD_ROOT%{_libdir}/${lib}.so
+rm -f $RPM_BUILD_ROOT/%{_lib}/${lib}.so
 mv $RPM_BUILD_ROOT/%{_lib}/${lib}.a $RPM_BUILD_ROOT%{_libdir}/
 done
 
@@ -217,7 +218,7 @@ for module in $RPM_BUILD_ROOT/%{_lib}/security/pam*.so ; do
 # And for good measure, make sure that none of the modules pull in threading
 # libraries, which if loaded in a non-threaded application, can cause Very
 # Bad Things to happen.
-	if env LD_PRELOAD=$RPM_BUILD_ROOT/%{_lib}/libpam.so ldd -r ${module} | fgrep -q libpthread ; then
+	if env LD_PRELOAD=$RPM_BUILD_ROOT/%{_libdir}/libpam.so ldd -r ${module} | fgrep -q libpthread ; then
 		echo ERROR module: ${module} pulls threading libraries.
 		exit 1
 	fi
