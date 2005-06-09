@@ -12,7 +12,7 @@
 Summary: A security tool which provides authentication for applications.
 Name: pam
 Version: 0.79
-Release: 9
+Release: 10
 License: GPL or BSD
 Group: System Environment/Base
 Source0: ftp.us.kernel.org:/pub/linux/libs/pam/pre/library/Linux-PAM-%{version}.tar.bz2
@@ -373,8 +373,10 @@ fi
 %{_libdir}/libpam_misc.so
 
 %changelog
-* Thu Jun  9 2005 Tomas Mraz <tmraz@redhat.com>
+* Thu Jun  9 2005 Tomas Mraz <tmraz@redhat.com> 0.79-10
 - add the Requires dependency on audit-libs (#159885)
+- pam_loginuid shouldn't report error when /proc/self/loginuid
+  is missing (#159974)
 
 * Fri May 20 2005 Tomas Mraz <tmraz@redhat.com> 0.79-9
 - update the pam audit patch to support newest audit library,
