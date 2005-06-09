@@ -49,6 +49,7 @@ BuildPrereq: cracklib-dicts >= 2.8
 BuildPrereq: perl, pkgconfig
 %if %{WITH_AUDIT}
 BuildPrereq: audit-libs-devel >= 0.8.1
+Requires: audit-libs >= 0.8.1
 %endif
 %if %{WITH_SELINUX}
 BuildPrereq: libselinux-devel >= 1.17.1
@@ -372,6 +373,9 @@ fi
 %{_libdir}/libpam_misc.so
 
 %changelog
+* Thu Jun  9 2005 Tomas Mraz <tmraz@redhat.com>
+- add the Requires dependency on audit-libs (#159885)
+
 * Fri May 20 2005 Tomas Mraz <tmraz@redhat.com> 0.79-9
 - update the pam audit patch to support newest audit library,
   audit also pam_setcred calls (Steve Grubb)
