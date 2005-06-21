@@ -12,7 +12,7 @@
 Summary: A security tool which provides authentication for applications.
 Name: pam
 Version: 0.79
-Release: 10
+Release: 11
 License: GPL or BSD
 Group: System Environment/Base
 Source0: ftp.us.kernel.org:/pub/linux/libs/pam/pre/library/Linux-PAM-%{version}.tar.bz2
@@ -39,6 +39,7 @@ Patch74: pam-0.79-cleanup.patch
 Patch75: pam-0.79-cleanup-redhat.patch
 Patch76: pam-0.79-xauth-unsetenv.patch
 Patch77: pam-0.79-console-perms-d.patch
+Patch78: pam-0.79-limits-rtlimits.patch
 
 BuildRoot: %{_tmppath}/%{name}-root
 Requires: cracklib, cracklib-dicts >= 2.8, glib2, initscripts >= 3.94
@@ -48,8 +49,8 @@ BuildPrereq: autoconf, bison, flex, glib2-devel, sed, cracklib,
 BuildPrereq: cracklib-dicts >= 2.8
 BuildPrereq: perl, pkgconfig
 %if %{WITH_AUDIT}
-BuildPrereq: audit-libs-devel >= 0.8.1
-Requires: audit-libs >= 0.8.1
+BuildPrereq: audit-libs-devel >= 0.9.10
+Requires: audit-libs >= 0.9.10
 %endif
 %if %{WITH_SELINUX}
 BuildPrereq: libselinux-devel >= 1.17.1
@@ -104,6 +105,7 @@ cp $RPM_SOURCE_DIR/system-auth.pamd .
 %patch75 -p1 -b .rhcleanup
 %patch76 -p1 -b .xauth-unset
 %patch77 -p1 -b .perms-d
+%patch78 -p1 -b .rtlimits
 
 for readme in modules/pam_*/README ; do
 	cp -f ${readme} doc/txts/README.`dirname ${readme} | sed -e 's|^modules/||'`
@@ -373,6 +375,10 @@ fi
 %{_libdir}/libpam_misc.so
 
 %changelog
+* Tue Jun 21 2005 Tomas Mraz <tmraz@redhat.com> 0.79-11
+- update pam audit patch
+- add support for new limits in kernel-2.6.12 (#157050)
+
 * Thu Jun  9 2005 Tomas Mraz <tmraz@redhat.com> 0.79-10
 - add the Requires dependency on audit-libs (#159885)
 - pam_loginuid shouldn't report error when /proc/self/loginuid
