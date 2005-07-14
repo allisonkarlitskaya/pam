@@ -11,8 +11,8 @@
 
 Summary: A security tool which provides authentication for applications.
 Name: pam
-Version: 0.79
-Release: 11
+Version: 0.80
+Release: 1
 License: GPL or BSD
 Group: System Environment/Base
 Source0: ftp.us.kernel.org:/pub/linux/libs/pam/pre/library/Linux-PAM-%{version}.tar.bz2
@@ -23,23 +23,13 @@ Source4: db-%{db_version}.tar.gz
 Source5: other.pamd
 Source6: system-auth.pamd
 Source8: dlopen.sh
-Patch4: pam-0.75-prompt.patch
 Patch10: pam-0.77-lastlog-utmp.patch
 Patch21: pam-0.78-unix-hpux-aging.patch
 Patch28: pam-0.75-sgml2latex.patch
 Patch34: pam-0.77-dbpam.patch
-Patch60: pam-0.78-selinux.patch
 Patch61: pam-pwdbselinux.patch
 Patch65: pam-0.77-audit.patch
-Patch70: pam-0.79-tally-null-data.patch
-Patch71: pam-0.79-unix-nis.patch
-Patch72: pam-0.79-unix-lsb.patch
-Patch73: pam-0.79-misc-flush-first.patch
-Patch74: pam-0.79-cleanup.patch
-Patch75: pam-0.79-cleanup-redhat.patch
-Patch76: pam-0.79-xauth-unsetenv.patch
-Patch77: pam-0.79-console-perms-d.patch
-Patch78: pam-0.79-limits-rtlimits.patch
+Patch70: pam-0.80-selinux-nofail.patch
 
 BuildRoot: %{_tmppath}/%{name}-root
 Requires: cracklib, cracklib-dicts >= 2.8, glib2, initscripts >= 3.94
@@ -85,27 +75,17 @@ PAM-aware applications and modules for use with PAM.
 cp $RPM_SOURCE_DIR/other.pamd .
 cp $RPM_SOURCE_DIR/system-auth.pamd .
 
-%patch4  -p1 -b .prompt
 %patch10 -p1 -b .lastlog-utmp
 %patch21 -p1 -b .unix-hpux-aging
 %patch28 -p1 -b .doc
 %patch34 -p1 -b .dbpam
 %if %{WITH_SELINUX}
-%patch60 -p1 -b .selinux
 %patch61 -p1 -b .pwdbselinux 
 %endif
 %if %{WITH_AUDIT}
 %patch65 -p1 -b .audit
 %endif
-%patch70 -p1 -b .null-data
-%patch71 -p1 -b .nis
-%patch72 -p1 -b .lsb
-%patch73 -p1 -b .flush-first
-%patch74 -p1 -b .cleanup
-%patch75 -p1 -b .rhcleanup
-%patch76 -p1 -b .xauth-unset
-%patch77 -p1 -b .perms-d
-%patch78 -p1 -b .rtlimits
+%patch70 -p1 -b .nofail
 
 for readme in modules/pam_*/README ; do
 	cp -f ${readme} doc/txts/README.`dirname ${readme} | sed -e 's|^modules/||'`
@@ -375,6 +355,12 @@ fi
 %{_libdir}/libpam_misc.so
 
 %changelog
+* Thu Jul 14 2005 Tomas Mraz <tmraz@redhat.com> 0.80-1
+- upgrade to new upstream sources
+- removed obsolete patches
+- pam_selinux module shouldn't fail on broken configs unless
+  policy is set to enforcing (Dan Walsh)
+
 * Tue Jun 21 2005 Tomas Mraz <tmraz@redhat.com> 0.79-11
 - update pam audit patch
 - add support for new limits in kernel-2.6.12 (#157050)
