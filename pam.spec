@@ -12,7 +12,7 @@
 Summary: A security tool which provides authentication for applications.
 Name: pam
 Version: 0.80
-Release: 1
+Release: 2
 License: GPL or BSD
 Group: System Environment/Base
 Source0: ftp.us.kernel.org:/pub/linux/libs/pam/pre/library/Linux-PAM-%{version}.tar.bz2
@@ -30,6 +30,7 @@ Patch34: pam-0.77-dbpam.patch
 Patch61: pam-pwdbselinux.patch
 Patch65: pam-0.77-audit.patch
 Patch70: pam-0.80-selinux-nofail.patch
+Patch71: pam-0.80-install-perms.patch
 
 BuildRoot: %{_tmppath}/%{name}-root
 Requires: cracklib, cracklib-dicts >= 2.8, glib2, initscripts >= 3.94
@@ -46,6 +47,10 @@ Requires: audit-libs >= 0.9.10
 BuildPrereq: libselinux-devel >= 1.17.1
 Requires: libselinux >= 1.17.1
 %endif
+# Following deps are necessary only to build the pam library documentation.
+# They can be safely removed if the documentation is not needed.
+BuildPrereq: ghostscript, linuxdoc-tools
+
 URL: http://www.us.kernel.org/pub/linux/libs/pam/index.html
 
 # We internalize libdb to get a non-threaded copy, but we should at least try
@@ -86,6 +91,7 @@ cp $RPM_SOURCE_DIR/system-auth.pamd .
 %patch65 -p1 -b .audit
 %endif
 %patch70 -p1 -b .nofail
+%patch71 -p1 -b .install-perms
 
 for readme in modules/pam_*/README ; do
 	cp -f ${readme} doc/txts/README.`dirname ${readme} | sed -e 's|^modules/||'`
@@ -159,15 +165,6 @@ install -d -m 755 $RPM_BUILD_ROOT%{_mandir}/man{3,5,8}
 install -m 644 doc/man/*.3 $RPM_BUILD_ROOT%{_mandir}/man3/
 install -m 644 doc/man/*.8 $RPM_BUILD_ROOT%{_mandir}/man8/
 
-# Move static libraries and make new .so links -- this depends on the value
-# of _libdir not changing, and *not* being /usr/lib.
-install -d -m 755 $RPM_BUILD_ROOT%{_libdir}
-for lib in libpam libpamc libpam_misc ; do
-ln -sf ../../%{_lib}/${lib}.so.%{version} $RPM_BUILD_ROOT%{_libdir}/${lib}.so
-rm -f $RPM_BUILD_ROOT/%{_lib}/${lib}.so
-mv $RPM_BUILD_ROOT/%{_lib}/${lib}.a $RPM_BUILD_ROOT%{_libdir}/
-done
-
 # Make sure every module subdirectory gave us a module.  Yes, this is hackish.
 for dir in modules/pam_* ; do
 if [ -d ${dir} ] ; then
@@ -176,6 +173,34 @@ if [ -d ${dir} ] ; then
 		exit 1
 	fi
 fi
+done
+
+# Check for module problems.  Specifically, check that every module we just
+# installed can actually be loaded by a minimal PAM-aware application.
+/sbin/ldconfig -n $RPM_BUILD_ROOT/%{_lib}
+for module in $RPM_BUILD_ROOT/%{_lib}/security/pam*.so ; do
+	if ! env LD_LIBRARY_PATH=$RPM_BUILD_ROOT/%{_lib} \
+		 $RPM_SOURCE_DIR/dlopen.sh -ldl -lpam -L$RPM_BUILD_ROOT/%{_lib} ${module} ; then
+		echo ERROR module: ${module} cannot be loaded.
+		exit 1
+	fi
+# And for good measure, make sure that none of the modules pull in threading
+# libraries, which if loaded in a non-threaded application, can cause Very
+# Bad Things to happen.
+	if env LD_LIBRARY_PATH=$RPM_BUILD_ROOT/%{_lib} \
+	       LD_PRELOAD=$RPM_BUILD_ROOT/%{_lib}/libpam.so ldd -r ${module} | fgrep -q libpthread ; then
+		echo ERROR module: ${module} pulls threading libraries.
+		exit 1
+	fi
+done
+
+# Move static libraries and make new .so links -- this depends on the value
+# of _libdir not changing, and *not* being /usr/lib.
+install -d -m 755 $RPM_BUILD_ROOT%{_libdir}
+for lib in libpam libpamc libpam_misc ; do
+ln -sf ../../%{_lib}/${lib}.so.%{version} $RPM_BUILD_ROOT%{_libdir}/${lib}.so
+rm -f $RPM_BUILD_ROOT/%{_lib}/${lib}.so $RPM_BUILD_ROOT/%{_lib}/${lib}.so.?
+mv $RPM_BUILD_ROOT/%{_lib}/${lib}.a $RPM_BUILD_ROOT%{_libdir}/
 done
 
 # Install the pwdb configuration file.
@@ -190,22 +215,6 @@ rm -fr $RPM_BUILD_ROOT/usr/doc/Linux-PAM $RPM_BUILD_ROOT/usr/share/doc/pam
 
 # Create /lib/security in case it isn't the same as /%{_lib}/security.
 install -m755 -d $RPM_BUILD_ROOT/lib/security
-
-# Check for module problems.  Specifically, check that every module we just
-# installed can actually be loaded by a minimal PAM-aware application.
-for module in $RPM_BUILD_ROOT/%{_lib}/security/pam*.so ; do
-	if ! $RPM_SOURCE_DIR/dlopen.sh -lpam -ldl -L$RPM_BUILD_ROOT/%{_lib} ${module} ; then
-		echo ERROR module: ${module} cannot be loaded.
-		exit 1
-	fi
-# And for good measure, make sure that none of the modules pull in threading
-# libraries, which if loaded in a non-threaded application, can cause Very
-# Bad Things to happen.
-	if env LD_PRELOAD=$RPM_BUILD_ROOT/%{_libdir}/libpam.so ldd -r ${module} | fgrep -q libpthread ; then
-		echo ERROR module: ${module} pulls threading libraries.
-		exit 1
-	fi
-done
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -355,6 +364,11 @@ fi
 %{_libdir}/libpam_misc.so
 
 %changelog
+* Mon Jul 18 2005 Tomas Mraz <tmraz@redhat.com> 0.80-2
+- fixed module tests so the pam doesn't require itself to build (#163502)
+- added buildprereq for building the documentation (#163503)
+- relaxed permissions of binaries (u+w)
+
 * Thu Jul 14 2005 Tomas Mraz <tmraz@redhat.com> 0.80-1
 - upgrade to new upstream sources
 - removed obsolete patches
