@@ -12,7 +12,7 @@
 Summary: A security tool which provides authentication for applications.
 Name: pam
 Version: 0.80
-Release: 2
+Release: 3
 License: GPL or BSD
 Group: System Environment/Base
 Source0: ftp.us.kernel.org:/pub/linux/libs/pam/pre/library/Linux-PAM-%{version}.tar.bz2
@@ -31,6 +31,7 @@ Patch61: pam-pwdbselinux.patch
 Patch65: pam-0.77-audit.patch
 Patch70: pam-0.80-selinux-nofail.patch
 Patch71: pam-0.80-install-perms.patch
+Patch72: pam-0.80-pie.patch
 
 BuildRoot: %{_tmppath}/%{name}-root
 Requires: cracklib, cracklib-dicts >= 2.8, glib2, initscripts >= 3.94
@@ -40,8 +41,8 @@ BuildPrereq: autoconf, bison, flex, glib2-devel, sed, cracklib,
 BuildPrereq: cracklib-dicts >= 2.8
 BuildPrereq: perl, pkgconfig
 %if %{WITH_AUDIT}
-BuildPrereq: audit-libs-devel >= 0.9.10
-Requires: audit-libs >= 0.9.10
+BuildPrereq: audit-libs-devel >= 0.9.19
+Requires: audit-libs >= 0.9.19
 %endif
 %if %{WITH_SELINUX}
 BuildPrereq: libselinux-devel >= 1.17.1
@@ -92,6 +93,7 @@ cp $RPM_SOURCE_DIR/system-auth.pamd .
 %endif
 %patch70 -p1 -b .nofail
 %patch71 -p1 -b .install-perms
+%patch72 -p1 -b .pie
 
 for readme in modules/pam_*/README ; do
 	cp -f ${readme} doc/txts/README.`dirname ${readme} | sed -e 's|^modules/||'`
@@ -364,6 +366,10 @@ fi
 %{_libdir}/libpam_misc.so
 
 %changelog
+* Fri Jul 22 2005 Tomas Mraz <tmraz@redhat.com> 0.80-3
+- more pam_selinux permissive fixes (Dan Walsh)
+- make binaries PIE (#158938)
+
 * Mon Jul 18 2005 Tomas Mraz <tmraz@redhat.com> 0.80-2
 - fixed module tests so the pam doesn't require itself to build (#163502)
 - added buildprereq for building the documentation (#163503)
