@@ -12,7 +12,7 @@
 Summary: A security tool which provides authentication for applications.
 Name: pam
 Version: 0.80
-Release: 3
+Release: 4
 License: GPL or BSD
 Group: System Environment/Base
 Source0: ftp.us.kernel.org:/pub/linux/libs/pam/pre/library/Linux-PAM-%{version}.tar.bz2
@@ -32,6 +32,7 @@ Patch65: pam-0.77-audit.patch
 Patch70: pam-0.80-selinux-nofail.patch
 Patch71: pam-0.80-install-perms.patch
 Patch72: pam-0.80-pie.patch
+Patch73: pam-0.80-cleanup.patch
 
 BuildRoot: %{_tmppath}/%{name}-root
 Requires: cracklib, cracklib-dicts >= 2.8, glib2, initscripts >= 3.94
@@ -94,6 +95,7 @@ cp $RPM_SOURCE_DIR/system-auth.pamd .
 %patch70 -p1 -b .nofail
 %patch71 -p1 -b .install-perms
 %patch72 -p1 -b .pie
+%patch73 -p1 -b .cleanup
 
 for readme in modules/pam_*/README ; do
 	cp -f ${readme} doc/txts/README.`dirname ${readme} | sed -e 's|^modules/||'`
@@ -366,6 +368,10 @@ fi
 %{_libdir}/libpam_misc.so
 
 %changelog
+* Tue Jul 26 2005 Tomas Mraz <tmraz@redhat.com> 0.80-4
+- fix 64bit bug in pam_pwdb
+- don't crash in pam_unix if pam_get_data fail
+
 * Fri Jul 22 2005 Tomas Mraz <tmraz@redhat.com> 0.80-3
 - more pam_selinux permissive fixes (Dan Walsh)
 - make binaries PIE (#158938)
