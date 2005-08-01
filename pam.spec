@@ -12,7 +12,7 @@
 Summary: A security tool which provides authentication for applications.
 Name: pam
 Version: 0.80
-Release: 5
+Release: 6
 License: GPL or BSD
 Group: System Environment/Base
 Source0: ftp.us.kernel.org:/pub/linux/libs/pam/pre/library/Linux-PAM-%{version}.tar.bz2
@@ -29,6 +29,7 @@ Patch28: pam-0.75-sgml2latex.patch
 Patch34: pam-0.77-dbpam.patch
 Patch61: pam-pwdbselinux.patch
 Patch65: pam-0.77-audit.patch
+Patch66: pam-0.79-loginuid-req-audit.patch
 Patch70: pam-0.80-selinux-nofail.patch
 Patch71: pam-0.80-install-perms.patch
 Patch72: pam-0.80-pie.patch
@@ -92,6 +93,7 @@ cp $RPM_SOURCE_DIR/system-auth.pamd .
 %endif
 %if %{WITH_AUDIT}
 %patch65 -p1 -b .audit
+%patch66 -p1 -b .req-audit
 %endif
 %patch70 -p1 -b .nofail
 %patch71 -p1 -b .install-perms
@@ -370,7 +372,10 @@ fi
 %{_libdir}/libpam_misc.so
 
 %changelog
-* Thu Jul 28 2005 Tomas Mraz <tmraz@redhat.com> 0.80-5
+* Mon Aug 01 2005 Tomas Mraz <tmraz@redhat.com> 0.80-6
+- add option to pam_loginuid to require auditd
+ 
+* Fri Jul 29 2005 Tomas Mraz <tmraz@redhat.com> 0.80-5
 - fix NULL dereference in pam_userdb (#164418)
 
 * Tue Jul 26 2005 Tomas Mraz <tmraz@redhat.com> 0.80-4
