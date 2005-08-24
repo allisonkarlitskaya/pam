@@ -12,7 +12,7 @@
 Summary: A security tool which provides authentication for applications.
 Name: pam
 Version: 0.80
-Release: 6
+Release: 7
 License: GPL or BSD
 Group: System Environment/Base
 Source0: ftp.us.kernel.org:/pub/linux/libs/pam/pre/library/Linux-PAM-%{version}.tar.bz2
@@ -372,6 +372,10 @@ fi
 %{_libdir}/libpam_misc.so
 
 %changelog
+* Wed Aug 24 2005 Tomas Mraz <tmraz@redhat.com> 0.80-7
+- don't fail in audit code when audit is not compiled in 
+  on the newest kernels (#166422)
+
 * Mon Aug 01 2005 Tomas Mraz <tmraz@redhat.com> 0.80-6
 - add option to pam_loginuid to require auditd
  
