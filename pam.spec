@@ -12,7 +12,7 @@
 Summary: A security tool which provides authentication for applications.
 Name: pam
 Version: 0.80
-Release: 7
+Release: 8
 License: GPL or BSD
 Group: System Environment/Base
 Source0: ftp.us.kernel.org:/pub/linux/libs/pam/pre/library/Linux-PAM-%{version}.tar.bz2
@@ -35,6 +35,7 @@ Patch71: pam-0.80-install-perms.patch
 Patch72: pam-0.80-pie.patch
 Patch73: pam-0.80-cleanup.patch
 Patch74: pam-0.79-userdb-test-null.patch
+Patch75: pam-0.80-limits-process.patch
 
 BuildRoot: %{_tmppath}/%{name}-root
 Requires: cracklib, cracklib-dicts >= 2.8, glib2, initscripts >= 3.94
@@ -100,6 +101,7 @@ cp $RPM_SOURCE_DIR/system-auth.pamd .
 %patch72 -p1 -b .pie
 %patch73 -p1 -b .cleanup
 %patch74 -p1 -b .test-null
+%patch75 -p1 -b .process-limit
 
 for readme in modules/pam_*/README ; do
 	cp -f ${readme} doc/txts/README.`dirname ${readme} | sed -e 's|^modules/||'`
@@ -372,6 +374,9 @@ fi
 %{_libdir}/libpam_misc.so
 
 %changelog
+* Tue Sep 20 2005 Tomas Mraz <tmraz@redhat.com> 0.80-8
+- process limit values other than RLIMIT_NICE correctly (#168790)
+
 * Wed Aug 24 2005 Tomas Mraz <tmraz@redhat.com> 0.80-7
 - don't fail in audit code when audit is not compiled in 
   on the newest kernels (#166422)
