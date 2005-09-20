@@ -36,6 +36,7 @@ Patch72: pam-0.80-pie.patch
 Patch73: pam-0.80-cleanup.patch
 Patch74: pam-0.79-userdb-test-null.patch
 Patch75: pam-0.80-limits-process.patch
+Patch76: pam-0.80-unix-honor-nis.patch
 
 BuildRoot: %{_tmppath}/%{name}-root
 Requires: cracklib, cracklib-dicts >= 2.8, glib2, initscripts >= 3.94
@@ -102,6 +103,7 @@ cp $RPM_SOURCE_DIR/system-auth.pamd .
 %patch73 -p1 -b .cleanup
 %patch74 -p1 -b .test-null
 %patch75 -p1 -b .process-limit
+%patch76 -p1 -b .honor-nis
 
 for readme in modules/pam_*/README ; do
 	cp -f ${readme} doc/txts/README.`dirname ${readme} | sed -e 's|^modules/||'`
@@ -376,6 +378,7 @@ fi
 %changelog
 * Tue Sep 20 2005 Tomas Mraz <tmraz@redhat.com> 0.80-8
 - process limit values other than RLIMIT_NICE correctly (#168790)
+- pam_unix: always honor nis flag on password change (by Aaron Hope)
 
 * Wed Aug 24 2005 Tomas Mraz <tmraz@redhat.com> 0.80-7
 - don't fail in audit code when audit is not compiled in 
