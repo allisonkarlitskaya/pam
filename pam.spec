@@ -12,7 +12,7 @@
 Summary: A security tool which provides authentication for applications.
 Name: pam
 Version: 0.80
-Release: 8
+Release: 9
 License: GPL or BSD
 Group: System Environment/Base
 Source0: ftp.us.kernel.org:/pub/linux/libs/pam/pre/library/Linux-PAM-%{version}.tar.bz2
@@ -22,6 +22,7 @@ Source3: pwdb-%{pwdb_version}.tar.gz
 Source4: db-%{db_version}.tar.gz
 Source5: other.pamd
 Source6: system-auth.pamd
+Source7: config-util.pamd
 Source8: dlopen.sh
 Patch10: pam-0.77-lastlog-utmp.patch
 Patch21: pam-0.78-unix-hpux-aging.patch
@@ -39,7 +40,7 @@ Patch75: pam-0.80-limits-process.patch
 Patch76: pam-0.80-unix-honor-nis.patch
 
 BuildRoot: %{_tmppath}/%{name}-root
-Requires: cracklib, cracklib-dicts >= 2.8, glib2, initscripts >= 3.94
+Requires: cracklib, cracklib-dicts >= 2.8, initscripts >= 3.94
 Obsoletes: pamconfig
 Prereq: grep, mktemp, sed, coreutils, /sbin/ldconfig
 BuildPrereq: autoconf, bison, flex, glib2-devel, sed, cracklib,
@@ -55,7 +56,7 @@ Requires: libselinux >= 1.17.1
 %endif
 # Following deps are necessary only to build the pam library documentation.
 # They can be safely removed if the documentation is not needed.
-BuildPrereq: ghostscript, linuxdoc-tools
+BuildPrereq: linuxdoc-tools
 
 URL: http://www.us.kernel.org/pub/linux/libs/pam/index.html
 
@@ -85,6 +86,7 @@ PAM-aware applications and modules for use with PAM.
 %setup -q -n Linux-PAM-%{version} -a 2 -a 3 -a 4
 cp $RPM_SOURCE_DIR/other.pamd .
 cp $RPM_SOURCE_DIR/system-auth.pamd .
+cp $RPM_SOURCE_DIR/config-util.pamd .
 
 %patch10 -p1 -b .lastlog-utmp
 %patch21 -p1 -b .unix-hpux-aging
@@ -164,6 +166,7 @@ make install FAKEROOT=$RPM_BUILD_ROOT LDCONFIG=:
 install -d -m 755 $RPM_BUILD_ROOT%{_sysconfdir}/pam.d
 install -m 644 other.pamd $RPM_BUILD_ROOT%{_sysconfdir}/pam.d/other
 install -m 644 system-auth.pamd $RPM_BUILD_ROOT%{_sysconfdir}/pam.d/system-auth
+install -m 644 config-util.pamd $RPM_BUILD_ROOT%{_sysconfdir}/pam.d/config-util
 install -m 600 /dev/null $RPM_BUILD_ROOT%{_sysconfdir}/security/opasswd
 
 # Forcibly strip binaries.
@@ -285,8 +288,9 @@ fi
 %dir /etc/pam.d
 %config(noreplace) /etc/pam.d/other
 %config(noreplace) /etc/pam.d/system-auth
+%config(noreplace) /etc/pam.d/config-util
 %doc Copyright
-%doc doc/html doc/ps doc/txts doc/pdf
+%doc doc/html doc/txts
 %doc doc/specs/rfc86.0.txt
 /%{_lib}/libpam.so.*
 /%{_lib}/libpamc.so.*
@@ -376,6 +380,11 @@ fi
 %{_libdir}/libpam_misc.so
 
 %changelog
+* Fri Sep 30 2005 Tomas Mraz <tmraz@redhat.com> 0.80-9
+- don't include ps and pdf docs (#168823)
+- new common config file for configuration utilities
+- remove glib2 dependency (#166979)
+
 * Tue Sep 20 2005 Tomas Mraz <tmraz@redhat.com> 0.80-8
 - process limit values other than RLIMIT_NICE correctly (#168790)
 - pam_unix: always honor nis flag on password change (by Aaron Hope)
