@@ -38,6 +38,7 @@ Patch73: pam-0.80-cleanup.patch
 Patch74: pam-0.79-userdb-test-null.patch
 Patch75: pam-0.80-limits-process.patch
 Patch76: pam-0.80-unix-honor-nis.patch
+Patch77: pam-0.80-console-doc-fix.patch
 
 BuildRoot: %{_tmppath}/%{name}-root
 Requires: cracklib, cracklib-dicts >= 2.8, initscripts >= 3.94
@@ -106,6 +107,7 @@ cp $RPM_SOURCE_DIR/config-util.pamd .
 %patch74 -p1 -b .test-null
 %patch75 -p1 -b .process-limit
 %patch76 -p1 -b .honor-nis
+%patch77 -p1 -b .console-doc
 
 for readme in modules/pam_*/README ; do
 	cp -f ${readme} doc/txts/README.`dirname ${readme} | sed -e 's|^modules/||'`
@@ -380,6 +382,9 @@ fi
 %{_libdir}/libpam_misc.so
 
 %changelog
+* Tue Oct  4 2005 Tomas Mraz <tmraz@redhat.com>
+- pam_console manpage fixes (#169373)
+
 * Fri Sep 30 2005 Tomas Mraz <tmraz@redhat.com> 0.80-9
 - don't include ps and pdf docs (#168823)
 - new common config file for configuration utilities
