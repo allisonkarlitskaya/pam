@@ -1,4 +1,3 @@
-%define WITH_SELINUX 1
 %define WITH_AUDIT 1
 
 %define _sbindir /sbin
@@ -12,7 +11,7 @@
 Summary: A security tool which provides authentication for applications.
 Name: pam
 Version: 0.80
-Release: 9
+Release: 10
 License: GPL or BSD
 Group: System Environment/Base
 Source0: ftp.us.kernel.org:/pub/linux/libs/pam/pre/library/Linux-PAM-%{version}.tar.bz2
@@ -39,6 +38,7 @@ Patch74: pam-0.79-userdb-test-null.patch
 Patch75: pam-0.80-limits-process.patch
 Patch76: pam-0.80-unix-honor-nis.patch
 Patch77: pam-0.80-console-doc-fix.patch
+Patch78: pam-0.80-delay.patch
 
 BuildRoot: %{_tmppath}/%{name}-root
 Requires: cracklib, cracklib-dicts >= 2.8, initscripts >= 3.94
@@ -51,10 +51,8 @@ BuildPrereq: perl, pkgconfig
 BuildPrereq: audit-libs-devel >= 0.9.19
 Requires: audit-libs >= 0.9.19
 %endif
-%if %{WITH_SELINUX}
-BuildPrereq: libselinux-devel >= 1.17.1
-Requires: libselinux >= 1.17.1
-%endif
+BuildPrereq: libselinux-devel >= 1.27.7
+Requires: libselinux >= 1.27.7
 # Following deps are necessary only to build the pam library documentation.
 # They can be safely removed if the documentation is not needed.
 BuildPrereq: linuxdoc-tools
@@ -93,9 +91,7 @@ cp $RPM_SOURCE_DIR/config-util.pamd .
 %patch21 -p1 -b .unix-hpux-aging
 %patch28 -p1 -b .doc
 %patch34 -p1 -b .dbpam
-%if %{WITH_SELINUX}
 %patch61 -p1 -b .pwdbselinux 
-%endif
 %if %{WITH_AUDIT}
 %patch65 -p1 -b .audit
 %patch66 -p1 -b .req-audit
@@ -108,6 +104,7 @@ cp $RPM_SOURCE_DIR/config-util.pamd .
 %patch75 -p1 -b .process-limit
 %patch76 -p1 -b .honor-nis
 %patch77 -p1 -b .console-doc
+%patch78 -p1 -b .delay
 
 for readme in modules/pam_*/README ; do
 	cp -f ${readme} doc/txts/README.`dirname ${readme} | sed -e 's|^modules/||'`
@@ -332,9 +329,7 @@ fi
 /%{_lib}/security/pam_rhosts_auth.so
 /%{_lib}/security/pam_rootok.so
 /%{_lib}/security/pam_rps.so
-%if %{WITH_SELINUX}
 /%{_lib}/security/pam_selinux.so
-%endif
 /%{_lib}/security/pam_securetty.so
 /%{_lib}/security/pam_shells.so
 /%{_lib}/security/pam_stack.so
@@ -382,6 +377,9 @@ fi
 %{_libdir}/libpam_misc.so
 
 %changelog
+* Thu Oct 13 2005 Dan Walsh <dwalsh@redhat.com> 0.80-11
+- Add getseuserbyname call for SELinux MCS/MLS policy
+
 * Tue Oct  4 2005 Tomas Mraz <tmraz@redhat.com>
 - pam_console manpage fixes (#169373)
 
