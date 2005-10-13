@@ -38,7 +38,6 @@ Patch74: pam-0.79-userdb-test-null.patch
 Patch75: pam-0.80-limits-process.patch
 Patch76: pam-0.80-unix-honor-nis.patch
 Patch77: pam-0.80-console-doc-fix.patch
-Patch78: pam-0.80-delay.patch
 
 BuildRoot: %{_tmppath}/%{name}-root
 Requires: cracklib, cracklib-dicts >= 2.8, initscripts >= 3.94
@@ -104,7 +103,6 @@ cp $RPM_SOURCE_DIR/config-util.pamd .
 %patch75 -p1 -b .process-limit
 %patch76 -p1 -b .honor-nis
 %patch77 -p1 -b .console-doc
-%patch78 -p1 -b .delay
 
 for readme in modules/pam_*/README ; do
 	cp -f ${readme} doc/txts/README.`dirname ${readme} | sed -e 's|^modules/||'`
