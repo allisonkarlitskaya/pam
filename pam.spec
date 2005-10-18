@@ -11,7 +11,7 @@
 Summary: A security tool which provides authentication for applications.
 Name: pam
 Version: 0.80
-Release: 10
+Release: 11
 License: GPL or BSD
 Group: System Environment/Base
 Source0: ftp.us.kernel.org:/pub/linux/libs/pam/pre/library/Linux-PAM-%{version}.tar.bz2
@@ -375,7 +375,10 @@ fi
 %{_libdir}/libpam_misc.so
 
 %changelog
-* Thu Oct 13 2005 Dan Walsh <dwalsh@redhat.com> 0.80-11
+* Fri Oct 14 2005 Dan Walsh <dwalsh@redhat.com> 0.80-11
+- Eliminate fail over for getseuserbyname call
+
+* Thu Oct 13 2005 Dan Walsh <dwalsh@redhat.com> 0.80-10
 - Add getseuserbyname call for SELinux MCS/MLS policy
 
 * Tue Oct  4 2005 Tomas Mraz <tmraz@redhat.com>
