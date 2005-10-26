@@ -51,8 +51,8 @@ BuildPrereq: autoconf, bison, flex, glib2-devel, sed, cracklib,
 BuildPrereq: cracklib-dicts >= 2.8
 BuildPrereq: perl, pkgconfig
 %if %{WITH_AUDIT}
-BuildPrereq: audit-libs-devel >= 0.9.19
-Requires: audit-libs >= 0.9.19
+BuildPrereq: audit-libs-devel >= 1.0.8
+Requires: audit-libs >= 1.0.8
 %endif
 BuildPrereq: libselinux-devel >= 1.27.7
 Requires: libselinux >= 1.27.7
