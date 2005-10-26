@@ -11,7 +11,7 @@
 Summary: A security tool which provides authentication for applications.
 Name: pam
 Version: 0.80
-Release: 11
+Release: 12
 License: GPL or BSD
 Group: System Environment/Base
 Source0: ftp.us.kernel.org:/pub/linux/libs/pam/pre/library/Linux-PAM-%{version}.tar.bz2
@@ -375,6 +375,9 @@ fi
 %{_libdir}/libpam_misc.so
 
 %changelog
+* Wed Oct 26 2005 Dan Walsh <dwalsh@redhat.com> 0.80-12
+- Eliminate multiple in pam_selinux
+
 * Fri Oct 14 2005 Dan Walsh <dwalsh@redhat.com> 0.80-11
 - Eliminate fail over for getseuserbyname call
 
