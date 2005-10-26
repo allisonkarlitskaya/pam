@@ -11,7 +11,7 @@
 Summary: A security tool which provides authentication for applications.
 Name: pam
 Version: 0.80
-Release: 12
+Release: 13
 License: GPL or BSD
 Group: System Environment/Base
 Source0: ftp.us.kernel.org:/pub/linux/libs/pam/pre/library/Linux-PAM-%{version}.tar.bz2
@@ -28,7 +28,7 @@ Patch21: pam-0.78-unix-hpux-aging.patch
 Patch28: pam-0.75-sgml2latex.patch
 Patch34: pam-0.77-dbpam.patch
 Patch61: pam-pwdbselinux.patch
-Patch65: pam-0.77-audit.patch
+Patch65: pam-0.80-audit.patch
 Patch66: pam-0.79-loginuid-req-audit.patch
 Patch70: pam-0.80-selinux-nofail.patch
 Patch71: pam-0.80-install-perms.patch
@@ -38,6 +38,10 @@ Patch74: pam-0.79-userdb-test-null.patch
 Patch75: pam-0.80-limits-process.patch
 Patch76: pam-0.80-unix-honor-nis.patch
 Patch77: pam-0.80-console-doc-fix.patch
+Patch78: pam-0.77-can-2005-2977.patch
+Patch79: pam-0.80-access-notty.patch
+Patch80: pam-0.80-selinux-drop-multiple.patch
+Patch81: pam-0.80-xauth-path.patch
 
 BuildRoot: %{_tmppath}/%{name}-root
 Requires: cracklib, cracklib-dicts >= 2.8, initscripts >= 3.94
@@ -103,6 +107,10 @@ cp $RPM_SOURCE_DIR/config-util.pamd .
 %patch75 -p1 -b .process-limit
 %patch76 -p1 -b .honor-nis
 %patch77 -p1 -b .console-doc
+%patch78 -p1 -b .only-root
+%patch79 -p1 -b .notty
+%patch80 -p1 -b .drop-multiple
+%patch81 -p1 -b .xauth-path
 
 for readme in modules/pam_*/README ; do
 	cp -f ${readme} doc/txts/README.`dirname ${readme} | sed -e 's|^modules/||'`
@@ -375,6 +383,15 @@ fi
 %{_libdir}/libpam_misc.so
 
 %changelog
+* Wed Oct 26 2005 Tomas Mraz <tmraz@redhat.com> 0.80-13
+- fixed CAN-2005-2977 unix_chkpwd should skip user verification only if
+  run as root (#168181)
+- link pam_loginuid to libaudit
+- support no tty in pam_access (#170467)
+- updated audit patch (by Steve Grubb)
+- the previous pam_selinux change was not applied properly
+- pam_xauth: look for the xauth binary in multiple directories (#171164)
+
 * Wed Oct 26 2005 Dan Walsh <dwalsh@redhat.com> 0.80-12
 - Eliminate multiple in pam_selinux
 
