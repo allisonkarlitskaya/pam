@@ -11,7 +11,7 @@
 Summary: A security tool which provides authentication for applications.
 Name: pam
 Version: 0.80
-Release: 13
+Release: 14
 License: GPL or BSD
 Group: System Environment/Base
 Source0: ftp.us.kernel.org:/pub/linux/libs/pam/pre/library/Linux-PAM-%{version}.tar.bz2
@@ -42,6 +42,7 @@ Patch78: pam-0.77-can-2005-2977.patch
 Patch79: pam-0.80-access-notty.patch
 Patch80: pam-0.80-selinux-drop-multiple.patch
 Patch81: pam-0.80-xauth-path.patch
+Patch82: pam-0.80-stack-deprecate.patch
 
 BuildRoot: %{_tmppath}/%{name}-root
 Requires: cracklib, cracklib-dicts >= 2.8, initscripts >= 3.94
@@ -111,6 +112,7 @@ cp $RPM_SOURCE_DIR/config-util.pamd .
 %patch79 -p1 -b .notty
 %patch80 -p1 -b .drop-multiple
 %patch81 -p1 -b .xauth-path
+%patch82 -p1 -b .stack-deprecate
 
 for readme in modules/pam_*/README ; do
 	cp -f ${readme} doc/txts/README.`dirname ${readme} | sed -e 's|^modules/||'`
@@ -383,6 +385,9 @@ fi
 %{_libdir}/libpam_misc.so
 
 %changelog
+* Tue Nov 15 2005 Tomas Mraz <tmraz@redhat.com> 0.80-14
+- pam_stack is deprecated - log its usage
+
 * Wed Oct 26 2005 Tomas Mraz <tmraz@redhat.com> 0.80-13
 - fixed CAN-2005-2977 unix_chkpwd should skip user verification only if
   run as root (#168181)
