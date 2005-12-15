@@ -6,43 +6,34 @@
 %define pwdb_version 0.62
 %define db_version 4.3.27
 %define db_conflicting_version 4.4.0
-%define pam_redhat_release 1
+%define pam_redhat_version 0.99.1-1
 
 Summary: A security tool which provides authentication for applications.
 Name: pam
-Version: 0.80
-Release: 14.1
+Version: 0.99.2.1
+Release: 1
 License: GPL or BSD
 Group: System Environment/Base
 Source0: ftp.us.kernel.org:/pub/linux/libs/pam/pre/library/Linux-PAM-%{version}.tar.bz2
 Source1: ftp.us.kernel.org:/pub/linux/libs/pam/pre/library/Linux-PAM-%{version}.tar.bz2.sign
-Source2: pam-redhat-%{version}-%{pam_redhat_release}.tar.bz2
-Source3: pwdb-%{pwdb_version}.tar.gz
+Source2: pam-redhat-%{pam_redhat_version}.tar.bz2
 Source4: db-%{db_version}.tar.gz
 Source5: other.pamd
 Source6: system-auth.pamd
 Source7: config-util.pamd
 Source8: dlopen.sh
-Patch10: pam-0.77-lastlog-utmp.patch
+Patch1: pam-0.99.2.1-redhat-modules.patch
 Patch21: pam-0.78-unix-hpux-aging.patch
 Patch28: pam-0.75-sgml2latex.patch
-Patch34: pam-0.77-dbpam.patch
-Patch61: pam-pwdbselinux.patch
-Patch65: pam-0.80-audit.patch
-Patch66: pam-0.79-loginuid-req-audit.patch
-Patch70: pam-0.80-selinux-nofail.patch
-Patch71: pam-0.80-install-perms.patch
-Patch72: pam-0.80-pie.patch
-Patch73: pam-0.80-cleanup.patch
-Patch74: pam-0.79-userdb-test-null.patch
-Patch75: pam-0.80-limits-process.patch
-Patch76: pam-0.80-unix-honor-nis.patch
+Patch34: pam-0.99.2.1-dbpam.patch
+Patch65: pam-0.99.2.1-audit.patch
+Patch66: pam-0.99.2.1-loginuid-req-audit.patch
+Patch70: pam-0.99.2.1-selinux-nofail.patch
+Patch72: pam-0.99.2.1-pie.patch
 Patch77: pam-0.80-console-doc-fix.patch
-Patch78: pam-0.77-can-2005-2977.patch
-Patch79: pam-0.80-access-notty.patch
-Patch80: pam-0.80-selinux-drop-multiple.patch
-Patch81: pam-0.80-xauth-path.patch
-Patch82: pam-0.80-stack-deprecate.patch
+Patch80: pam-0.99.2.1-selinux-drop-multiple.patch
+Patch83: pam-0.77-succif-netgroup.patch
+Patch84: pam-0.99.2.1-lastlog-fixes.patch
 
 BuildRoot: %{_tmppath}/%{name}-root
 Requires: cracklib, cracklib-dicts >= 2.8, initscripts >= 3.94
@@ -86,38 +77,30 @@ contains header files and static libraries used for building both
 PAM-aware applications and modules for use with PAM.
 
 %prep
-%setup -q -n Linux-PAM-%{version} -a 2 -a 3 -a 4
+%setup -q -n Linux-PAM-%{version} -a 2 -a 4
 cp $RPM_SOURCE_DIR/other.pamd .
 cp $RPM_SOURCE_DIR/system-auth.pamd .
 cp $RPM_SOURCE_DIR/config-util.pamd .
 
-%patch10 -p1 -b .lastlog-utmp
+%patch1 -p0 -b .redhat-modules
 %patch21 -p1 -b .unix-hpux-aging
 %patch28 -p1 -b .doc
 %patch34 -p1 -b .dbpam
-%patch61 -p1 -b .pwdbselinux 
 %if %{WITH_AUDIT}
 %patch65 -p1 -b .audit
 %patch66 -p1 -b .req-audit
 %endif
 %patch70 -p1 -b .nofail
-%patch71 -p1 -b .install-perms
 %patch72 -p1 -b .pie
-%patch73 -p1 -b .cleanup
-%patch74 -p1 -b .test-null
-%patch75 -p1 -b .process-limit
-%patch76 -p1 -b .honor-nis
 %patch77 -p1 -b .console-doc
-%patch78 -p1 -b .only-root
-%patch79 -p1 -b .notty
 %patch80 -p1 -b .drop-multiple
-%patch81 -p1 -b .xauth-path
-%patch82 -p1 -b .stack-deprecate
+%patch83 -p1 -b .succif-netgroup
+%patch84 -p0 -b .lastlog-fixes
 
 for readme in modules/pam_*/README ; do
 	cp -f ${readme} doc/txts/README.`dirname ${readme} | sed -e 's|^modules/||'`
 done
-autoconf
+autoreconf
 
 %build
 CFLAGS="-fPIC $RPM_OPT_FLAGS" ; export CFLAGS
@@ -148,26 +131,19 @@ make
 make install
 popd
 
-pushd pwdb-%{pwdb_version}
-make 
-make install INCLUDED=${topdir}/include/pwdb LIBDIR=${topdir}/%{_lib} LDCONFIG=:
-rm ${topdir}/%{_lib}/*.so*
-popd
-
 CPPFLAGS=-I${topdir}/include ; export CPPFLAGS
 export LIBNAME="%{_lib}"
 LDFLAGS=-L${topdir}/%{_lib} ; export LDFLAGS
 %configure \
 	--libdir=/%{_lib} \
-	--enable-static-libpam \
-	--enable-fakeroot=$RPM_BUILD_ROOT \
+	--includedir=%{_includedir}/security \
 	--enable-isadir=../../%{_lib}/security
 make
 
 %install
 rm -rf $RPM_BUILD_ROOT
 # Install the binaries, libraries, and modules.
-make install FAKEROOT=$RPM_BUILD_ROOT LDCONFIG=:
+make install DESTDIR=$RPM_BUILD_ROOT LDCONFIG=:
 
 # Install default configuration files.
 install -d -m 755 $RPM_BUILD_ROOT%{_sysconfdir}/pam.d
@@ -180,13 +156,15 @@ install -m 600 /dev/null $RPM_BUILD_ROOT%{_sysconfdir}/security/opasswd
 strip $RPM_BUILD_ROOT%{_sbindir}/* ||:
 
 # Remove docs for modules we exclude from the files manifest.
-#rm doc/*/*pam_timestamp*
+rm doc/*/*pam_pwdb*
 
 # Install man pages.
 install -d -m 755 $RPM_BUILD_ROOT%{_mandir}/man{3,5,8}
 install -m 644 doc/man/*.3 $RPM_BUILD_ROOT%{_mandir}/man3/
 install -m 644 doc/man/*.8 $RPM_BUILD_ROOT%{_mandir}/man8/
 
+# Remove pam_pwdb so it won't error out
+rm -rf modules/pam_pwdb
 # Make sure every module subdirectory gave us a module.  Yes, this is hackish.
 for dir in modules/pam_* ; do
 if [ -d ${dir} ] ; then
@@ -216,27 +194,27 @@ for module in $RPM_BUILD_ROOT/%{_lib}/security/pam*.so ; do
 	fi
 done
 
-# Move static libraries and make new .so links -- this depends on the value
+for phase in auth acct passwd session ; do
+	ln -sf pam_unix.so $RPM_BUILD_ROOT/%{_lib}/security/pam_unix_${phase}.so 
+done
+
+# Remove .la files and make new .so links -- this depends on the value
 # of _libdir not changing, and *not* being /usr/lib.
 install -d -m 755 $RPM_BUILD_ROOT%{_libdir}
 for lib in libpam libpamc libpam_misc ; do
-ln -sf ../../%{_lib}/${lib}.so.%{version} $RPM_BUILD_ROOT%{_libdir}/${lib}.so
-rm -f $RPM_BUILD_ROOT/%{_lib}/${lib}.so $RPM_BUILD_ROOT/%{_lib}/${lib}.so.?
-mv $RPM_BUILD_ROOT/%{_lib}/${lib}.a $RPM_BUILD_ROOT%{_libdir}/
+ln -sf ../../%{_lib}/${lib}.so.*.* $RPM_BUILD_ROOT%{_libdir}/${lib}.so
+rm -f $RPM_BUILD_ROOT/%{_lib}/${lib}.so
+rm -f $RPM_BUILD_ROOT/%{_lib}/${lib}.la
 done
-
-# Install the pwdb configuration file.
-install -m644 pwdb-%{pwdb_version}/conf/pwdb.conf $RPM_BUILD_ROOT%{_sysconfdir}/
-
-# Remove unwanted files from the buildroot.
-rm $RPM_BUILD_ROOT/%{_lib}/security/pam_radius.so
-rm -f doc/txts/README.pam_radius
+rm -f $RPM_BUILD_ROOT/%{_lib}/security/*.la
 
 # Duplicate doc file sets.
-rm -fr $RPM_BUILD_ROOT/usr/doc/Linux-PAM $RPM_BUILD_ROOT/usr/share/doc/pam
+rm -fr $RPM_BUILD_ROOT/usr/share/doc/pam
 
 # Create /lib/security in case it isn't the same as /%{_lib}/security.
 install -m755 -d $RPM_BUILD_ROOT/lib/security
+
+%find_lang Linux-PAM
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -289,9 +267,8 @@ fi
 
 %postun -p /sbin/ldconfig
 
-%files
+%files -f Linux-PAM.lang
 %defattr(-,root,root)
-%config /etc/pwdb.conf
 %dir /etc/pam.d
 %config(noreplace) /etc/pam.d/other
 %config(noreplace) /etc/pam.d/system-auth
@@ -304,9 +281,8 @@ fi
 /%{_lib}/libpam_misc.so.*
 %{_sbindir}/pam_console_apply
 %{_sbindir}/pam_tally
-%{_sbindir}/pam_timestamp_check
-%{_sbindir}/pwdb_chkpwd
-%{_sbindir}/unix_chkpwd
+%attr(4755,root,root) %{_sbindir}/pam_timestamp_check
+%attr(4755,root,root) %{_sbindir}/unix_chkpwd
 %if %{_lib} != lib
 %dir /lib/security
 %endif
@@ -317,6 +293,7 @@ fi
 /%{_lib}/security/pam_cracklib.so
 /%{_lib}/security/pam_debug.so
 /%{_lib}/security/pam_deny.so
+/%{_lib}/security/pam_echo.so
 /%{_lib}/security/pam_env.so
 /%{_lib}/security/pam_filter.so
 /%{_lib}/security/pam_ftp.so
@@ -333,7 +310,6 @@ fi
 /%{_lib}/security/pam_nologin.so
 /%{_lib}/security/pam_permit.so
 /%{_lib}/security/pam_postgresok.so
-/%{_lib}/security/pam_pwdb.so
 /%{_lib}/security/pam_rhosts_auth.so
 /%{_lib}/security/pam_rootok.so
 /%{_lib}/security/pam_rps.so
@@ -346,6 +322,7 @@ fi
 /%{_lib}/security/pam_tally.so
 /%{_lib}/security/pam_time.so
 /%{_lib}/security/pam_timestamp.so
+/%{_lib}/security/pam_umask.so
 /%{_lib}/security/pam_unix.so
 /%{_lib}/security/pam_unix_acct.so
 /%{_lib}/security/pam_unix_auth.so
@@ -377,14 +354,17 @@ fi
 %defattr(-,root,root)
 %{_includedir}/security/
 %{_mandir}/man3/*
-%{_libdir}/libpam.a
 %{_libdir}/libpam.so
-%{_libdir}/libpamc.a
 %{_libdir}/libpamc.so
-%{_libdir}/libpam_misc.a
 %{_libdir}/libpam_misc.so
 
 %changelog
+* Thu Dec 15 2005 Tomas Mraz <tmraz@redhat.com> 0.99.2.1-1
+- support netgroup matching in pam_succeed_if
+- upgrade to new release
+- drop pam_pwdb as it was obsolete long ago
+- we don't build static libraries anymore
+
 * Fri Dec 09 2005 Jesse Keating <jkeating@redhat.com>
 - rebuilt
 
