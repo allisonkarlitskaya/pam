@@ -11,7 +11,7 @@
 Summary: A security tool which provides authentication for applications.
 Name: pam
 Version: 0.99.2.1
-Release: 1
+Release: 2
 License: GPL or BSD
 Group: System Environment/Base
 Source0: ftp.us.kernel.org:/pub/linux/libs/pam/pre/library/Linux-PAM-%{version}.tar.bz2
@@ -202,7 +202,9 @@ done
 # of _libdir not changing, and *not* being /usr/lib.
 install -d -m 755 $RPM_BUILD_ROOT%{_libdir}
 for lib in libpam libpamc libpam_misc ; do
-ln -sf ../../%{_lib}/${lib}.so.*.* $RPM_BUILD_ROOT%{_libdir}/${lib}.so
+pushd $RPM_BUILD_ROOT%{_libdir}
+ln -sf ../../%{_lib}/${lib}.so.*.* ${lib}.so
+popd
 rm -f $RPM_BUILD_ROOT/%{_lib}/${lib}.so
 rm -f $RPM_BUILD_ROOT/%{_lib}/${lib}.la
 done
@@ -359,6 +361,11 @@ fi
 %{_libdir}/libpam_misc.so
 
 %changelog
+* Fri Dec 16 2005 Tomas Mraz <tmraz@redhat.com> 0.99.2.1-2
+- fix dangling symlinks in -devel (#175929)
+- link libaudit only where necessary
+- actually compile in audit support
+
 * Thu Dec 15 2005 Tomas Mraz <tmraz@redhat.com> 0.99.2.1-1
 - support netgroup matching in pam_succeed_if
 - upgrade to new release
