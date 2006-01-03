@@ -6,12 +6,12 @@
 %define pwdb_version 0.62
 %define db_version 4.3.27
 %define db_conflicting_version 4.4.0
-%define pam_redhat_version 0.99.1-1
+%define pam_redhat_version 0.99.2-1
 
 Summary: A security tool which provides authentication for applications.
 Name: pam
 Version: 0.99.2.1
-Release: 2
+Release: 3
 License: GPL or BSD
 Group: System Environment/Base
 Source0: ftp.us.kernel.org:/pub/linux/libs/pam/pre/library/Linux-PAM-%{version}.tar.bz2
@@ -27,20 +27,18 @@ Patch21: pam-0.78-unix-hpux-aging.patch
 Patch28: pam-0.75-sgml2latex.patch
 Patch34: pam-0.99.2.1-dbpam.patch
 Patch65: pam-0.99.2.1-audit.patch
-Patch66: pam-0.99.2.1-loginuid-req-audit.patch
 Patch70: pam-0.99.2.1-selinux-nofail.patch
 Patch72: pam-0.99.2.1-pie.patch
-Patch77: pam-0.80-console-doc-fix.patch
 Patch80: pam-0.99.2.1-selinux-drop-multiple.patch
 Patch83: pam-0.77-succif-netgroup.patch
 Patch84: pam-0.99.2.1-lastlog-fixes.patch
 
 BuildRoot: %{_tmppath}/%{name}-root
-Requires: cracklib, cracklib-dicts >= 2.8, initscripts >= 3.94
+Requires: cracklib, cracklib-dicts >= 2.8
 Obsoletes: pamconfig
 Prereq: grep, mktemp, sed, coreutils, /sbin/ldconfig
-BuildPrereq: autoconf, bison, flex, glib2-devel, sed, cracklib,
-BuildPrereq: cracklib-dicts >= 2.8
+BuildPrereq: autoconf, bison, flex, glib2-devel, sed
+BuildPrereq: cracklib, cracklib-dicts >= 2.8
 BuildPrereq: perl, pkgconfig
 %if %{WITH_AUDIT}
 BuildPrereq: audit-libs-devel >= 1.0.8
@@ -88,11 +86,9 @@ cp $RPM_SOURCE_DIR/config-util.pamd .
 %patch34 -p1 -b .dbpam
 %if %{WITH_AUDIT}
 %patch65 -p1 -b .audit
-%patch66 -p1 -b .req-audit
 %endif
 %patch70 -p1 -b .nofail
 %patch72 -p1 -b .pie
-%patch77 -p1 -b .console-doc
 %patch80 -p1 -b .drop-multiple
 %patch83 -p1 -b .succif-netgroup
 %patch84 -p0 -b .lastlog-fixes
@@ -361,6 +357,10 @@ fi
 %{_libdir}/libpam_misc.so
 
 %changelog
+* Tue Jan  3 2006 Tomas Mraz <tmraz@redhat.com> 0.99.2.1-3
+- remove 'initscripts' dependency (#176508)
+- update pam-redhat modules, merged patches
+
 * Fri Dec 16 2005 Tomas Mraz <tmraz@redhat.com> 0.99.2.1-2
 - fix dangling symlinks in -devel (#175929)
 - link libaudit only where necessary
