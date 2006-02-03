@@ -4,14 +4,14 @@
 %define _sysconfdir /etc
 
 %define pwdb_version 0.62
-%define db_version 4.3.27
+%define db_version 4.3.29
 %define db_conflicting_version 4.4.0
-%define pam_redhat_version 0.99.2-1
+%define pam_redhat_version 0.99.3-1
 
 Summary: A security tool which provides authentication for applications.
 Name: pam
-Version: 0.99.2.1
-Release: 3
+Version: 0.99.3.0
+Release: 1
 License: GPL or BSD
 Group: System Environment/Base
 Source0: ftp.us.kernel.org:/pub/linux/libs/pam/pre/library/Linux-PAM-%{version}.tar.bz2
@@ -22,16 +22,15 @@ Source5: other.pamd
 Source6: system-auth.pamd
 Source7: config-util.pamd
 Source8: dlopen.sh
+Source9: system-auth.5
+Source10: config-util.5
 Patch1: pam-0.99.2.1-redhat-modules.patch
 Patch21: pam-0.78-unix-hpux-aging.patch
 Patch28: pam-0.75-sgml2latex.patch
 Patch34: pam-0.99.2.1-dbpam.patch
-Patch65: pam-0.99.2.1-audit.patch
 Patch70: pam-0.99.2.1-selinux-nofail.patch
-Patch72: pam-0.99.2.1-pie.patch
+Patch72: pam-0.99.3.0-pie.patch
 Patch80: pam-0.99.2.1-selinux-drop-multiple.patch
-Patch83: pam-0.77-succif-netgroup.patch
-Patch84: pam-0.99.2.1-lastlog-fixes.patch
 
 BuildRoot: %{_tmppath}/%{name}-root
 Requires: cracklib, cracklib-dicts >= 2.8
@@ -84,14 +83,9 @@ cp $RPM_SOURCE_DIR/config-util.pamd .
 %patch21 -p1 -b .unix-hpux-aging
 %patch28 -p1 -b .doc
 %patch34 -p1 -b .dbpam
-%if %{WITH_AUDIT}
-%patch65 -p1 -b .audit
-%endif
 %patch70 -p1 -b .nofail
 %patch72 -p1 -b .pie
 %patch80 -p1 -b .drop-multiple
-%patch83 -p1 -b .succif-netgroup
-%patch84 -p0 -b .lastlog-fixes
 
 for readme in modules/pam_*/README ; do
 	cp -f ${readme} doc/txts/README.`dirname ${readme} | sed -e 's|^modules/||'`
@@ -155,9 +149,7 @@ strip $RPM_BUILD_ROOT%{_sbindir}/* ||:
 rm doc/*/*pam_pwdb*
 
 # Install man pages.
-install -d -m 755 $RPM_BUILD_ROOT%{_mandir}/man{3,5,8}
-install -m 644 doc/man/*.3 $RPM_BUILD_ROOT%{_mandir}/man3/
-install -m 644 doc/man/*.8 $RPM_BUILD_ROOT%{_mandir}/man8/
+install -m 644 %{SOURCE9} %{SOURCE10} $RPM_BUILD_ROOT%{_mandir}/man5/
 
 # Remove pam_pwdb so it won't error out
 rm -rf modules/pam_pwdb
@@ -279,6 +271,7 @@ fi
 /%{_lib}/libpam_misc.so.*
 %{_sbindir}/pam_console_apply
 %{_sbindir}/pam_tally
+%{_sbindir}/pam_tally2
 %attr(4755,root,root) %{_sbindir}/pam_timestamp_check
 %attr(4755,root,root) %{_sbindir}/unix_chkpwd
 %if %{_lib} != lib
@@ -318,6 +311,7 @@ fi
 /%{_lib}/security/pam_stress.so
 /%{_lib}/security/pam_succeed_if.so
 /%{_lib}/security/pam_tally.so
+/%{_lib}/security/pam_tally2.so
 /%{_lib}/security/pam_time.so
 /%{_lib}/security/pam_timestamp.so
 /%{_lib}/security/pam_umask.so
@@ -357,6 +351,12 @@ fi
 %{_libdir}/libpam_misc.so
 
 %changelog
+* Fri Feb  3 2006 Tomas Mraz <tmraz@redhat.com> 0.99.3.0-1
+- new upstream version
+- updated db4 to 4.3.29
+- added module pam_tally2 with auditing support
+- added manual pages for system-auth and config-util (#179584)
+
 * Tue Jan  3 2006 Tomas Mraz <tmraz@redhat.com> 0.99.2.1-3
 - remove 'initscripts' dependency (#176508)
 - update pam-redhat modules, merged patches
