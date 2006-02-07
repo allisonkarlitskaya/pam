@@ -11,7 +11,7 @@
 Summary: A security tool which provides authentication for applications.
 Name: pam
 Version: 0.99.3.0
-Release: 1
+Release: 1.1
 License: GPL or BSD
 Group: System Environment/Base
 Source0: ftp.us.kernel.org:/pub/linux/libs/pam/pre/library/Linux-PAM-%{version}.tar.bz2
@@ -351,6 +351,9 @@ fi
 %{_libdir}/libpam_misc.so
 
 %changelog
+* Tue Feb 07 2006 Jesse Keating <jkeating@redhat.com> - 0.99.3.0-1.1
+- rebuilt for new gcc4.1 snapshot and glibc changes
+
 * Fri Feb  3 2006 Tomas Mraz <tmraz@redhat.com> 0.99.3.0-1
 - new upstream version
 - updated db4 to 4.3.29
