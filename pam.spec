@@ -11,7 +11,7 @@
 Summary: A security tool which provides authentication for applications.
 Name: pam
 Version: 0.99.3.0
-Release: 1.2
+Release: 2
 License: GPL or BSD
 Group: System Environment/Base
 Source0: ftp.us.kernel.org:/pub/linux/libs/pam/pre/library/Linux-PAM-%{version}.tar.bz2
@@ -31,6 +31,7 @@ Patch34: pam-0.99.2.1-dbpam.patch
 Patch70: pam-0.99.2.1-selinux-nofail.patch
 Patch72: pam-0.99.3.0-pie.patch
 Patch80: pam-0.99.2.1-selinux-drop-multiple.patch
+Patch81: pam-0.99.3.0-cracklib-try-first-pass.patch
 
 BuildRoot: %{_tmppath}/%{name}-root
 Requires: cracklib, cracklib-dicts >= 2.8
@@ -86,6 +87,7 @@ cp $RPM_SOURCE_DIR/config-util.pamd .
 %patch70 -p1 -b .nofail
 %patch72 -p1 -b .pie
 %patch80 -p1 -b .drop-multiple
+%patch81 -p1 -b .try-first-pass
 
 for readme in modules/pam_*/README ; do
 	cp -f ${readme} doc/txts/README.`dirname ${readme} | sed -e 's|^modules/||'`
@@ -351,6 +353,11 @@ fi
 %{_libdir}/libpam_misc.so
 
 %changelog
+* Fri Feb 24 2006 Tomas Mraz <tmraz@redhat.com> 0.99.3.0-2
+- added try_first_pass option to pam_cracklib
+- use try_first_pass for pam_unix and pam_cracklib in
+  system-auth (#182350)
+
 * Fri Feb 10 2006 Jesse Keating <jkeating@redhat.com> - 0.99.3.0-1.2
 - bump again for double-long bug on ppc(64)
 
