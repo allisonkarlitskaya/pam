@@ -6,12 +6,12 @@
 %define pwdb_version 0.62
 %define db_version 4.3.29
 %define db_conflicting_version 4.4.0
-%define pam_redhat_version 0.99.3-1
+%define pam_redhat_version 0.99.4-1
 
 Summary: A security tool which provides authentication for applications.
 Name: pam
 Version: 0.99.3.0
-Release: 2
+Release: 3
 License: GPL or BSD
 Group: System Environment/Base
 Source0: ftp.us.kernel.org:/pub/linux/libs/pam/pre/library/Linux-PAM-%{version}.tar.bz2
@@ -29,23 +29,27 @@ Patch21: pam-0.78-unix-hpux-aging.patch
 Patch28: pam-0.75-sgml2latex.patch
 Patch34: pam-0.99.2.1-dbpam.patch
 Patch70: pam-0.99.2.1-selinux-nofail.patch
-Patch72: pam-0.99.3.0-pie.patch
 Patch80: pam-0.99.2.1-selinux-drop-multiple.patch
 Patch81: pam-0.99.3.0-cracklib-try-first-pass.patch
+Patch90: pam_namespace-7.patch
+Patch91: pam_namespace-no-mans.patch
+Patch92: pam_namespace-have-unshare.patch
 
 BuildRoot: %{_tmppath}/%{name}-root
 Requires: cracklib, cracklib-dicts >= 2.8
 Obsoletes: pamconfig
 Prereq: grep, mktemp, sed, coreutils, /sbin/ldconfig
-BuildPrereq: autoconf, bison, flex, glib2-devel, sed
+BuildPrereq: autoconf, automake, bison, flex, glib2-devel, sed
 BuildPrereq: cracklib, cracklib-dicts >= 2.8
-BuildPrereq: perl, pkgconfig
+BuildPrereq: perl, pkgconfig, openssl-devel
 %if %{WITH_AUDIT}
 BuildPrereq: audit-libs-devel >= 1.0.8
 Requires: audit-libs >= 1.0.8
 %endif
 BuildPrereq: libselinux-devel >= 1.27.7
 Requires: libselinux >= 1.27.7
+BuildPrereq: glibc >= 2.3.90-37
+Requires: glibc >= 2.3.90-37
 # Following deps are necessary only to build the pam library documentation.
 # They can be safely removed if the documentation is not needed.
 BuildPrereq: linuxdoc-tools
@@ -85,9 +89,11 @@ cp $RPM_SOURCE_DIR/config-util.pamd .
 %patch28 -p1 -b .doc
 %patch34 -p1 -b .dbpam
 %patch70 -p1 -b .nofail
-%patch72 -p1 -b .pie
 %patch80 -p1 -b .drop-multiple
 %patch81 -p1 -b .try-first-pass
+%patch90 -p1 -b .namespace
+%patch91 -p1 -b .no-mans
+%patch92 -p1 -b .have-unshare
 
 for readme in modules/pam_*/README ; do
 	cp -f ${readme} doc/txts/README.`dirname ${readme} | sed -e 's|^modules/||'`
@@ -300,6 +306,7 @@ fi
 /%{_lib}/security/pam_mail.so
 /%{_lib}/security/pam_mkhomedir.so
 /%{_lib}/security/pam_motd.so
+/%{_lib}/security/pam_namespace.so
 /%{_lib}/security/pam_nologin.so
 /%{_lib}/security/pam_permit.so
 /%{_lib}/security/pam_postgresok.so
@@ -334,6 +341,7 @@ fi
 %config(noreplace) %{_sysconfdir}/security/console.handlers
 %config(noreplace) %{_sysconfdir}/security/group.conf
 %config(noreplace) %{_sysconfdir}/security/limits.conf
+%config(noreplace) %{_sysconfdir}/security/namespace.conf
 %config(noreplace) %{_sysconfdir}/security/pam_env.conf
 %config(noreplace) %{_sysconfdir}/security/time.conf
 %config(noreplace) %{_sysconfdir}/security/opasswd
@@ -353,6 +361,11 @@ fi
 %{_libdir}/libpam_misc.so
 
 %changelog
+* Tue Apr 25 2006 Tomas Mraz <tmraz@redhat.com> 0.99.3.0-3
+- added pam_namespace module written by Janak Desai (per-user /tmp
+support)
+- new pam-redhat modules version
+
 * Fri Feb 24 2006 Tomas Mraz <tmraz@redhat.com> 0.99.3.0-2
 - added try_first_pass option to pam_cracklib
 - use try_first_pass for pam_unix and pam_cracklib in
