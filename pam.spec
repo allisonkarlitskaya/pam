@@ -6,12 +6,12 @@
 %define pwdb_version 0.62
 %define db_version 4.3.29
 %define db_conflicting_version 4.4.0
-%define pam_redhat_version 0.99.4-1
+%define pam_redhat_version 0.99.4-2
 
 Summary: A security tool which provides authentication for applications.
 Name: pam
 Version: 0.99.3.0
-Release: 3
+Release: 4
 License: GPL or BSD
 Group: System Environment/Base
 Source0: ftp.us.kernel.org:/pub/linux/libs/pam/pre/library/Linux-PAM-%{version}.tar.bz2
@@ -361,6 +361,10 @@ fi
 %{_libdir}/libpam_misc.so
 
 %changelog
+* Wed Apr 26 2006 Tomas Mraz <tmraz@redhat.com> 0.99.3.0-4
+- fixed console device class for irda (#189966)
+- make pam_console_apply fail gracefully when a class is missing
+
 * Tue Apr 25 2006 Tomas Mraz <tmraz@redhat.com> 0.99.3.0-3
 - added pam_namespace module written by Janak Desai (per-user /tmp
 support)
