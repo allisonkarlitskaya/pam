@@ -344,6 +344,7 @@ fi
 %config(noreplace) %{_sysconfdir}/security/group.conf
 %config(noreplace) %{_sysconfdir}/security/limits.conf
 %config(noreplace) %{_sysconfdir}/security/namespace.conf
+%attr(755,root,root) %config(noreplace) %{_sysconfdir}/security/namespace.init
 %config(noreplace) %{_sysconfdir}/security/pam_env.conf
 %config(noreplace) %{_sysconfdir}/security/time.conf
 %config(noreplace) %{_sysconfdir}/security/opasswd
