@@ -11,7 +11,7 @@
 Summary: A security tool which provides authentication for applications.
 Name: pam
 Version: 0.99.3.0
-Release: 4
+Release: 5
 License: GPL or BSD
 Group: System Environment/Base
 Source0: ftp.us.kernel.org:/pub/linux/libs/pam/pre/library/Linux-PAM-%{version}.tar.bz2
@@ -31,7 +31,8 @@ Patch34: pam-0.99.2.1-dbpam.patch
 Patch70: pam-0.99.2.1-selinux-nofail.patch
 Patch80: pam-0.99.2.1-selinux-drop-multiple.patch
 Patch81: pam-0.99.3.0-cracklib-try-first-pass.patch
-Patch90: pam_namespace-7.patch
+Patch82: pam-0.99.3.0-tally-fail-close.patch
+Patch90: pam_namespace-8.patch
 Patch91: pam_namespace-no-mans.patch
 Patch92: pam_namespace-have-unshare.patch
 
@@ -91,6 +92,7 @@ cp $RPM_SOURCE_DIR/config-util.pamd .
 %patch70 -p1 -b .nofail
 %patch80 -p1 -b .drop-multiple
 %patch81 -p1 -b .try-first-pass
+%patch82 -p1 -b .fail-close
 %patch90 -p1 -b .namespace
 %patch91 -p1 -b .no-mans
 %patch92 -p1 -b .have-unshare
@@ -361,6 +363,11 @@ fi
 %{_libdir}/libpam_misc.so
 
 %changelog
+* Thu May  4 2006 Tomas Mraz <tmraz@redhat.com> 0.99.3.0-5
+- the namespace instance init script is now in /etc/security (#190148)
+- pam_namespace: added missing braces (#190026)
+- pam_tally(2): never call fclose twice on the same FILE (from upstream)
+
 * Wed Apr 26 2006 Tomas Mraz <tmraz@redhat.com> 0.99.3.0-4
 - fixed console device class for irda (#189966)
 - make pam_console_apply fail gracefully when a class is missing
