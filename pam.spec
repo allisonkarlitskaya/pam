@@ -6,12 +6,12 @@
 %define pwdb_version 0.62
 %define db_version 4.3.29
 %define db_conflicting_version 4.4.0
-%define pam_redhat_version 0.99.4-2
+%define pam_redhat_version 0.99.5-1
 
 Summary: A security tool which provides authentication for applications.
 Name: pam
-Version: 0.99.3.0
-Release: 5
+Version: 0.99.4.0
+Release: 1
 License: GPL or BSD
 Group: System Environment/Base
 Source0: ftp.us.kernel.org:/pub/linux/libs/pam/pre/library/Linux-PAM-%{version}.tar.bz2
@@ -24,25 +24,25 @@ Source7: config-util.pamd
 Source8: dlopen.sh
 Source9: system-auth.5
 Source10: config-util.5
-Patch1: pam-0.99.2.1-redhat-modules.patch
+Patch1: pam-0.99.4.0-redhat-modules.patch
 Patch21: pam-0.78-unix-hpux-aging.patch
 Patch28: pam-0.75-sgml2latex.patch
-Patch34: pam-0.99.2.1-dbpam.patch
+Patch34: pam-0.99.4.0-dbpam.patch
 Patch70: pam-0.99.2.1-selinux-nofail.patch
 Patch80: pam-0.99.2.1-selinux-drop-multiple.patch
 Patch81: pam-0.99.3.0-cracklib-try-first-pass.patch
 Patch82: pam-0.99.3.0-tally-fail-close.patch
+Patch83: pam-0.99.4.0-tally-large-uid.patch
 Patch90: pam_namespace-8.patch
-Patch91: pam_namespace-no-mans.patch
 Patch92: pam_namespace-have-unshare.patch
 
 BuildRoot: %{_tmppath}/%{name}-root
 Requires: cracklib, cracklib-dicts >= 2.8
 Obsoletes: pamconfig
 Prereq: grep, mktemp, sed, coreutils, /sbin/ldconfig
-BuildPrereq: autoconf, automake, bison, flex, glib2-devel, sed
+BuildPrereq: autoconf, automake, bison, flex, sed
 BuildPrereq: cracklib, cracklib-dicts >= 2.8
-BuildPrereq: perl, pkgconfig, openssl-devel
+BuildPrereq: perl, pkgconfig
 %if %{WITH_AUDIT}
 BuildPrereq: audit-libs-devel >= 1.0.8
 Requires: audit-libs >= 1.0.8
@@ -53,7 +53,7 @@ BuildPrereq: glibc >= 2.3.90-37
 Requires: glibc >= 2.3.90-37
 # Following deps are necessary only to build the pam library documentation.
 # They can be safely removed if the documentation is not needed.
-BuildPrereq: linuxdoc-tools
+BuildPrereq: linuxdoc-tools, w3m
 
 URL: http://www.us.kernel.org/pub/linux/libs/pam/index.html
 
@@ -85,7 +85,7 @@ cp $RPM_SOURCE_DIR/other.pamd .
 cp $RPM_SOURCE_DIR/system-auth.pamd .
 cp $RPM_SOURCE_DIR/config-util.pamd .
 
-%patch1 -p0 -b .redhat-modules
+%patch1 -p1 -b .redhat-modules
 %patch21 -p1 -b .unix-hpux-aging
 %patch28 -p1 -b .doc
 %patch34 -p1 -b .dbpam
@@ -94,7 +94,6 @@ cp $RPM_SOURCE_DIR/config-util.pamd .
 %patch81 -p1 -b .try-first-pass
 %patch82 -p1 -b .fail-close
 %patch90 -p1 -b .namespace
-%patch91 -p1 -b .no-mans
 %patch92 -p1 -b .have-unshare
 
 for readme in modules/pam_*/README ; do
@@ -155,14 +154,9 @@ install -m 600 /dev/null $RPM_BUILD_ROOT%{_sysconfdir}/security/opasswd
 # Forcibly strip binaries.
 strip $RPM_BUILD_ROOT%{_sbindir}/* ||:
 
-# Remove docs for modules we exclude from the files manifest.
-rm doc/*/*pam_pwdb*
-
 # Install man pages.
 install -m 644 %{SOURCE9} %{SOURCE10} $RPM_BUILD_ROOT%{_mandir}/man5/
 
-# Remove pam_pwdb so it won't error out
-rm -rf modules/pam_pwdb
 # Make sure every module subdirectory gave us a module.  Yes, this is hackish.
 for dir in modules/pam_* ; do
 if [ -d ${dir} ] ; then
@@ -364,6 +358,11 @@ fi
 %{_libdir}/libpam_misc.so
 
 %changelog
+* Wed May 10 2006 Tomas Mraz <tmraz@redhat.com> 0.99.4.0-1
+- upgrade to new upstream version
+- make pam_console_apply not dependent on glib
+- support large uids in pam_tally, pam_tally2
+
 * Thu May  4 2006 Tomas Mraz <tmraz@redhat.com> 0.99.3.0-5
 - the namespace instance init script is now in /etc/security (#190148)
 - pam_namespace: added missing braces (#190026)
