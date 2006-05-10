@@ -290,6 +290,7 @@ fi
 /%{_lib}/security/pam_deny.so
 /%{_lib}/security/pam_echo.so
 /%{_lib}/security/pam_env.so
+/%{_lib}/security/pam_exec.so
 /%{_lib}/security/pam_filter.so
 /%{_lib}/security/pam_ftp.so
 /%{_lib}/security/pam_group.so
