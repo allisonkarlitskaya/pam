@@ -34,6 +34,7 @@ Patch81: pam-0.99.3.0-cracklib-try-first-pass.patch
 Patch82: pam-0.99.3.0-tally-fail-close.patch
 Patch83: pam-0.99.4.0-tally-large-uid.patch
 Patch84: pam-0.99.4.0-console-no-var-access.patch
+Patch85: pam-0.99.4.0-timestamp-no-hmactest.patch
 Patch90: pam_namespace-8.patch
 Patch92: pam_namespace-have-unshare.patch
 
@@ -53,8 +54,7 @@ Requires: libselinux >= 1.27.7
 BuildPrereq: glibc >= 2.3.90-37
 Requires: glibc >= 2.3.90-37
 # Following deps are necessary only to build the pam library documentation.
-# They can be safely removed if the documentation is not needed.
-BuildPrereq: linuxdoc-tools, w3m
+BuildPrereq: linuxdoc-tools, w3m, libxslt, docbook-style-xsl, docbook-dtds
 
 URL: http://www.us.kernel.org/pub/linux/libs/pam/index.html
 
@@ -96,6 +96,7 @@ cp $RPM_SOURCE_DIR/config-util.pamd .
 %patch82 -p1 -b .fail-close
 %patch83 -p1 -b .large-uid
 %patch84 -p1 -b .no-var-access
+%patch85 -p1 -b .no-hmactest
 %patch90 -p1 -b .namespace
 %patch92 -p1 -b .have-unshare
 
@@ -365,6 +366,8 @@ fi
 * Tue May 16 2006 Tomas Mraz <tmraz@redhat.com> 0.99.4.0-2
 - pam_console_apply shouldn't access /var when called with -r (#191401)
 - actually apply the large-uid patch
+- don't build hmactest in pam_timestamp so openssl-devel is not required
+- add missing buildrequires (#191915)
 
 * Wed May 10 2006 Tomas Mraz <tmraz@redhat.com> 0.99.4.0-1
 - upgrade to new upstream version
