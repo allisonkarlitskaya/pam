@@ -11,7 +11,7 @@
 Summary: A security tool which provides authentication for applications.
 Name: pam
 Version: 0.99.4.0
-Release: 1
+Release: 2
 License: GPL or BSD
 Group: System Environment/Base
 Source0: ftp.us.kernel.org:/pub/linux/libs/pam/pre/library/Linux-PAM-%{version}.tar.bz2
@@ -33,6 +33,7 @@ Patch80: pam-0.99.2.1-selinux-drop-multiple.patch
 Patch81: pam-0.99.3.0-cracklib-try-first-pass.patch
 Patch82: pam-0.99.3.0-tally-fail-close.patch
 Patch83: pam-0.99.4.0-tally-large-uid.patch
+Patch84: pam-0.99.4.0-console-no-var-access.patch
 Patch90: pam_namespace-8.patch
 Patch92: pam_namespace-have-unshare.patch
 
@@ -93,6 +94,8 @@ cp $RPM_SOURCE_DIR/config-util.pamd .
 %patch80 -p1 -b .drop-multiple
 %patch81 -p1 -b .try-first-pass
 %patch82 -p1 -b .fail-close
+%patch83 -p1 -b .large-uid
+%patch84 -p1 -b .no-var-access
 %patch90 -p1 -b .namespace
 %patch92 -p1 -b .have-unshare
 
@@ -359,6 +362,10 @@ fi
 %{_libdir}/libpam_misc.so
 
 %changelog
+* Tue May 16 2006 Tomas Mraz <tmraz@redhat.com> 0.99.4.0-2
+- pam_console_apply shouldn't access /var when called with -r (#191401)
+- actually apply the large-uid patch
+
 * Wed May 10 2006 Tomas Mraz <tmraz@redhat.com> 0.99.4.0-1
 - upgrade to new upstream version
 - make pam_console_apply not dependent on glib
