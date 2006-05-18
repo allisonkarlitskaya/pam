@@ -11,7 +11,7 @@
 Summary: A security tool which provides authentication for applications.
 Name: pam
 Version: 0.99.4.0
-Release: 2
+Release: 3
 License: GPL or BSD
 Group: System Environment/Base
 Source0: ftp.us.kernel.org:/pub/linux/libs/pam/pre/library/Linux-PAM-%{version}.tar.bz2
@@ -37,6 +37,7 @@ Patch84: pam-0.99.4.0-console-no-var-access.patch
 Patch85: pam-0.99.4.0-timestamp-no-hmactest.patch
 Patch90: pam_namespace-8.patch
 Patch92: pam_namespace-have-unshare.patch
+Patch93: pam_namespace-9.patch
 
 BuildRoot: %{_tmppath}/%{name}-root
 Requires: cracklib, cracklib-dicts >= 2.8
@@ -99,6 +100,7 @@ cp $RPM_SOURCE_DIR/config-util.pamd .
 %patch85 -p1 -b .no-hmactest
 %patch90 -p1 -b .namespace
 %patch92 -p1 -b .have-unshare
+%patch93 -p1 -b .namespacev9
 
 for readme in modules/pam_*/README ; do
 	cp -f ${readme} doc/txts/README.`dirname ${readme} | sed -e 's|^modules/||'`
@@ -363,6 +365,10 @@ fi
 %{_libdir}/libpam_misc.so
 
 %changelog
+* Wed May 17 2006 Tomas Mraz <tmraz@redhat.com> 0.99.4.0-3
+- use md5 implementation from pam_unix in pam_namespace
+- pam_namespace should call setexeccon only when selinux is enabled
+
 * Tue May 16 2006 Tomas Mraz <tmraz@redhat.com> 0.99.4.0-2
 - pam_console_apply shouldn't access /var when called with -r (#191401)
 - actually apply the large-uid patch
