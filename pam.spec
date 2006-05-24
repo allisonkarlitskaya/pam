@@ -11,7 +11,7 @@
 Summary: A security tool which provides authentication for applications.
 Name: pam
 Version: 0.99.4.0
-Release: 3
+Release: 4
 License: GPL or BSD
 Group: System Environment/Base
 Source0: ftp.us.kernel.org:/pub/linux/libs/pam/pre/library/Linux-PAM-%{version}.tar.bz2
@@ -365,6 +365,9 @@ fi
 %{_libdir}/libpam_misc.so
 
 %changelog
+* Wed May 24 2006 Tomas Mraz <tmraz@redhat.com> 0.99.4.0-4
+- actually don't link to libssl as it is not used (#191915)
+
 * Wed May 17 2006 Tomas Mraz <tmraz@redhat.com> 0.99.4.0-3
 - use md5 implementation from pam_unix in pam_namespace
 - pam_namespace should call setexeccon only when selinux is enabled
