@@ -11,7 +11,7 @@
 Summary: A security tool which provides authentication for applications.
 Name: pam
 Version: 0.99.4.0
-Release: 4
+Release: 5
 License: GPL or BSD
 Group: System Environment/Base
 Source0: ftp.us.kernel.org:/pub/linux/libs/pam/pre/library/Linux-PAM-%{version}.tar.bz2
@@ -35,9 +35,7 @@ Patch82: pam-0.99.3.0-tally-fail-close.patch
 Patch83: pam-0.99.4.0-tally-large-uid.patch
 Patch84: pam-0.99.4.0-console-no-var-access.patch
 Patch85: pam-0.99.4.0-timestamp-no-hmactest.patch
-Patch90: pam_namespace-8.patch
-Patch92: pam_namespace-have-unshare.patch
-Patch93: pam_namespace-9.patch
+Patch90: pam_namespace-10.patch
 
 BuildRoot: %{_tmppath}/%{name}-root
 Requires: cracklib, cracklib-dicts >= 2.8
@@ -99,8 +97,6 @@ cp $RPM_SOURCE_DIR/config-util.pamd .
 %patch84 -p1 -b .no-var-access
 %patch85 -p1 -b .no-hmactest
 %patch90 -p1 -b .namespace
-%patch92 -p1 -b .have-unshare
-%patch93 -p1 -b .namespacev9
 
 for readme in modules/pam_*/README ; do
 	cp -f ${readme} doc/txts/README.`dirname ${readme} | sed -e 's|^modules/||'`
@@ -365,6 +361,10 @@ fi
 %{_libdir}/libpam_misc.so
 
 %changelog
+* Thu Jun  8 2006 Tomas Mraz <tmraz@redhat.com> 0.99.4.0-5
+- updated pam_namespace with latest patch by Janak Desai
+- merged pam_namespace patches
+
 * Wed May 24 2006 Tomas Mraz <tmraz@redhat.com> 0.99.4.0-4
 - actually don't link to libssl as it is not used (#191915)
 
