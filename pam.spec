@@ -8,7 +8,7 @@
 %define db_conflicting_version 4.4.0
 %define pam_redhat_version 0.99.5-1
 
-Summary: A security tool which provides authentication for applications.
+Summary: A security tool which provides authentication for applications
 Name: pam
 Version: 0.99.4.0
 Release: 5
@@ -41,19 +41,21 @@ BuildRoot: %{_tmppath}/%{name}-root
 Requires: cracklib, cracklib-dicts >= 2.8
 Obsoletes: pamconfig
 Prereq: grep, mktemp, sed, coreutils, /sbin/ldconfig
-BuildPrereq: autoconf, automake, bison, flex, sed
-BuildPrereq: cracklib, cracklib-dicts >= 2.8
-BuildPrereq: perl, pkgconfig
+BuildRequires: autoconf, automake, libtool
+BuildRequires: bison, flex, sed
+BuildRequires: cracklib, cracklib-dicts >= 2.8
+BuildRequires: perl, pkgconfig
 %if %{WITH_AUDIT}
-BuildPrereq: audit-libs-devel >= 1.0.8
+BuildRequires: audit-libs-devel >= 1.0.8
 Requires: audit-libs >= 1.0.8
 %endif
-BuildPrereq: libselinux-devel >= 1.27.7
+BuildRequires: libselinux-devel >= 1.27.7
 Requires: libselinux >= 1.27.7
-BuildPrereq: glibc >= 2.3.90-37
+BuildRequires: glibc >= 2.3.90-37
 Requires: glibc >= 2.3.90-37
 # Following deps are necessary only to build the pam library documentation.
-BuildPrereq: linuxdoc-tools, w3m, libxslt, docbook-style-xsl, docbook-dtds
+BuildRequires: linuxdoc-tools, w3m, libxslt
+BuildRequires: docbook-style-xsl, docbook-dtds
 
 URL: http://www.us.kernel.org/pub/linux/libs/pam/index.html
 
@@ -69,7 +71,7 @@ having to recompile programs that handle authentication.
 
 %package devel
 Group: Development/Libraries
-Summary: Files needed for developing PAM-aware applications and modules for PAM.
+Summary: Files needed for developing PAM-aware applications and modules for PAM
 Requires: pam = %{version}-%{release}
 
 %description devel
@@ -81,9 +83,9 @@ PAM-aware applications and modules for use with PAM.
 
 %prep
 %setup -q -n Linux-PAM-%{version} -a 2 -a 4
-cp $RPM_SOURCE_DIR/other.pamd .
-cp $RPM_SOURCE_DIR/system-auth.pamd .
-cp $RPM_SOURCE_DIR/config-util.pamd .
+cp %{SOURCE5}/other.pamd .
+cp %{SOURCE6}/system-auth.pamd .
+cp %{SOURCE7}/config-util.pamd .
 
 %patch1 -p1 -b .redhat-modules
 %patch21 -p1 -b .unix-hpux-aging
@@ -364,6 +366,8 @@ fi
 * Thu Jun  8 2006 Tomas Mraz <tmraz@redhat.com> 0.99.4.0-5
 - updated pam_namespace with latest patch by Janak Desai
 - merged pam_namespace patches
+- added buildrequires libtool
+- fixed a few rpmlint warnings
 
 * Wed May 24 2006 Tomas Mraz <tmraz@redhat.com> 0.99.4.0-4
 - actually don't link to libssl as it is not used (#191915)
