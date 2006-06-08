@@ -83,9 +83,9 @@ PAM-aware applications and modules for use with PAM.
 
 %prep
 %setup -q -n Linux-PAM-%{version} -a 2 -a 4
-cp %{SOURCE5}/other.pamd .
-cp %{SOURCE6}/system-auth.pamd .
-cp %{SOURCE7}/config-util.pamd .
+cp %{SOURCE5} .
+cp %{SOURCE6} .
+cp %{SOURCE7} .
 
 %patch1 -p1 -b .redhat-modules
 %patch21 -p1 -b .unix-hpux-aging
