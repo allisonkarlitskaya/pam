@@ -6,12 +6,12 @@
 %define pwdb_version 0.62
 %define db_version 4.3.29
 %define db_conflicting_version 4.4.0
-%define pam_redhat_version 0.99.5-1
+%define pam_redhat_version 0.99.6-1
 
 Summary: A security tool which provides authentication for applications
 Name: pam
-Version: 0.99.4.0
-Release: 5
+Version: 0.99.5.0
+Release: 1%{?dist}
 License: GPL or BSD
 Group: System Environment/Base
 Source0: ftp.us.kernel.org:/pub/linux/libs/pam/pre/library/Linux-PAM-%{version}.tar.bz2
@@ -24,18 +24,15 @@ Source7: config-util.pamd
 Source8: dlopen.sh
 Source9: system-auth.5
 Source10: config-util.5
-Patch1: pam-0.99.4.0-redhat-modules.patch
+Patch1: pam-0.99.5.0-redhat-modules.patch
 Patch21: pam-0.78-unix-hpux-aging.patch
 Patch28: pam-0.75-sgml2latex.patch
 Patch34: pam-0.99.4.0-dbpam.patch
 Patch70: pam-0.99.2.1-selinux-nofail.patch
-Patch80: pam-0.99.2.1-selinux-drop-multiple.patch
+Patch80: pam-0.99.5.0-selinux-drop-multiple.patch
 Patch81: pam-0.99.3.0-cracklib-try-first-pass.patch
 Patch82: pam-0.99.3.0-tally-fail-close.patch
-Patch83: pam-0.99.4.0-tally-large-uid.patch
-Patch84: pam-0.99.4.0-console-no-var-access.patch
-Patch85: pam-0.99.4.0-timestamp-no-hmactest.patch
-Patch90: pam_namespace-10.patch
+Patch83: pam-0.99.4.0-succif-service.patch
 
 BuildRoot: %{_tmppath}/%{name}-root
 Requires: cracklib, cracklib-dicts >= 2.8
@@ -95,10 +92,7 @@ cp %{SOURCE7} .
 %patch80 -p1 -b .drop-multiple
 %patch81 -p1 -b .try-first-pass
 %patch82 -p1 -b .fail-close
-%patch83 -p1 -b .large-uid
-%patch84 -p1 -b .no-var-access
-%patch85 -p1 -b .no-hmactest
-%patch90 -p1 -b .namespace
+%patch83 -p1 -b .service
 
 for readme in modules/pam_*/README ; do
 	cp -f ${readme} doc/txts/README.`dirname ${readme} | sed -e 's|^modules/||'`
@@ -299,6 +293,7 @@ fi
 /%{_lib}/security/pam_ftp.so
 /%{_lib}/security/pam_group.so
 /%{_lib}/security/pam_issue.so
+/%{_lib}/security/pam_keyinit.so
 /%{_lib}/security/pam_lastlog.so
 /%{_lib}/security/pam_limits.so
 /%{_lib}/security/pam_listfile.so
@@ -311,6 +306,7 @@ fi
 /%{_lib}/security/pam_nologin.so
 /%{_lib}/security/pam_permit.so
 /%{_lib}/security/pam_postgresok.so
+/%{_lib}/security/pam_rhosts.so
 /%{_lib}/security/pam_rhosts_auth.so
 /%{_lib}/security/pam_rootok.so
 /%{_lib}/security/pam_rps.so
@@ -363,6 +359,11 @@ fi
 %{_libdir}/libpam_misc.so
 
 %changelog
+* Fri Jun 30 2006 Tomas Mraz <tmraz@redhat.com> 0.99.5.0-1
+- updated to a new upstream release
+- added service as value to be matched and list matching to
+  pam_succeed_if
+
 * Thu Jun  8 2006 Tomas Mraz <tmraz@redhat.com> 0.99.4.0-5
 - updated pam_namespace with latest patch by Janak Desai
 - merged pam_namespace patches
