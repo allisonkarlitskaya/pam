@@ -33,6 +33,7 @@ Patch80: pam-0.99.5.0-selinux-drop-multiple.patch
 Patch81: pam-0.99.3.0-cracklib-try-first-pass.patch
 Patch82: pam-0.99.3.0-tally-fail-close.patch
 Patch83: pam-0.99.4.0-succif-service.patch
+Patch90: pam-0.99.5.0-namespace-init.patch
 
 BuildRoot: %{_tmppath}/%{name}-root
 Requires: cracklib, cracklib-dicts >= 2.8
@@ -93,6 +94,7 @@ cp %{SOURCE7} .
 %patch81 -p1 -b .try-first-pass
 %patch82 -p1 -b .fail-close
 %patch83 -p1 -b .service
+%patch90 -p1 -b .namespace-init
 
 for readme in modules/pam_*/README ; do
 	cp -f ${readme} doc/txts/README.`dirname ${readme} | sed -e 's|^modules/||'`
@@ -363,6 +365,7 @@ fi
 - updated to a new upstream release
 - added service as value to be matched and list matching to
   pam_succeed_if
+- namespace.init was missing from EXTRA_DIST
 
 * Thu Jun  8 2006 Tomas Mraz <tmraz@redhat.com> 0.99.4.0-5
 - updated pam_namespace with latest patch by Janak Desai
