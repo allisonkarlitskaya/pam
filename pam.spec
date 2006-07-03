@@ -95,7 +95,7 @@ cp %{SOURCE7} .
 %patch81 -p1 -b .try-first-pass
 %patch82 -p1 -b .fail-close
 %patch83 -p1 -b .service
-%patch84 -p1 -b .gai
+%patch84 -p0 -b .gai
 %patch90 -p1 -b .namespace-init
 
 for readme in modules/pam_*/README ; do
