@@ -11,7 +11,7 @@
 Summary: A security tool which provides authentication for applications
 Name: pam
 Version: 0.99.5.0
-Release: 1%{?dist}
+Release: 2%{?dist}
 License: GPL or BSD
 Group: System Environment/Base
 Source0: ftp.us.kernel.org:/pub/linux/libs/pam/pre/library/Linux-PAM-%{version}.tar.bz2
@@ -33,6 +33,7 @@ Patch80: pam-0.99.5.0-selinux-drop-multiple.patch
 Patch81: pam-0.99.3.0-cracklib-try-first-pass.patch
 Patch82: pam-0.99.3.0-tally-fail-close.patch
 Patch83: pam-0.99.4.0-succif-service.patch
+Patch84: pam-0.99.5.0-access-gai.patch
 Patch90: pam-0.99.5.0-namespace-init.patch
 
 BuildRoot: %{_tmppath}/%{name}-root
@@ -94,6 +95,7 @@ cp %{SOURCE7} .
 %patch81 -p1 -b .try-first-pass
 %patch82 -p1 -b .fail-close
 %patch83 -p1 -b .service
+%patch84 -p1 -b .gai
 %patch90 -p1 -b .namespace-init
 
 for readme in modules/pam_*/README ; do
@@ -361,6 +363,9 @@ fi
 %{_libdir}/libpam_misc.so
 
 %changelog
+* Mon Jul  3 2006 Tomas Mraz <tmraz@redhat.com> 0.99.5.0-2
+- fixed network match in pam_access (patch by Dan Yefimov)
+
 * Fri Jun 30 2006 Tomas Mraz <tmraz@redhat.com> 0.99.5.0-1
 - updated to a new upstream release
 - added service as value to be matched and list matching to
