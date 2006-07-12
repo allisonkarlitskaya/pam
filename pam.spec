@@ -11,7 +11,7 @@
 Summary: A security tool which provides authentication for applications
 Name: pam
 Version: 0.99.5.0
-Release: 2%{?dist}
+Release: 2.1%{?dist}
 License: GPL or BSD
 Group: System Environment/Base
 Source0: ftp.us.kernel.org:/pub/linux/libs/pam/pre/library/Linux-PAM-%{version}.tar.bz2
@@ -363,6 +363,9 @@ fi
 %{_libdir}/libpam_misc.so
 
 %changelog
+* Wed Jul 12 2006 Jesse Keating <jkeating@redhat.com> - 0.99.5.0-2.1
+- rebuild
+
 * Mon Jul  3 2006 Tomas Mraz <tmraz@redhat.com> 0.99.5.0-2
 - fixed network match in pam_access (patch by Dan Yefimov)
 
