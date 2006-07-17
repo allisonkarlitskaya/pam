@@ -11,7 +11,7 @@
 Summary: A security tool which provides authentication for applications
 Name: pam
 Version: 0.99.5.0
-Release: 2.1%{?dist}
+Release: 3%{?dist}
 License: GPL or BSD
 Group: System Environment/Base
 Source0: ftp.us.kernel.org:/pub/linux/libs/pam/pre/library/Linux-PAM-%{version}.tar.bz2
@@ -34,6 +34,7 @@ Patch81: pam-0.99.3.0-cracklib-try-first-pass.patch
 Patch82: pam-0.99.3.0-tally-fail-close.patch
 Patch83: pam-0.99.4.0-succif-service.patch
 Patch84: pam-0.99.5.0-access-gai.patch
+Patch85: pam-0.99.5.0-selinux-enoent.patch
 Patch90: pam-0.99.5.0-namespace-init.patch
 
 BuildRoot: %{_tmppath}/%{name}-root
@@ -96,6 +97,7 @@ cp %{SOURCE7} .
 %patch82 -p1 -b .fail-close
 %patch83 -p1 -b .service
 %patch84 -p0 -b .gai
+%patch85 -p1 -b .enoent
 %patch90 -p1 -b .namespace-init
 
 for readme in modules/pam_*/README ; do
@@ -363,6 +365,10 @@ fi
 %{_libdir}/libpam_misc.so
 
 %changelog
+* Mon Jul 17 2006 Tomas Mraz <tmraz@redhat.com> 0.99.5.0-3
+- don't report error in pam_selinux for nonexistent tty (#188722)
+- add pam_keyinit to the default system-auth file (#198623)
+
 * Wed Jul 12 2006 Jesse Keating <jkeating@redhat.com> - 0.99.5.0-2.1
 - rebuild
 
