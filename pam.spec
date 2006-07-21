@@ -11,7 +11,7 @@
 Summary: A security tool which provides authentication for applications
 Name: pam
 Version: 0.99.5.0
-Release: 3%{?dist}
+Release: 4%{?dist}
 License: GPL or BSD
 Group: System Environment/Base
 Source0: ftp.us.kernel.org:/pub/linux/libs/pam/pre/library/Linux-PAM-%{version}.tar.bz2
@@ -35,6 +35,7 @@ Patch82: pam-0.99.3.0-tally-fail-close.patch
 Patch83: pam-0.99.4.0-succif-service.patch
 Patch84: pam-0.99.5.0-access-gai.patch
 Patch85: pam-0.99.5.0-selinux-enoent.patch
+Patch86: pam-0.99.5.0-console-no-ainit.patch
 Patch90: pam-0.99.5.0-namespace-init.patch
 
 BuildRoot: %{_tmppath}/%{name}-root
@@ -98,6 +99,7 @@ cp %{SOURCE7} .
 %patch83 -p1 -b .service
 %patch84 -p0 -b .gai
 %patch85 -p1 -b .enoent
+%patch86 -p1 -b .no-ainit
 %patch90 -p1 -b .namespace-init
 
 for readme in modules/pam_*/README ; do
