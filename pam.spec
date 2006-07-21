@@ -365,6 +365,9 @@ fi
 %{_libdir}/libpam_misc.so
 
 %changelog
+* Fri Jul 21 2006 Tomas Mraz <tmraz@redhat.com> 0.99.5.0-4
+- drop ainit from console.handlers (#199561)
+
 * Mon Jul 17 2006 Tomas Mraz <tmraz@redhat.com> 0.99.5.0-3
 - don't report error in pam_selinux for nonexistent tty (#188722)
 - add pam_keyinit to the default system-auth file (#198623)
