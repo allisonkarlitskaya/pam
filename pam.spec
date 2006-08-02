@@ -11,7 +11,7 @@
 Summary: A security tool which provides authentication for applications
 Name: pam
 Version: 0.99.5.0
-Release: 5%{?dist}
+Release: 6%{?dist}
 License: GPL or BSD
 Group: System Environment/Base
 Source0: ftp.us.kernel.org:/pub/linux/libs/pam/pre/library/Linux-PAM-%{version}.tar.bz2
@@ -37,6 +37,7 @@ Patch84: pam-0.99.5.0-access-gai.patch
 Patch85: pam-0.99.5.0-selinux-enoent.patch
 Patch86: pam-0.99.5.0-console-no-ainit.patch
 Patch87: pam-0.99.5.0-keyinit-no-debug.patch
+Patch88: pam-0.99.5.0-keyinit-multiinit.patch
 Patch90: pam-0.99.5.0-namespace-init.patch
 
 BuildRoot: %{_tmppath}/%{name}-root
@@ -102,6 +103,7 @@ cp %{SOURCE7} .
 %patch85 -p1 -b .enoent
 %patch86 -p1 -b .no-ainit
 %patch87 -p1 -b .no-debug
+%patch88 -p1 -b .multiinit
 %patch90 -p1 -b .namespace-init
 
 for readme in modules/pam_*/README ; do
@@ -369,6 +371,10 @@ fi
 %{_libdir}/libpam_misc.so
 
 %changelog
+* Wed Aug  2 2006 Tomas Mraz <tmraz@redhat.com> 0.99.5.0-6
+- revoke keyrings properly when pam_keyinit called more than once (#201048)
+  patch by David Howells
+
 * Fri Jul 21 2006 Tomas Mraz <tmraz@redhat.com> 0.99.5.0-5
 - don't log pam_keyinit debug messages by default (#199783)
 
