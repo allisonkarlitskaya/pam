@@ -11,7 +11,7 @@
 Summary: A security tool which provides authentication for applications
 Name: pam
 Version: 0.99.5.0
-Release: 6%{?dist}
+Release: 7%{?dist}
 License: GPL or BSD
 Group: System Environment/Base
 Source0: ftp.us.kernel.org:/pub/linux/libs/pam/pre/library/Linux-PAM-%{version}.tar.bz2
@@ -38,7 +38,9 @@ Patch85: pam-0.99.5.0-selinux-enoent.patch
 Patch86: pam-0.99.5.0-console-no-ainit.patch
 Patch87: pam-0.99.5.0-keyinit-no-debug.patch
 Patch88: pam-0.99.5.0-keyinit-multiinit.patch
+Patch89: pam-0.99.5.0-keyinit-revoke-user.patch
 Patch90: pam-0.99.5.0-namespace-init.patch
+Patch91: pam-0.99.5.0-succif-unknown-user.patch
 
 BuildRoot: %{_tmppath}/%{name}-root
 Requires: cracklib, cracklib-dicts >= 2.8
@@ -104,7 +106,9 @@ cp %{SOURCE7} .
 %patch86 -p1 -b .no-ainit
 %patch87 -p1 -b .no-debug
 %patch88 -p1 -b .multiinit
+%patch89 -p1 -b .revoke-user
 %patch90 -p1 -b .namespace-init
+%patch91 -p1 -b .unknown-user
 
 for readme in modules/pam_*/README ; do
 	cp -f ${readme} doc/txts/README.`dirname ${readme} | sed -e 's|^modules/||'`
@@ -371,6 +375,10 @@ fi
 %{_libdir}/libpam_misc.so
 
 %changelog
+* Thu Aug 10 2006 Tomas Mraz <tmraz@redhat.com> 0.99.5.0-7
+- revoke keyrings properly when pam_keyinit called as root (#201048)
+- pam_succeed_if should return PAM_USER_UNKNOWN when getpwnam fails (#197748)
+
 * Wed Aug  2 2006 Tomas Mraz <tmraz@redhat.com> 0.99.5.0-6
 - revoke keyrings properly when pam_keyinit called more than once (#201048)
   patch by David Howells
