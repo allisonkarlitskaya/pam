@@ -11,7 +11,7 @@
 Summary: A security tool which provides authentication for applications
 Name: pam
 Version: 0.99.5.0
-Release: 7%{?dist}
+Release: 8%{?dist}
 License: GPL or BSD
 Group: System Environment/Base
 Source0: ftp.us.kernel.org:/pub/linux/libs/pam/pre/library/Linux-PAM-%{version}.tar.bz2
@@ -41,6 +41,7 @@ Patch88: pam-0.99.5.0-keyinit-multiinit.patch
 Patch89: pam-0.99.5.0-keyinit-revoke-user.patch
 Patch90: pam-0.99.5.0-namespace-init.patch
 Patch91: pam-0.99.5.0-succif-unknown-user.patch
+Patch92: pam-0.99.5.0-selinux-keycreate.patch
 
 BuildRoot: %{_tmppath}/%{name}-root
 Requires: cracklib, cracklib-dicts >= 2.8
@@ -109,6 +110,7 @@ cp %{SOURCE7} .
 %patch89 -p1 -b .revoke-user
 %patch90 -p1 -b .namespace-init
 %patch91 -p1 -b .unknown-user
+%patch92 -p1 -b .keycreate
 
 for readme in modules/pam_*/README ; do
 	cp -f ${readme} doc/txts/README.`dirname ${readme} | sed -e 's|^modules/||'`
@@ -375,6 +377,9 @@ fi
 %{_libdir}/libpam_misc.so
 
 %changelog
+* Thu Aug 10 2006 Dan Walsh <dwalsh@redhat.com> 0.99.5.0-8
+- Add new setkeycreatecon call to pam_selinux to make sure keyring has correct context
+
 * Thu Aug 10 2006 Tomas Mraz <tmraz@redhat.com> 0.99.5.0-7
 - revoke keyrings properly when pam_keyinit called as root (#201048)
 - pam_succeed_if should return PAM_USER_UNKNOWN when getpwnam fails (#197748)
