@@ -10,12 +10,12 @@
 
 Summary: A security tool which provides authentication for applications
 Name: pam
-Version: 0.99.5.0
-Release: 8%{?dist}
+Version: 0.99.6.2
+Release: 1%{?dist}
 License: GPL or BSD
 Group: System Environment/Base
-Source0: ftp.us.kernel.org:/pub/linux/libs/pam/pre/library/Linux-PAM-%{version}.tar.bz2
-Source1: ftp.us.kernel.org:/pub/linux/libs/pam/pre/library/Linux-PAM-%{version}.tar.bz2.sign
+Source0: http://ftp.us.kernel.org/pub/linux/libs/pam/pre/library/Linux-PAM-%{version}.tar.bz2
+Source1: http://ftp.us.kernel.org/pub/linux/libs/pam/pre/library/Linux-PAM-%{version}.tar.bz2.sign
 Source2: pam-redhat-%{pam_redhat_version}.tar.bz2
 Source4: db-%{db_version}.tar.gz
 Source5: other.pamd
@@ -26,22 +26,14 @@ Source9: system-auth.5
 Source10: config-util.5
 Patch1: pam-0.99.5.0-redhat-modules.patch
 Patch21: pam-0.78-unix-hpux-aging.patch
-Patch28: pam-0.75-sgml2latex.patch
 Patch34: pam-0.99.4.0-dbpam.patch
 Patch70: pam-0.99.2.1-selinux-nofail.patch
 Patch80: pam-0.99.5.0-selinux-drop-multiple.patch
 Patch81: pam-0.99.3.0-cracklib-try-first-pass.patch
 Patch82: pam-0.99.3.0-tally-fail-close.patch
-Patch83: pam-0.99.4.0-succif-service.patch
-Patch84: pam-0.99.5.0-access-gai.patch
-Patch85: pam-0.99.5.0-selinux-enoent.patch
-Patch86: pam-0.99.5.0-console-no-ainit.patch
-Patch87: pam-0.99.5.0-keyinit-no-debug.patch
-Patch88: pam-0.99.5.0-keyinit-multiinit.patch
-Patch89: pam-0.99.5.0-keyinit-revoke-user.patch
-Patch90: pam-0.99.5.0-namespace-init.patch
-Patch91: pam-0.99.5.0-succif-unknown-user.patch
-Patch92: pam-0.99.5.0-selinux-keycreate.patch
+Patch83: pam-0.99.5.0-console-no-ainit.patch
+Patch84: pam-0.99.6.2-selinux-keycreate.patch
+Patch85: pam-0.99.6.0-succif-session.patch
 
 BuildRoot: %{_tmppath}/%{name}-root
 Requires: cracklib, cracklib-dicts >= 2.8
@@ -95,26 +87,15 @@ cp %{SOURCE7} .
 
 %patch1 -p1 -b .redhat-modules
 %patch21 -p1 -b .unix-hpux-aging
-%patch28 -p1 -b .doc
 %patch34 -p1 -b .dbpam
 %patch70 -p1 -b .nofail
 %patch80 -p1 -b .drop-multiple
 %patch81 -p1 -b .try-first-pass
 %patch82 -p1 -b .fail-close
-%patch83 -p1 -b .service
-%patch84 -p0 -b .gai
-%patch85 -p1 -b .enoent
-%patch86 -p1 -b .no-ainit
-%patch87 -p1 -b .no-debug
-%patch88 -p1 -b .multiinit
-%patch89 -p1 -b .revoke-user
-%patch90 -p1 -b .namespace-init
-%patch91 -p1 -b .unknown-user
-%patch92 -p1 -b .keycreate
+%patch83 -p1 -b .no-ainit
+%patch84 -p1 -b .keycreate
+%patch85 -p0 -b .session
 
-for readme in modules/pam_*/README ; do
-	cp -f ${readme} doc/txts/README.`dirname ${readme} | sed -e 's|^modules/||'`
-done
 autoreconf
 
 %build
@@ -157,6 +138,12 @@ make
 
 %install
 rm -rf $RPM_BUILD_ROOT
+
+mkdir -p doc/txts
+for readme in modules/pam_*/README ; do
+	cp -f ${readme} doc/txts/README.`dirname ${readme} | sed -e 's|^modules/||'`
+done
+
 # Install the binaries, libraries, and modules.
 make install DESTDIR=$RPM_BUILD_ROOT LDCONFIG=:
 
@@ -284,7 +271,8 @@ fi
 %config(noreplace) /etc/pam.d/system-auth
 %config(noreplace) /etc/pam.d/config-util
 %doc Copyright
-%doc doc/html doc/txts
+%doc doc/txts
+%doc doc/sag/*.txt doc/sag/html
 %doc doc/specs/rfc86.0.txt
 /%{_lib}/libpam.so.*
 /%{_lib}/libpamc.so.*
@@ -375,8 +363,17 @@ fi
 %{_libdir}/libpam.so
 %{_libdir}/libpamc.so
 %{_libdir}/libpam_misc.so
+%doc doc/mwg/*.txt doc/mwg/html
+%doc doc/adg/*.txt doc/adg/html
 
 %changelog
+* Thu Aug 31 2006 Tomas Mraz <tmraz@redhat.com> 0.99.6.2-1
+- upgrade to new upstream version, as there are mostly bugfixes except
+  improved documentation
+- add support for session and password service for pam_access and
+  pam_succeed_if
+- system-auth: skip session pam_unix for crond service
+
 * Thu Aug 10 2006 Dan Walsh <dwalsh@redhat.com> 0.99.5.0-8
 - Add new setkeycreatecon call to pam_selinux to make sure keyring has correct context
 
