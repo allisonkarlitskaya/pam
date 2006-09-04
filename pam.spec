@@ -6,12 +6,12 @@
 %define pwdb_version 0.62
 %define db_version 4.3.29
 %define db_conflicting_version 4.4.0
-%define pam_redhat_version 0.99.6-1
+%define pam_redhat_version 0.99.6-2
 
 Summary: A security tool which provides authentication for applications
 Name: pam
 Version: 0.99.6.2
-Release: 1%{?dist}
+Release: 2%{?dist}
 License: GPL or BSD
 Group: System Environment/Base
 Source0: http://ftp.us.kernel.org/pub/linux/libs/pam/pre/library/Linux-PAM-%{version}.tar.bz2
@@ -31,7 +31,6 @@ Patch70: pam-0.99.2.1-selinux-nofail.patch
 Patch80: pam-0.99.5.0-selinux-drop-multiple.patch
 Patch81: pam-0.99.3.0-cracklib-try-first-pass.patch
 Patch82: pam-0.99.3.0-tally-fail-close.patch
-Patch83: pam-0.99.5.0-console-no-ainit.patch
 Patch84: pam-0.99.6.2-selinux-keycreate.patch
 Patch85: pam-0.99.6.0-succif-session.patch
 
@@ -92,7 +91,6 @@ cp %{SOURCE7} .
 %patch80 -p1 -b .drop-multiple
 %patch81 -p1 -b .try-first-pass
 %patch82 -p1 -b .fail-close
-%patch83 -p1 -b .no-ainit
 %patch84 -p1 -b .keycreate
 %patch85 -p0 -b .session
 
@@ -367,6 +365,11 @@ fi
 %doc doc/adg/*.txt doc/adg/html
 
 %changelog
+* Mon Sep  4 2006 Tomas Mraz <tmraz@redhat.com> 0.99.6.2-2
+- silence pam_succeed_if in default system-auth (#205067)
+- round the pam_timestamp_check sleep up to wake up at the start of the
+  wallclock second (#205068)
+
 * Thu Aug 31 2006 Tomas Mraz <tmraz@redhat.com> 0.99.6.2-1
 - upgrade to new upstream version, as there are mostly bugfixes except
   improved documentation
