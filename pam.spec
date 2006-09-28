@@ -11,7 +11,7 @@
 Summary: A security tool which provides authentication for applications
 Name: pam
 Version: 0.99.6.2
-Release: 2%{?dist}
+Release: 3%{?dist}
 License: GPL or BSD
 Group: System Environment/Base
 Source0: http://ftp.us.kernel.org/pub/linux/libs/pam/pre/library/Linux-PAM-%{version}.tar.bz2
@@ -33,6 +33,7 @@ Patch81: pam-0.99.3.0-cracklib-try-first-pass.patch
 Patch82: pam-0.99.3.0-tally-fail-close.patch
 Patch84: pam-0.99.6.2-selinux-keycreate.patch
 Patch85: pam-0.99.6.0-succif-session.patch
+Patch86: pam-0.99.6.2-namespace-no-unmount.patch
 
 BuildRoot: %{_tmppath}/%{name}-root
 Requires: cracklib, cracklib-dicts >= 2.8
@@ -93,6 +94,7 @@ cp %{SOURCE7} .
 %patch82 -p1 -b .fail-close
 %patch84 -p1 -b .keycreate
 %patch85 -p0 -b .session
+%patch86 -p1 -b .no-unmount
 
 autoreconf
 
@@ -365,6 +367,9 @@ fi
 %doc doc/adg/*.txt doc/adg/html
 
 %changelog
+* Thu Sep 28 2006 Tomas Mraz <tmraz@redhat.com> 0.99.6.2-3
+- add pam_namespace option no_unmount_on_close, required for newrole
+
 * Mon Sep  4 2006 Tomas Mraz <tmraz@redhat.com> 0.99.6.2-2
 - silence pam_succeed_if in default system-auth (#205067)
 - round the pam_timestamp_check sleep up to wake up at the start of the
