@@ -52,8 +52,8 @@ BuildRequires: perl, pkgconfig
 BuildRequires: audit-libs-devel >= 1.0.8
 Requires: audit-libs >= 1.0.8
 %endif
-BuildRequires: libselinux-devel >= 1.33.1-2
-Requires: libselinux >= 1.33.1-2
+BuildRequires: libselinux-devel >= 1.27.7
+Requires: libselinux >= 1.27.7
 BuildRequires: glibc >= 2.3.90-37
 Requires: glibc >= 2.3.90-37
 # Following deps are necessary only to build the pam library documentation.
