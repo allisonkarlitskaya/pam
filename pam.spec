@@ -4,14 +4,14 @@
 %define _sysconfdir /etc
 
 %define pwdb_version 0.62
-%define db_version 4.3.29
-%define db_conflicting_version 4.4.0
+%define db_version 4.5.20
+%define db_conflicting_version 4.6.0
 %define pam_redhat_version 0.99.6-2
 
 Summary: A security tool which provides authentication for applications
 Name: pam
 Version: 0.99.6.2
-Release: 3%{?dist}
+Release: 4%{?dist}
 License: GPL or BSD
 Group: System Environment/Base
 Source0: http://ftp.us.kernel.org/pub/linux/libs/pam/pre/library/Linux-PAM-%{version}.tar.bz2
@@ -28,12 +28,17 @@ Patch1: pam-0.99.5.0-redhat-modules.patch
 Patch21: pam-0.78-unix-hpux-aging.patch
 Patch34: pam-0.99.4.0-dbpam.patch
 Patch70: pam-0.99.2.1-selinux-nofail.patch
-Patch80: pam-0.99.5.0-selinux-drop-multiple.patch
+Patch80: pam-0.99.6.2-selinux-drop-multiple.patch
 Patch81: pam-0.99.3.0-cracklib-try-first-pass.patch
 Patch82: pam-0.99.3.0-tally-fail-close.patch
 Patch84: pam-0.99.6.2-selinux-keycreate.patch
 Patch85: pam-0.99.6.0-succif-session.patch
 Patch86: pam-0.99.6.2-namespace-no-unmount.patch
+Patch87: pam-0.99.6.2-namespace-preserve-uid.patch
+Patch88: pam-0.99.6.2-doc-add-ids.patch
+Patch89: pam-0.99.6.2-namespace-overflow.patch
+Patch90: pam-0.99.6.2-keyinit-setgid.patch
+Patch91: pam-0.99.6.2-unix-username.patch
 
 BuildRoot: %{_tmppath}/%{name}-root
 Requires: cracklib, cracklib-dicts >= 2.8
@@ -41,14 +46,14 @@ Obsoletes: pamconfig
 Prereq: grep, mktemp, sed, coreutils, /sbin/ldconfig
 BuildRequires: autoconf, automake, libtool
 BuildRequires: bison, flex, sed
-BuildRequires: cracklib, cracklib-dicts >= 2.8
+BuildRequires: cracklib-devel, cracklib-dicts >= 2.8
 BuildRequires: perl, pkgconfig
 %if %{WITH_AUDIT}
 BuildRequires: audit-libs-devel >= 1.0.8
 Requires: audit-libs >= 1.0.8
 %endif
-BuildRequires: libselinux-devel >= 1.27.7
-Requires: libselinux >= 1.27.7
+BuildRequires: libselinux-devel >= 1.33.1-2
+Requires: libselinux >= 1.33.1-2
 BuildRequires: glibc >= 2.3.90-37
 Requires: glibc >= 2.3.90-37
 # Following deps are necessary only to build the pam library documentation.
@@ -95,6 +100,11 @@ cp %{SOURCE7} .
 %patch84 -p1 -b .keycreate
 %patch85 -p0 -b .session
 %patch86 -p1 -b .no-unmount
+%patch87 -p1 -b .preserve-uid
+%patch88 -p0 -b .add-ids
+%patch89 -p1 -b .overflow
+%patch90 -p1 -b .setgid
+%patch91 -p1 -b .username
 
 autoreconf
 
@@ -153,6 +163,9 @@ install -m 644 other.pamd $RPM_BUILD_ROOT%{_sysconfdir}/pam.d/other
 install -m 644 system-auth.pamd $RPM_BUILD_ROOT%{_sysconfdir}/pam.d/system-auth
 install -m 644 config-util.pamd $RPM_BUILD_ROOT%{_sysconfdir}/pam.d/config-util
 install -m 600 /dev/null $RPM_BUILD_ROOT%{_sysconfdir}/security/opasswd
+install -d -m 755 $RPM_BUILD_ROOT/var/log
+install -m 600 /dev/null $RPM_BUILD_ROOT/var/log/faillog
+install -m 600 /dev/null $RPM_BUILD_ROOT/var/log/tallylog
 
 # Forcibly strip binaries.
 strip $RPM_BUILD_ROOT%{_sbindir}/* ||:
@@ -353,6 +366,8 @@ fi
 %dir %{_sysconfdir}/security/console.perms.d
 %config %{_sysconfdir}/security/console.perms.d/50-default.perms
 %dir /var/run/console
+%config(noreplace) %verify(not md5 size mtime) /var/log/faillog
+%config(noreplace) %verify(not md5 size mtime) /var/log/tallylog
 %{_mandir}/man5/*
 %{_mandir}/man8/*
 
@@ -367,6 +382,22 @@ fi
 %doc doc/adg/*.txt doc/adg/html
 
 %changelog
+* Mon Nov 13 2006 Tomas Mraz <tmraz@redhat.com> 0.99.6.2-4
+- update internal db4 to 4.5.20 version
+- move setgid before setuid in pam_keyinit (#212329)
+- make username check in pam_unix consistent with useradd (#212153)
+
+* Tue Oct 24 2006 Tomas Mraz <tmraz@redhat.com> 0.99.6.2-3.3
+- don't overflow a buffer in pam_namespace (#211989)
+
+* Mon Oct 16 2006 Tomas Mraz <tmraz@redhat.com> 0.99.6.2-3.2
+- /var/log/faillog and tallylog must be %config(noreplace)
+
+* Fri Oct 13 2006 Tomas Mraz <tmraz@redhat.com> 0.99.6.2-3.1
+- preserve effective uid in namespace.init script (LSPP for newrole)
+- include /var/log/faillog and tallylog to filelist (#209646)
+- add ids to .xml docs so the generated html is always the same (#210569)
+
 * Thu Sep 28 2006 Tomas Mraz <tmraz@redhat.com> 0.99.6.2-3
 - add pam_namespace option no_unmount_on_close, required for newrole
 
