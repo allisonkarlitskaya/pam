@@ -40,6 +40,7 @@ Patch89: pam-0.99.6.2-namespace-overflow.patch
 Patch90: pam-0.99.6.2-keyinit-setgid.patch
 Patch91: pam-0.99.6.2-unix-username.patch
 Patch92: pam-0.99.6.2-selinux-select-context.patch
+Patch100: pam-0.99.6.2-reconf.patch
 
 BuildRoot: %{_tmppath}/%{name}-root
 Requires: cracklib, cracklib-dicts >= 2.8
@@ -108,7 +109,8 @@ cp %{SOURCE7} .
 %patch91 -p1 -b .username
 %patch92 -p1 -b .select-context
 
-autoreconf
+%patch100 -p1 -b .reconf
+#autoreconf
 
 %build
 CFLAGS="-fPIC $RPM_OPT_FLAGS" ; export CFLAGS
@@ -386,6 +388,8 @@ fi
 %changelog
 * Thu Nov 30 2006 Tomas Mraz <tmraz@redhat.com> 0.99.6.2-5
 - add select-context option to pam_selinux (#213812)
+- autoreconf won't work with autoconf-2.61 as configure.in is not yet adjusted
+  for it
 
 * Mon Nov 13 2006 Tomas Mraz <tmraz@redhat.com> 0.99.6.2-4
 - update internal db4 to 4.5.20 version
