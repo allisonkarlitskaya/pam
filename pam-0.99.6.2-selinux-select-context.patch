@@ -1,0 +1,254 @@
+--- Linux-PAM-0.99.6.2/modules/pam_selinux/pam_selinux.8.xml.select-context	2006-11-10 17:48:59.000000000 +0100
++++ Linux-PAM-0.99.6.2/modules/pam_selinux/pam_selinux.8.xml	2006-11-10 17:52:36.000000000 +0100
+@@ -33,6 +33,9 @@
+       <arg choice="opt">
+ 	verbose
+       </arg>
++      <arg choice="opt">
++	select_context
++      </arg>
+     </cmdsynopsis>
+   </refsynopsisdiv>
+ 
+@@ -118,6 +121,17 @@
+           </para>
+         </listitem>
+       </varlistentry>
++      <varlistentry>
++        <term>
++          <option>select_context</option>
++        </term>
++        <listitem>
++          <para>
++            Attempt to ask the user for a custom security context role.
++            If MLS is on ask also for sensitivity level.
++          </para>
++        </listitem>
++      </varlistentry>
+     </variablelist>
+   </refsect1>
+ 
+--- Linux-PAM-0.99.6.2/modules/pam_selinux/pam_selinux.c.select-context	2006-11-10 17:48:59.000000000 +0100
++++ Linux-PAM-0.99.6.2/modules/pam_selinux/pam_selinux.c	2006-11-10 18:00:11.000000000 +0100
+@@ -63,6 +63,7 @@
+ #include <selinux/selinux.h>
+ #include <selinux/get_context_list.h>
+ #include <selinux/flask.h>
++#include <selinux/av_permissions.h>
+ #include <selinux/selinux.h>
+ #include <selinux/context.h>
+ 
+@@ -151,6 +152,8 @@
+ 	}
+ 	else
+ 	  send_text(pamh,_("Not a valid security context"),debug);
++
++        context_free(new_context); /* next time around allocates another */
+       }
+     else {
+       _pam_drop(responses);
+@@ -161,6 +164,86 @@
+   return NULL;
+ }
+ 
++static int mls_range_allowed(security_context_t src, security_context_t dst)
++{
++  struct av_decision avd;
++  int retval;
++  unsigned int bit = CONTEXT__CONTAINS;
++  
++  retval = security_compute_av(src, dst, SECCLASS_CONTEXT, bit, &avd);
++  if (retval || ((bit & avd.allowed) != bit))
++    return 0;
++  
++  return 1;
++}
++
++static security_context_t
++config_context (pam_handle_t *pamh, security_context_t puser_context, int debug)
++{
++  security_context_t newcon;
++  context_t new_context;
++  int mls_enabled = is_selinux_mls_enabled();
++  char *responses;
++  char resp_val = 0;
++  
++  while (1) {
++    query_response(pamh,
++		   _("Would you like to enter a role/level? [y] "),
++		   &responses,debug);
++
++    resp_val = responses[0];
++    _pam_drop(responses);
++    if ((resp_val == 'y') || (resp_val == 'Y') || (resp_val == '\0'))
++      {
++        new_context = context_new(puser_context);
++        
++	/* Allow the user to enter role and level individually */
++	query_response(pamh,_("role: "),&responses,debug);
++	if (responses[0] && context_role_set(new_context, responses))
++              goto fail_set;
++	_pam_drop(responses);
++	if (mls_enabled)
++	  {
++	    query_response(pamh,_("level: "),&responses,debug);
++	    if (responses[0] && context_range_set(new_context, responses))
++              goto fail_set;
++	    _pam_drop(responses);
++	  }
++
++        /* Get the string value of the context and see if it is valid. */
++        if (!security_check_context(context_str(new_context))) {
++	  newcon = strdup(context_str(new_context));
++	  context_free (new_context);
++
++          /* we have to check that this user is allowed to go into the
++             range they have specified ... role is tied to an seuser, so that'll
++             be checked at setexeccon time */
++          if (mls_enabled && !mls_range_allowed(puser_context, newcon))
++            goto fail_range;
++
++          freecon(puser_context);
++	  return newcon;
++	}
++	else
++	  send_text(pamh,_("Not a valid security context"),debug);
++
++        context_free(new_context); /* next time around allocates another */
++      }
++    else
++      break;
++  } /* end while */
++
++  freecon(puser_context);
++  return NULL;
++
++ fail_set:
++  _pam_drop(responses);
++  context_free (new_context);
++ fail_range:
++  freecon(puser_context);
++  return NULL;  
++}
++
+ static void
+ security_restorelabel_tty(const pam_handle_t *pamh,
+ 			  const char *tty, security_context_t context)
+@@ -273,10 +356,12 @@
+ {
+   int i, debug = 0, ttys=1, has_tty=isatty(0);
+   int verbose=0, close_session=0;
++  int select_context = 0;
+   int ret = 0;
+   security_context_t* contextlist = NULL;
+   int num_contexts = 0;
+-  const void *username = NULL;
++  const void *pusername = NULL;
++  const char *username = NULL;
+   const void *tty = NULL;
+   char *seuser=NULL;
+   char *level=NULL;
+@@ -295,6 +380,9 @@
+     if (strcmp(argv[i], "close") == 0) {
+       close_session = 1;
+     }
++    if (strcmp(argv[i], "select_context") == 0) {
++      select_context = 1;
++    }
+   }
+ 
+   if (debug)
+@@ -307,10 +395,11 @@
+   if (!(selinux_enabled = is_selinux_enabled()>0) )
+       return PAM_SUCCESS;
+ 
+-  if (pam_get_item(pamh, PAM_USER, &username) != PAM_SUCCESS ||
+-                   username == NULL) {
++  if (pam_get_item(pamh, PAM_USER, &pusername) != PAM_SUCCESS ||
++                   pusername == NULL) {
+     return PAM_USER_UNKNOWN;
+   }
++  username = pusername;
+ 
+   if (getseuserbyname(username, &seuser, &level)==0) {
+ 	  num_contexts = get_ordered_context_list_with_level(seuser, 
+@@ -319,19 +408,32 @@
+ 							     &contextlist);
+ 	  if (debug)
+ 		  pam_syslog(pamh, LOG_DEBUG, "Username= %s SELinux User = %s Level= %s",
+-			 (const char *)username, seuser, level);
++                             username, seuser, level);
+ 	  free(seuser);
+ 	  free(level);
+   }
+   if (num_contexts > 0) {
+     user_context = (security_context_t) strdup(contextlist[0]);
++
++    if (select_context && has_tty) {
++      user_context = config_context(pamh, user_context, debug);
++      if (user_context == NULL) {
++	pam_syslog(pamh, LOG_ERR, "Unable to get valid context for %s",
++		    username);
++        if (security_getenforce() == 1)
++          return PAM_AUTH_ERR;
++        else
++          return PAM_SUCCESS;
++      }
++    }
++    
+     freeconary(contextlist);
+   } else {
+     if (has_tty) {
+       user_context = manual_context(pamh,username,debug);
+       if (user_context == NULL) {
+ 	pam_syslog (pamh, LOG_ERR, "Unable to get valid context for %s",
+-		    (const char *)username);
++		    username);
+         if (security_getenforce() == 1)
+           return PAM_AUTH_ERR;
+         else
+@@ -340,7 +442,7 @@
+     } else {
+         pam_syslog (pamh, LOG_ERR,
+ 		    "Unable to get valid context for %s, No valid tty",
+-		    (const char *)username);
++		    username);
+         if (security_getenforce() == 1)
+           return PAM_AUTH_ERR;
+         else
+@@ -381,7 +483,7 @@
+   if (ret) {
+     pam_syslog(pamh, LOG_ERR,
+ 	       "Error!  Unable to set %s executable context %s.",
+-	       (const char *)username, user_context);
++	       username, user_context);
+     if (security_getenforce() == 1) {
+        freecon(user_context);
+        return PAM_AUTH_ERR;
+@@ -389,7 +491,7 @@
+   } else {
+     if (debug)
+       pam_syslog(pamh, LOG_NOTICE, "set %s security context to %s",
+-		 (const char *)username, user_context);
++		 username, user_context);
+   }
+ #ifdef HAVE_SETKEYCREATECON
+   ret = setkeycreatecon(user_context);
+@@ -402,7 +504,7 @@
+   if (ret) {
+     pam_syslog(pamh, LOG_ERR,
+ 	       "Error!  Unable to set %s key creation context %s.",
+-	       (const char *)username, user_context);
++	       username, user_context);
+     if (security_getenforce() == 1) {
+        freecon(user_context);
+        return PAM_AUTH_ERR;
+@@ -410,7 +512,7 @@
+   } else {
+     if (debug)
+       pam_syslog(pamh, LOG_NOTICE, "set %s key creation context to %s",
+-		 (const char *)username, user_context);
++		 username, user_context);
+   }
+ #endif
+   freecon(user_context);

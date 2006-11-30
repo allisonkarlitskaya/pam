@@ -11,7 +11,7 @@
 Summary: A security tool which provides authentication for applications
 Name: pam
 Version: 0.99.6.2
-Release: 4%{?dist}
+Release: 5%{?dist}
 License: GPL or BSD
 Group: System Environment/Base
 Source0: http://ftp.us.kernel.org/pub/linux/libs/pam/pre/library/Linux-PAM-%{version}.tar.bz2
@@ -39,6 +39,7 @@ Patch88: pam-0.99.6.2-doc-add-ids.patch
 Patch89: pam-0.99.6.2-namespace-overflow.patch
 Patch90: pam-0.99.6.2-keyinit-setgid.patch
 Patch91: pam-0.99.6.2-unix-username.patch
+Patch92: pam-0.99.6.2-selinux-select-context.patch
 
 BuildRoot: %{_tmppath}/%{name}-root
 Requires: cracklib, cracklib-dicts >= 2.8
@@ -52,8 +53,8 @@ BuildRequires: perl, pkgconfig
 BuildRequires: audit-libs-devel >= 1.0.8
 Requires: audit-libs >= 1.0.8
 %endif
-BuildRequires: libselinux-devel >= 1.27.7
-Requires: libselinux >= 1.27.7
+BuildRequires: libselinux-devel >= 1.33.2
+Requires: libselinux >= 1.33.2
 BuildRequires: glibc >= 2.3.90-37
 Requires: glibc >= 2.3.90-37
 # Following deps are necessary only to build the pam library documentation.
@@ -105,6 +106,7 @@ cp %{SOURCE7} .
 %patch89 -p1 -b .overflow
 %patch90 -p1 -b .setgid
 %patch91 -p1 -b .username
+%patch92 -p1 -b .select-context
 
 autoreconf
 
@@ -382,6 +384,9 @@ fi
 %doc doc/adg/*.txt doc/adg/html
 
 %changelog
+* Thu Nov 30 2006 Tomas Mraz <tmraz@redhat.com> 0.99.6.2-5
+- add select-context option to pam_selinux (#213812)
+
 * Mon Nov 13 2006 Tomas Mraz <tmraz@redhat.com> 0.99.6.2-4
 - update internal db4 to 4.5.20 version
 - move setgid before setuid in pam_keyinit (#212329)
