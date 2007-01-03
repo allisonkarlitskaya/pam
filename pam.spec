@@ -11,7 +11,7 @@
 Summary: A security tool which provides authentication for applications
 Name: pam
 Version: 0.99.6.2
-Release: 5%{?dist}
+Release: 7%{?dist}
 License: GPL or BSD
 Group: System Environment/Base
 Source0: http://ftp.us.kernel.org/pub/linux/libs/pam/pre/library/Linux-PAM-%{version}.tar.bz2
@@ -41,6 +41,7 @@ Patch90: pam-0.99.6.2-keyinit-setgid.patch
 Patch91: pam-0.99.6.2-unix-username.patch
 Patch92: pam-0.99.6.2-selinux-select-context.patch
 Patch100: pam-0.99.6.2-reconf.patch
+Patch101: pam-0.99.6.2-selinux-namespace.patch
 
 BuildRoot: %{_tmppath}/%{name}-root
 Requires: cracklib, cracklib-dicts >= 2.8
@@ -110,6 +111,7 @@ cp %{SOURCE7} .
 %patch92 -p1 -b .select-context
 
 %patch100 -p1 -b .reconf
+%patch101 -p1 -b .selinux-namespace
 #autoreconf
 
 %build
@@ -386,6 +388,13 @@ fi
 %doc doc/adg/*.txt doc/adg/html
 
 %changelog
+* Thu Dec 1 2006 Dan Walsh <dwalsh@redhat.com> 0.99.6.2-7
+- Fix selection of role
+
+* Thu Dec 1 2006 Dan Walsh <dwalsh@redhat.com> 0.99.6.2-6
+- Fix pam_namespace to only change MLS componant
+Resolves: Bug #216184
+
 * Thu Nov 30 2006 Tomas Mraz <tmraz@redhat.com> 0.99.6.2-5
 - add select-context option to pam_selinux (#213812)
 - autoreconf won't work with autoconf-2.61 as configure.in is not yet adjusted
