@@ -11,7 +11,7 @@
 Summary: A security tool which provides authentication for applications
 Name: pam
 Version: 0.99.6.2
-Release: 7%{?dist}
+Release: 8%{?dist}
 License: GPL or BSD
 Group: System Environment/Base
 Source0: http://ftp.us.kernel.org/pub/linux/libs/pam/pre/library/Linux-PAM-%{version}.tar.bz2
@@ -40,8 +40,10 @@ Patch89: pam-0.99.6.2-namespace-overflow.patch
 Patch90: pam-0.99.6.2-keyinit-setgid.patch
 Patch91: pam-0.99.6.2-unix-username.patch
 Patch92: pam-0.99.6.2-selinux-select-context.patch
+Patch93: pam-0.99.6.2-namespace-level.patch
+Patch94: pam-0.99.6.2-ja-no-shortcut.patch
+Patch95: pam-0.99.6.2-selinux-use-current-range.patch
 Patch100: pam-0.99.6.2-reconf.patch
-Patch101: pam-0.99.6.2-selinux-namespace.patch
 
 BuildRoot: %{_tmppath}/%{name}-root
 Requires: cracklib, cracklib-dicts >= 2.8
@@ -50,7 +52,7 @@ Prereq: grep, mktemp, sed, coreutils, /sbin/ldconfig
 BuildRequires: autoconf, automake, libtool
 BuildRequires: bison, flex, sed
 BuildRequires: cracklib-devel, cracklib-dicts >= 2.8
-BuildRequires: perl, pkgconfig
+BuildRequires: perl, pkgconfig, gettext
 %if %{WITH_AUDIT}
 BuildRequires: audit-libs-devel >= 1.0.8
 Requires: audit-libs >= 1.0.8
@@ -109,9 +111,10 @@ cp %{SOURCE7} .
 %patch90 -p1 -b .setgid
 %patch91 -p1 -b .username
 %patch92 -p1 -b .select-context
-
+%patch93 -p1 -b .selinux-namespace
+%patch94 -p1 -b .no-shortcut
+%patch95 -p1 -b .range
 %patch100 -p1 -b .reconf
-%patch101 -p1 -b .selinux-namespace
 #autoreconf
 
 %build
@@ -150,6 +153,10 @@ LDFLAGS=-L${topdir}/%{_lib} ; export LDFLAGS
 	--libdir=/%{_lib} \
 	--includedir=%{_includedir}/security \
 	--enable-isadir=../../%{_lib}/security
+# we must explicitely update-gmo as we patch a po file
+pushd po
+make update-gmo
+popd
 make
 
 %install
@@ -280,6 +287,12 @@ if [ "$USEMD5" = "no" ] ; then
 		rm -f $tmp
 	fi
 fi
+if [ ! -a /var/log/faillog ] ; then
+	install -m 600 /dev/null /var/log/faillog
+fi
+if [ ! -a /var/log/tallylog ] ; then
+	install -m 600 /dev/null /var/log/tallylog
+fi
 
 %postun -p /sbin/ldconfig
 
@@ -372,8 +385,8 @@ fi
 %dir %{_sysconfdir}/security/console.perms.d
 %config %{_sysconfdir}/security/console.perms.d/50-default.perms
 %dir /var/run/console
-%config(noreplace) %verify(not md5 size mtime) /var/log/faillog
-%config(noreplace) %verify(not md5 size mtime) /var/log/tallylog
+%ghost %verify(not md5 size mtime) /var/log/faillog
+%ghost %verify(not md5 size mtime) /var/log/tallylog
 %{_mandir}/man5/*
 %{_mandir}/man8/*
 
@@ -388,12 +401,22 @@ fi
 %doc doc/adg/*.txt doc/adg/html
 
 %changelog
+* Tue Jan 16 2007 Tomas Mraz <tmraz@redhat.com> 0.99.6.2-8
+- properly include /var/log/faillog and tallylog as ghosts
+  and create them in post script (#209646)
+- update gmo files as we patch some po files (#218271)
+- add use_current_range option to pam_selinux (#220487)
+- improve the role selection in pam_selinux
+- remove shortcut on Password: in ja locale (#218271)
+- revert to old euid and not ruid when setting euid in pam_keyinit (#219486)
+- rename selinux-namespace patch to namespace-level
+
 * Thu Dec 1 2006 Dan Walsh <dwalsh@redhat.com> 0.99.6.2-7
-- Fix selection of role
+- fix selection of role
 
 * Thu Dec 1 2006 Dan Walsh <dwalsh@redhat.com> 0.99.6.2-6
-- Fix pam_namespace to only change MLS componant
-Resolves: Bug #216184
+- add possibility to pam_namespace to only change MLS component
+- Resolves: Bug #216184
 
 * Thu Nov 30 2006 Tomas Mraz <tmraz@redhat.com> 0.99.6.2-5
 - add select-context option to pam_selinux (#213812)
