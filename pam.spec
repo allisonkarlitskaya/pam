@@ -6,12 +6,12 @@
 %define pwdb_version 0.62
 %define db_version 4.5.20
 %define db_conflicting_version 4.6.0
-%define pam_redhat_version 0.99.6-2
+%define pam_redhat_version 0.99.7-1
 
 Summary: A security tool which provides authentication for applications
 Name: pam
-Version: 0.99.6.2
-Release: 8%{?dist}
+Version: 0.99.7.0
+Release: 1%{?dist}
 License: GPL or BSD
 Group: System Environment/Base
 Source0: http://ftp.us.kernel.org/pub/linux/libs/pam/pre/library/Linux-PAM-%{version}.tar.bz2
@@ -24,32 +24,27 @@ Source7: config-util.pamd
 Source8: dlopen.sh
 Source9: system-auth.5
 Source10: config-util.5
-Patch1: pam-0.99.5.0-redhat-modules.patch
+Patch1:  pam-0.99.7.0-redhat-modules.patch
+Patch2:  pam-0.99.7.0-selinux-build.patch
 Patch21: pam-0.78-unix-hpux-aging.patch
-Patch34: pam-0.99.4.0-dbpam.patch
+Patch34: pam-0.99.7.0-dbpam.patch
 Patch70: pam-0.99.2.1-selinux-nofail.patch
 Patch80: pam-0.99.6.2-selinux-drop-multiple.patch
 Patch81: pam-0.99.3.0-cracklib-try-first-pass.patch
 Patch82: pam-0.99.3.0-tally-fail-close.patch
 Patch84: pam-0.99.6.2-selinux-keycreate.patch
-Patch85: pam-0.99.6.0-succif-session.patch
-Patch86: pam-0.99.6.2-namespace-no-unmount.patch
+Patch86: pam-0.99.7.0-namespace-no-unmount.patch
 Patch87: pam-0.99.6.2-namespace-preserve-uid.patch
-Patch88: pam-0.99.6.2-doc-add-ids.patch
-Patch89: pam-0.99.6.2-namespace-overflow.patch
-Patch90: pam-0.99.6.2-keyinit-setgid.patch
-Patch91: pam-0.99.6.2-unix-username.patch
 Patch92: pam-0.99.6.2-selinux-select-context.patch
-Patch93: pam-0.99.6.2-namespace-level.patch
-Patch94: pam-0.99.6.2-ja-no-shortcut.patch
+Patch93: pam-0.99.7.0-namespace-level.patch
 Patch95: pam-0.99.6.2-selinux-use-current-range.patch
-Patch100: pam-0.99.6.2-reconf.patch
 
-BuildRoot: %{_tmppath}/%{name}-root
+BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 Requires: cracklib, cracklib-dicts >= 2.8
-Obsoletes: pamconfig
-Prereq: grep, mktemp, sed, coreutils, /sbin/ldconfig
-BuildRequires: autoconf, automake, libtool
+Requires(pre): grep, coreutils
+Requires(post): mktemp, sed, coreutils, /sbin/ldconfig
+BuildRequires: autoconf >= 2.60
+BuildRequires: automake, libtool
 BuildRequires: bison, flex, sed
 BuildRequires: cracklib-devel, cracklib-dicts >= 2.8
 BuildRequires: perl, pkgconfig, gettext
@@ -96,6 +91,7 @@ cp %{SOURCE6} .
 cp %{SOURCE7} .
 
 %patch1 -p1 -b .redhat-modules
+%patch2 -p1 -b .build
 %patch21 -p1 -b .unix-hpux-aging
 %patch34 -p1 -b .dbpam
 %patch70 -p1 -b .nofail
@@ -103,19 +99,12 @@ cp %{SOURCE7} .
 %patch81 -p1 -b .try-first-pass
 %patch82 -p1 -b .fail-close
 %patch84 -p1 -b .keycreate
-%patch85 -p0 -b .session
 %patch86 -p1 -b .no-unmount
 %patch87 -p1 -b .preserve-uid
-%patch88 -p0 -b .add-ids
-%patch89 -p1 -b .overflow
-%patch90 -p1 -b .setgid
-%patch91 -p1 -b .username
 %patch92 -p1 -b .select-context
-%patch93 -p1 -b .selinux-namespace
-%patch94 -p1 -b .no-shortcut
+%patch93 -p1 -b .level
 %patch95 -p1 -b .range
-%patch100 -p1 -b .reconf
-#autoreconf
+autoreconf
 
 %build
 CFLAGS="-fPIC $RPM_OPT_FLAGS" ; export CFLAGS
@@ -169,6 +158,11 @@ done
 
 # Install the binaries, libraries, and modules.
 make install DESTDIR=$RPM_BUILD_ROOT LDCONFIG=:
+
+# RPM uses docs from source tree
+rm -rf $RPM_BUILD_ROOT%{_datadir}/doc/Linux-PAM
+# Included in setup package
+rm -f $RPM_BUILD_ROOT%{_sysconfdir}/environment
 
 # Install default configuration files.
 install -d -m 755 $RPM_BUILD_ROOT%{_sysconfdir}/pam.d
@@ -327,6 +321,7 @@ fi
 /%{_lib}/security/pam_echo.so
 /%{_lib}/security/pam_env.so
 /%{_lib}/security/pam_exec.so
+/%{_lib}/security/pam_faildelay.so
 /%{_lib}/security/pam_filter.so
 /%{_lib}/security/pam_ftp.so
 /%{_lib}/security/pam_group.so
@@ -351,7 +346,6 @@ fi
 /%{_lib}/security/pam_selinux.so
 /%{_lib}/security/pam_securetty.so
 /%{_lib}/security/pam_shells.so
-/%{_lib}/security/pam_stack.so
 /%{_lib}/security/pam_stress.so
 /%{_lib}/security/pam_succeed_if.so
 /%{_lib}/security/pam_tally.so
@@ -401,6 +395,11 @@ fi
 %doc doc/adg/*.txt doc/adg/html
 
 %changelog
+* Fri Jan 19 2007 Tomas Mraz <tmraz@redhat.com> 0.99.7.0-1
+- upgrade to new upstream version
+- drop pam_stack module as it is obsolete
+- some changes to silence rpmlint
+
 * Tue Jan 16 2007 Tomas Mraz <tmraz@redhat.com> 0.99.6.2-8
 - properly include /var/log/faillog and tallylog as ghosts
   and create them in post script (#209646)
@@ -432,7 +431,7 @@ fi
 - don't overflow a buffer in pam_namespace (#211989)
 
 * Mon Oct 16 2006 Tomas Mraz <tmraz@redhat.com> 0.99.6.2-3.2
-- /var/log/faillog and tallylog must be %config(noreplace)
+- /var/log/faillog and tallylog must be config(noreplace)
 
 * Fri Oct 13 2006 Tomas Mraz <tmraz@redhat.com> 0.99.6.2-3.1
 - preserve effective uid in namespace.init script (LSPP for newrole)
@@ -733,7 +732,7 @@ support)
 - #134941 pam_console should check X11 socket only on login
 
 * Tue Oct 19 2004 Tomas Mraz <tmraz@redhat.com> 0.77-63
-- Fix checking of group %group syntax in pam_limits
+- Fix checking of group %%group syntax in pam_limits
 - Drop fencepost patch as it was already fixed 
   by upstream change from 0.75 to 0.77
 - Fix brokenshadow patch
@@ -1349,7 +1348,7 @@ support)
 - add 'sed' to the buildprereq list (#24666)
 
 * Sun Jan 21 2001 Matt Wilson <msw@redhat.com>
-- added "exit 0" to the end of the %pre script
+- added "exit 0" to the end of the pre script
 
 * Fri Jan 19 2001 Nalin Dahyabhai <nalin@redhat.com>
 - self-hosting fix from Guy Streeter
@@ -1493,7 +1492,7 @@ support)
 - try to make pam_console a little more discriminating
 
 * Mon Jun 19 2000 Nalin Dahyabhai <nalin@redhat.com>
-- symlink libpam.so to libpam.so.%{version}, and likewise for libpam_misc
+- symlink libpam.so to libpam.so.%%{version}, and likewise for libpam_misc
 - reverse order of checks in _unix_getpwnam for pam_unix
 
 * Wed Jun 14 2000 Preston Brown <pbrown@redhat.com>

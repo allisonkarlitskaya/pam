@@ -1,0 +1,11 @@
+--- Linux-PAM-0.99.7.0/configure.in.dbpam	2007-01-19 07:39:09.000000000 -0500
++++ Linux-PAM-0.99.7.0/configure.in	2007-01-19 07:40:07.000000000 -0500
+@@ -348,7 +348,7 @@
+         WITH_DB=$enableval, WITH_DB=yes)
+ if test x"$WITH_DB" != xno ; then
+         if test x"$WITH_DB" = xyes -o x"$WITH_DB" = xdb ; then
+-              AC_CHECK_LIB([db], [db_create], LIBDB="-ldb", LIBDB="")
++              AC_CHECK_LIB([db], [db_create_pam], LIBDB="-ldb", LIBDB="")
+               if test -z "$LIBDB" ; then
+                   AC_CHECK_LIB([db], [dbm_store], LIBDB="-ldb", LIBDB="")
+               fi
