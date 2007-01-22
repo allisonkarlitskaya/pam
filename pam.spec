@@ -11,7 +11,7 @@
 Summary: A security tool which provides authentication for applications
 Name: pam
 Version: 0.99.7.0
-Release: 1%{?dist}
+Release: 2%{?dist}
 License: GPL or BSD
 Group: System Environment/Base
 Source0: http://ftp.us.kernel.org/pub/linux/libs/pam/pre/library/Linux-PAM-%{version}.tar.bz2
@@ -27,6 +27,7 @@ Source10: config-util.5
 Patch1:  pam-0.99.7.0-redhat-modules.patch
 Patch2:  pam-0.99.7.0-selinux-build.patch
 Patch21: pam-0.78-unix-hpux-aging.patch
+Patch22: pam-0.99.7.0-unix-minsalt.patch
 Patch34: pam-0.99.7.0-dbpam.patch
 Patch70: pam-0.99.2.1-selinux-nofail.patch
 Patch80: pam-0.99.6.2-selinux-drop-multiple.patch
@@ -93,6 +94,7 @@ cp %{SOURCE7} .
 %patch1 -p1 -b .redhat-modules
 %patch2 -p1 -b .build
 %patch21 -p1 -b .unix-hpux-aging
+%patch22 -p1 -b .minsalt
 %patch34 -p1 -b .dbpam
 %patch70 -p1 -b .nofail
 %patch80 -p1 -b .drop-multiple
@@ -395,6 +397,10 @@ fi
 %doc doc/adg/*.txt doc/adg/html
 
 %changelog
+* Mon Jan 22 2007 Tomas Mraz <tmraz@redhat.com> 0.99.7.0-2
+- add back min salt length requirement which was erroneously removed
+  upstream
+
 * Fri Jan 19 2007 Tomas Mraz <tmraz@redhat.com> 0.99.7.0-1
 - upgrade to new upstream version
 - drop pam_stack module as it is obsolete
