@@ -10,8 +10,8 @@
 
 Summary: A security tool which provides authentication for applications
 Name: pam
-Version: 0.99.7.0
-Release: 2%{?dist}
+Version: 0.99.7.1
+Release: 1%{?dist}
 License: GPL or BSD
 Group: System Environment/Base
 Source0: http://ftp.us.kernel.org/pub/linux/libs/pam/pre/library/Linux-PAM-%{version}.tar.bz2
@@ -25,9 +25,7 @@ Source8: dlopen.sh
 Source9: system-auth.5
 Source10: config-util.5
 Patch1:  pam-0.99.7.0-redhat-modules.patch
-Patch2:  pam-0.99.7.0-selinux-build.patch
 Patch21: pam-0.78-unix-hpux-aging.patch
-Patch22: pam-0.99.7.0-unix-minsalt.patch
 Patch34: pam-0.99.7.0-dbpam.patch
 Patch70: pam-0.99.2.1-selinux-nofail.patch
 Patch80: pam-0.99.6.2-selinux-drop-multiple.patch
@@ -38,6 +36,7 @@ Patch86: pam-0.99.7.0-namespace-no-unmount.patch
 Patch87: pam-0.99.6.2-namespace-preserve-uid.patch
 Patch92: pam-0.99.6.2-selinux-select-context.patch
 Patch93: pam-0.99.7.0-namespace-level.patch
+Patch94: pam-0.99.7.0-namespace-unmnt-override.patch
 Patch95: pam-0.99.6.2-selinux-use-current-range.patch
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
@@ -92,9 +91,7 @@ cp %{SOURCE6} .
 cp %{SOURCE7} .
 
 %patch1 -p1 -b .redhat-modules
-%patch2 -p1 -b .build
 %patch21 -p1 -b .unix-hpux-aging
-%patch22 -p1 -b .minsalt
 %patch34 -p1 -b .dbpam
 %patch70 -p1 -b .nofail
 %patch80 -p1 -b .drop-multiple
@@ -105,6 +102,7 @@ cp %{SOURCE7} .
 %patch87 -p1 -b .preserve-uid
 %patch92 -p1 -b .select-context
 %patch93 -p1 -b .level
+%patch94 -p1 -b .unmnt-override
 %patch95 -p1 -b .range
 autoreconf
 
@@ -397,9 +395,13 @@ fi
 %doc doc/adg/*.txt doc/adg/html
 
 %changelog
+* Wed Jan 24 2007 Tomas Mraz <tmraz@redhat.com> 0.99.7.1-1
+- upgrade to new upstream version resolving CVE-2007-0003
+- pam_namespace: unmount poly dir for override users
+
 * Mon Jan 22 2007 Tomas Mraz <tmraz@redhat.com> 0.99.7.0-2
 - add back min salt length requirement which was erroneously removed
-  upstream
+  upstream (CVE-2007-0003)
 
 * Fri Jan 19 2007 Tomas Mraz <tmraz@redhat.com> 0.99.7.0-1
 - upgrade to new upstream version
