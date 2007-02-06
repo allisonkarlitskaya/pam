@@ -1,0 +1,23 @@
+--- Linux-PAM-0.99.7.1/modules/pam_console/console.handlers.displays	2006-09-04 16:14:31.000000000 +0200
++++ Linux-PAM-0.99.7.1/modules/pam_console/console.handlers	2007-02-06 16:50:41.000000000 +0100
+@@ -14,6 +14,6 @@
+ # echo lock wait Locking console for user on tty
+ # touch unlock wait /var/run/console-unlocked
+ 
+-console consoledevs tty[0-9][0-9]* vc/[0-9][0-9]* :[0-9]\.[0-9] :[0-9]
++console consoledevs tty[0-9][0-9]* vc/[0-9][0-9]* :[0-9]+\.[0-9]+ :[0-9]+
+ /sbin/pam_console_apply lock logfail wait -t tty -s
+ /sbin/pam_console_apply unlock logfail wait -r -t tty -s
+--- Linux-PAM-0.99.7.1/modules/pam_console/console.perms.displays	2005-07-14 15:13:44.000000000 +0200
++++ Linux-PAM-0.99.7.1/modules/pam_console/console.perms	2007-02-06 16:49:49.000000000 +0100
+@@ -18,8 +18,8 @@
+ # Rather a new file in the console.perms.d directory should be created.
+ 
+ # file classes -- these are regular expressions
+-<console>=tty[0-9][0-9]* vc/[0-9][0-9]* :[0-9]\.[0-9] :[0-9]
+-<xconsole>=:[0-9]\.[0-9] :[0-9]
++<console>=tty[0-9][0-9]* vc/[0-9][0-9]* :[0-9]+\.[0-9]+ :[0-9]+
++<xconsole>=:[0-9]+\.[0-9]+ :[0-9]+
+ 
+ # device classes -- see console.perms.d/50-default.perms
+ # permission definitions -- see console.perms.d/50-default.perms

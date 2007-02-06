@@ -11,7 +11,7 @@
 Summary: A security tool which provides authentication for applications
 Name: pam
 Version: 0.99.7.1
-Release: 1%{?dist}
+Release: 2%{?dist}
 License: GPL or BSD
 Group: System Environment/Base
 Source0: http://ftp.us.kernel.org/pub/linux/libs/pam/pre/library/Linux-PAM-%{version}.tar.bz2
@@ -25,6 +25,7 @@ Source8: dlopen.sh
 Source9: system-auth.5
 Source10: config-util.5
 Patch1:  pam-0.99.7.0-redhat-modules.patch
+Patch2:  pam-0.99.7.1-console-more-displays.patch
 Patch21: pam-0.78-unix-hpux-aging.patch
 Patch34: pam-0.99.7.0-dbpam.patch
 Patch70: pam-0.99.2.1-selinux-nofail.patch
@@ -91,6 +92,7 @@ cp %{SOURCE6} .
 cp %{SOURCE7} .
 
 %patch1 -p1 -b .redhat-modules
+%patch2 -p1 -b .displays
 %patch21 -p1 -b .unix-hpux-aging
 %patch34 -p1 -b .dbpam
 %patch70 -p1 -b .nofail
@@ -395,6 +397,9 @@ fi
 %doc doc/adg/*.txt doc/adg/html
 
 %changelog
+* Tue Feb  6 2007 Tomas Mraz <tmraz@redhat.com> 0.99.7.1-2
+- more X displays as consoles (#227462)
+
 * Wed Jan 24 2007 Tomas Mraz <tmraz@redhat.com> 0.99.7.1-1
 - upgrade to new upstream version resolving CVE-2007-0003
 - pam_namespace: unmount poly dir for override users
