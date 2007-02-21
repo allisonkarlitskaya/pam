@@ -11,7 +11,7 @@
 Summary: A security tool which provides authentication for applications
 Name: pam
 Version: 0.99.7.1
-Release: 2%{?dist}
+Release: 3%{?dist}
 License: GPL or BSD
 Group: System Environment/Base
 Source0: http://ftp.us.kernel.org/pub/linux/libs/pam/pre/library/Linux-PAM-%{version}.tar.bz2
@@ -27,6 +27,8 @@ Source10: config-util.5
 Patch1:  pam-0.99.7.0-redhat-modules.patch
 Patch2:  pam-0.99.7.1-console-more-displays.patch
 Patch21: pam-0.78-unix-hpux-aging.patch
+Patch22: pam-0.99.7.1-unix-allow-pwmodify.patch
+Patch23: pam-0.99.7.1-unix-bigcrypt.patch
 Patch34: pam-0.99.7.0-dbpam.patch
 Patch70: pam-0.99.2.1-selinux-nofail.patch
 Patch80: pam-0.99.6.2-selinux-drop-multiple.patch
@@ -94,6 +96,8 @@ cp %{SOURCE7} .
 %patch1 -p1 -b .redhat-modules
 %patch2 -p1 -b .displays
 %patch21 -p1 -b .unix-hpux-aging
+%patch22 -p1 -b .pwmodify
+%patch23 -p1 -b .bigcrypt
 %patch34 -p1 -b .dbpam
 %patch70 -p1 -b .nofail
 %patch80 -p1 -b .drop-multiple
@@ -106,6 +110,7 @@ cp %{SOURCE7} .
 %patch93 -p1 -b .level
 %patch94 -p1 -b .unmnt-override
 %patch95 -p1 -b .range
+
 autoreconf
 
 %build
@@ -397,6 +402,11 @@ fi
 %doc doc/adg/*.txt doc/adg/html
 
 %changelog
+* Wed Feb 21 2007 Tomas Mraz <tmraz@redhat.com> 0.99.7.1-3
+- correctly relabel tty in the default case (#229542)
+- pam_unix: cleanup of bigcrypt support
+- pam_unix: allow modification of '*' passwords to root
+
 * Tue Feb  6 2007 Tomas Mraz <tmraz@redhat.com> 0.99.7.1-2
 - more X displays as consoles (#227462)
 
