@@ -1,0 +1,206 @@
+--- Linux-PAM-0.99.6.2/modules/pam_namespace/pam_namespace.h.dirnames	2007-02-26 23:31:26.000000000 +0100
++++ Linux-PAM-0.99.6.2/modules/pam_namespace/pam_namespace.h	2007-02-27 00:40:04.000000000 +0100
+@@ -89,6 +89,8 @@
+ #define PAMNS_IGN_INST_PARENT_MODE  0x00008000 /* Ignore instance parent mode */
+ #define PAMNS_NO_UNMOUNT_ON_CLOSE  0x00010000 /* no unmount at session close */
+ 
++#define NAMESPACE_MAX_DIR_LEN 80
++
+ /*
+  * Polyinstantiation method options, based on user, security context
+  * or both
+--- Linux-PAM-0.99.6.2/modules/pam_namespace/pam_namespace.c.dirnames	2007-02-26 23:31:26.000000000 +0100
++++ Linux-PAM-0.99.6.2/modules/pam_namespace/pam_namespace.c	2007-02-27 00:39:51.000000000 +0100
+@@ -436,6 +436,36 @@
+     return 0;
+ }
+ 
++/*
++ * md5hash generates a hash of the passed in instance directory name.
++ */
++static char *md5hash(const char *instname, struct instance_data *idata)
++{
++    int i;
++    char *md5inst = NULL;
++    char *to;
++    unsigned char inst_digest[MD5_DIGEST_LENGTH];
++
++    /*
++     * Create MD5 hashes for instance pathname.
++     */
++
++    MD5((const unsigned char *)instname, strlen(instname), inst_digest);
++
++    if ((md5inst = malloc(MD5_DIGEST_LENGTH * 2 + 1)) == NULL) {
++        pam_syslog(idata->pamh, LOG_ERR, "Unable to allocate buffer");
++        return NULL;
++    }
++
++    to = md5inst;
++    for (i = 0; i < MD5_DIGEST_LENGTH; i++) {
++        snprintf(to, 3, "%02x", (unsigned int)inst_digest[i]);
++        to += 2;
++    }
++
++    return md5inst;
++}
++
+ #ifdef WITH_SELINUX
+ static int form_context(const struct polydir_s *polyptr,
+ 		security_context_t *i_context, security_context_t *origcon,
+@@ -547,12 +577,21 @@
+ #endif
+ {
+     int rc;
++    char *hash = NULL;
++#ifdef WITH_SELINUX
++    security_context_t rawcon = NULL;
++#endif
+ 
+-# ifdef WITH_SELINUX
+-    rc = form_context(polyptr, i_context, origcon, idata);
++    *i_name = NULL;
++#ifdef WITH_SELINUX
++    *i_context = NULL;
++    *origcon = NULL;
++    if ((rc=form_context(polyptr, i_context, origcon, idata)) != PAM_SUCCESS) {
++	return rc;
++    }
+ #endif
+-    rc = PAM_SUCCESS;
+ 
++    rc = PAM_SESSION_ERR;
+     /*
+      * Set the name of the polyinstantiated instance dir based on the
+      * polyinstantiation method.
+@@ -561,16 +600,20 @@
+         case USER:
+ 	    if (asprintf(i_name, "%s", idata->user) < 0) {
+ 		*i_name = NULL;
+-		rc = PAM_SESSION_ERR;
+-	    }
++		goto fail;
++	    }	    
+     	    break;
+ 
+ #ifdef WITH_SELINUX
+     	case LEVEL:
+         case CONTEXT:
+-	    if (asprintf(i_name, "%s_%s", *i_context, idata->user) < 0) {
++	    if (selinux_trans_to_raw_context(*i_context, &rawcon) < 0) {
++		pam_syslog(idata->pamh, LOG_ERR, "Error translating directory context");
++		goto fail;
++	    }    	     
++	    if (asprintf(i_name, "%s_%s", rawcon, idata->user) < 0) {
+ 		*i_name = NULL;
+-		rc = PAM_SESSION_ERR;
++		goto fail;
+ 	    }
+     	    break;
+ 
+@@ -579,12 +622,48 @@
+     	default:
+     	    if (idata->flags & PAMNS_DEBUG)
+     	        pam_syslog(idata->pamh, LOG_ERR, "Unknown method");
+-    	    rc = PAM_SESSION_ERR;
++    	    goto fail;
+     }
+ 
+-    if ((idata->flags & PAMNS_DEBUG) && rc == PAM_SUCCESS)
++    if (idata->flags & PAMNS_DEBUG)
+         pam_syslog(idata->pamh, LOG_DEBUG, "poly_name %s", *i_name);
+ 
++    if ((idata->flags & PAMNS_GEN_HASH) || strlen(*i_name) > NAMESPACE_MAX_DIR_LEN) {
++        hash = md5hash(*i_name, idata);
++        if (hash == NULL) {
++    	    goto fail;
++        }
++        if (idata->flags & PAMNS_GEN_HASH) {
++    	    free(*i_name);
++	    *i_name = hash;
++	    hash = NULL;
++        } else {
++    	    char *newname;
++    	    if (asprintf(&newname, "%.*s_%s", NAMESPACE_MAX_DIR_LEN-1-strlen(hash),
++    		*i_name, hash) < 0) {
++    		goto fail;
++    	    }
++    	    free(*i_name);
++    	    *i_name = newname;
++        }
++    }
++    rc = PAM_SUCCESS;
++    
++fail:
++    free(hash);
++#ifdef WITH_SELINUX
++    freecon(rawcon);
++#endif
++    if (rc != PAM_SUCCESS) {
++#ifdef WITH_SELINUX
++	freecon(*i_context);
++	*i_context = NULL;
++	freecon(*origcon);
++	*origcon = NULL;
++#endif
++	free(*i_name);
++	*i_name = NULL;
++    }
+     return rc;
+ }
+ 
+@@ -832,39 +911,6 @@
+ 
+ 
+ /*
+- * md5hash generates a hash of the passed in instance directory name.
+- */
+-static int md5hash(char **instname, struct instance_data *idata)
+-{
+-    int i;
+-    char *md5inst = NULL;
+-    char *to;
+-    unsigned char inst_digest[MD5_DIGEST_LENGTH];
+-
+-    /*
+-     * Create MD5 hashes for instance pathname.
+-     */
+-
+-    MD5((unsigned char *)*instname, strlen(*instname), inst_digest);
+-
+-    if ((md5inst = malloc(MD5_DIGEST_LENGTH * 2 + 1)) == NULL) {
+-        pam_syslog(idata->pamh, LOG_ERR, "Unable to allocate buffer");
+-        return PAM_SESSION_ERR;
+-    }
+-
+-    to = md5inst;
+-    for (i = 0; i < MD5_DIGEST_LENGTH; i++) {
+-        snprintf(to, 3, "%02x", (unsigned int)inst_digest[i]);
+-        to += 3;
+-    }
+-
+-    free(*instname);
+-    *instname = md5inst;
+-
+-    return PAM_SUCCESS;
+-}
+-
+-/*
+  * This function performs the namespace setup for a particular directory
+  * that is being polyinstantiated. It creates an MD5 hash of instance 
+  * directory, calls create_dirs to create it with appropriate
+@@ -914,14 +960,6 @@
+ #endif
+     }
+ 
+-    if (idata->flags & PAMNS_GEN_HASH) {
+-        retval = md5hash(&instname, idata);
+-        if (retval < 0) {
+-            pam_syslog(idata->pamh, LOG_ERR, "Error generating md5 hash");
+-            goto error_out;
+-        }
+-    }
+-
+     if (asprintf(&inst_dir, "%s%s", polyptr->instance_prefix, instname) < 0)
+ 	goto error_out;
+ 

@@ -11,7 +11,7 @@
 Summary: A security tool which provides authentication for applications
 Name: pam
 Version: 0.99.7.1
-Release: 3%{?dist}
+Release: 4%{?dist}
 License: GPL or BSD
 Group: System Environment/Base
 Source0: http://ftp.us.kernel.org/pub/linux/libs/pam/pre/library/Linux-PAM-%{version}.tar.bz2
@@ -26,6 +26,7 @@ Source9: system-auth.5
 Source10: config-util.5
 Patch1:  pam-0.99.7.0-redhat-modules.patch
 Patch2:  pam-0.99.7.1-console-more-displays.patch
+Patch3:  pam-0.99.7.1-console-decrement.patch
 Patch21: pam-0.78-unix-hpux-aging.patch
 Patch22: pam-0.99.7.1-unix-allow-pwmodify.patch
 Patch23: pam-0.99.7.1-unix-bigcrypt.patch
@@ -41,6 +42,7 @@ Patch92: pam-0.99.6.2-selinux-select-context.patch
 Patch93: pam-0.99.7.0-namespace-level.patch
 Patch94: pam-0.99.7.0-namespace-unmnt-override.patch
 Patch95: pam-0.99.6.2-selinux-use-current-range.patch
+Patch96: pam-0.99.6.2-namespace-dirnames.patch
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 Requires: cracklib, cracklib-dicts >= 2.8
@@ -95,6 +97,7 @@ cp %{SOURCE7} .
 
 %patch1 -p1 -b .redhat-modules
 %patch2 -p1 -b .displays
+%patch3 -p1 -b .decrement
 %patch21 -p1 -b .unix-hpux-aging
 %patch22 -p1 -b .pwmodify
 %patch23 -p1 -b .bigcrypt
@@ -110,6 +113,7 @@ cp %{SOURCE7} .
 %patch93 -p1 -b .level
 %patch94 -p1 -b .unmnt-override
 %patch95 -p1 -b .range
+%patch96 -p1 -b .dirnames
 
 autoreconf
 
@@ -149,10 +153,6 @@ LDFLAGS=-L${topdir}/%{_lib} ; export LDFLAGS
 	--libdir=/%{_lib} \
 	--includedir=%{_includedir}/security \
 	--enable-isadir=../../%{_lib}/security
-# we must explicitely update-gmo as we patch a po file
-pushd po
-make update-gmo
-popd
 make
 
 %install
@@ -402,6 +402,12 @@ fi
 %doc doc/adg/*.txt doc/adg/html
 
 %changelog
+* Fri Mar 23 2007 Tomas Mraz <tmraz@redhat.com> 0.99.7.1-4
+- pam_console: always decrement use count (#230823)
+- pam_namespace: use raw context for poly dir name (#227345)
+- pam_namespace: truncate long poly dir name (append hash) (#230120)
+- we don't patch any po files anymore
+
 * Wed Feb 21 2007 Tomas Mraz <tmraz@redhat.com> 0.99.7.1-3
 - correctly relabel tty in the default case (#229542)
 - pam_unix: cleanup of bigcrypt support
