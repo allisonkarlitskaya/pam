@@ -1,0 +1,20 @@
+--- Linux-PAM-0.99.7.1/modules/pam_namespace/pam_namespace.c.unknown-user	2007-04-13 17:12:40.000000000 +0200
++++ Linux-PAM-0.99.7.1/modules/pam_namespace/pam_namespace.c	2007-04-13 18:11:57.000000000 +0200
+@@ -302,11 +302,14 @@
+                 *tptr = '\0';
+ 
+             pwd = pam_modutil_getpwnam(idata->pamh, ustr);
+-            *uidptr = pwd->pw_uid;
+-            if (i < count - 1) {
+-                ustr = tptr + 1;
++            if (pwd == NULL) {
++        	pam_syslog(idata->pamh, LOG_ERR, "Unknown user %s in configuration", ustr);
++        	poly.num_uids--;	
++            } else {
++                *uidptr = pwd->pw_uid;
+                 uidptr++;
+             }
++            ustr = tptr + 1;
+         }
+     }
+ 

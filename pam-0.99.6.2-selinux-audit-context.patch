@@ -1,0 +1,85 @@
+--- Linux-PAM-0.99.6.2/modules/pam_selinux/pam_selinux.c.audit-context	2007-04-03 17:51:29.000000000 +0200
++++ Linux-PAM-0.99.6.2/modules/pam_selinux/pam_selinux.c	2007-04-03 18:15:06.000000000 +0200
+@@ -88,33 +88,36 @@
+ 	security_context_t selected_raw=NULL;
+ 	rc = -1;
+ 	if (audit_fd < 0) {
+-		pam_syslog(pamh, LOG_ERR, _("Error connecting to audit system.\n"));
++		if (errno == EINVAL || errno == EPROTONOSUPPORT ||
++                                        errno == EAFNOSUPPORT)
++                        return 0; /* No audit support in kernel */
++		pam_syslog(pamh, LOG_ERR, _("Error connecting to audit system."));
+ 		return rc;
+ 	}
+ 	if (selinux_trans_to_raw_context(default_context, &default_raw) < 0) {
+-		pam_syslog(pamh, LOG_ERR, _("Error translating default context.\n"));
+-		goto out;
++		pam_syslog(pamh, LOG_ERR, _("Error translating default context."));
++		default_raw = NULL;
+ 	}
+ 	if (selinux_trans_to_raw_context(selected_context, &selected_raw) < 0) {
+-		pam_syslog(pamh, LOG_ERR, _("Error translating selected context.\n"));
+-		goto out;
++		pam_syslog(pamh, LOG_ERR, _("Error translating selected context."));
++		selected_raw = NULL;
+ 	}
+ 	if (asprintf(&msg, "pam: default-context=%s selected-context=%s",
+-		     default_context ? default_raw : "?",
+-		     selected_context ? selected_raw : "?") < 0) {
+-		pam_syslog(pamh, LOG_ERR, ("Error allocating memory.\n"));
++		     default_raw ? default_raw : (default_context ? default_context : "?"),
++		     selected_raw ? selected_raw : (selected_context ? selected_context : "?")) < 0) {
++		pam_syslog(pamh, LOG_ERR, ("Error allocating memory."));
+ 		goto out;
+ 	}
+ 	if (audit_log_user_message(audit_fd, AUDIT_USER_ROLE_CHANGE,
+ 				   msg, NULL, NULL, NULL, success) <= 0) {
+-		pam_syslog(pamh, LOG_ERR, _("Error sending audit message.\n"));
++		pam_syslog(pamh, LOG_ERR, _("Error sending audit message."));
+ 		goto out;
+ 	}
+ 	rc = 0;
+       out:
+ 	free(msg);
+ 	freecon(default_raw);
+-	free(selected_raw);
++	freecon(selected_raw);
+ 	close(audit_fd);
+ #else
+ 	pam_syslog(pamh, LOG_NOTICE, "pam: default-context=%s selected-context=%s success %d", default_context, selected_context, success);
+@@ -298,14 +301,17 @@
+           if (mls_enabled && !mls_range_allowed(pamh, puser_context, newcon, debug)) {
+ 	    pam_syslog(pamh, LOG_NOTICE, "Security context %s is not allowed for %s", puser_context, newcon);
+ 
++    	    send_audit_message(pamh, 0, puser_context, newcon);
+ 
++	    free(newcon);
+             goto fail_range;
+ 	  }
+ 	  return newcon;
+ 	}
+-	else
++	else {
++	  send_audit_message(pamh, 0, puser_context, context_str(new_context));
+ 	  send_text(pamh,_("Not a valid security context"),debug);
+-
++	}
+         context_free(new_context); /* next time around allocates another */
+       }
+     else
+@@ -318,6 +324,7 @@
+   free(type);
+   _pam_drop(responses);
+   context_free (new_context);
++  send_audit_message(pamh, 0, puser_context, NULL);
+  fail_range:
+   return NULL;  
+ }
+@@ -509,7 +516,6 @@
+     if (select_context && has_tty) {
+       user_context = config_context(pamh, default_user_context, debug);
+       if (user_context == NULL) {
+-        send_audit_message(pamh, 0, default_user_context, default_user_context);
+ 	freecon(default_user_context);
+ 	pam_syslog(pamh, LOG_ERR, _("Unable to get valid context for %s"),
+ 		    username);

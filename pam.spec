@@ -11,7 +11,7 @@
 Summary: A security tool which provides authentication for applications
 Name: pam
 Version: 0.99.7.1
-Release: 4%{?dist}
+Release: 5%{?dist}
 License: GPL or BSD
 Group: System Environment/Base
 Source0: http://ftp.us.kernel.org/pub/linux/libs/pam/pre/library/Linux-PAM-%{version}.tar.bz2
@@ -43,6 +43,8 @@ Patch93: pam-0.99.7.0-namespace-level.patch
 Patch94: pam-0.99.7.0-namespace-unmnt-override.patch
 Patch95: pam-0.99.6.2-selinux-use-current-range.patch
 Patch96: pam-0.99.6.2-namespace-dirnames.patch
+Patch97: pam-0.99.7.1-namespace-unknown-user.patch
+Patch98: pam-0.99.6.2-selinux-audit-context.patch
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 Requires: cracklib, cracklib-dicts >= 2.8
@@ -114,6 +116,8 @@ cp %{SOURCE7} .
 %patch94 -p1 -b .unmnt-override
 %patch95 -p1 -b .range
 %patch96 -p1 -b .dirnames
+%patch97 -p1 -b .unknown-user
+%patch98 -p1 -b .audit-context
 
 autoreconf
 
@@ -402,6 +406,10 @@ fi
 %doc doc/adg/*.txt doc/adg/html
 
 %changelog
+* Fri Apr 13 2007 Tomas Mraz <tmraz@redhat.com> 0.99.7.1-5
+- pam_selinux: improve context change auditing (#234781)
+- pam_namespace: fix parsing config file with unknown users (#234513)
+
 * Fri Mar 23 2007 Tomas Mraz <tmraz@redhat.com> 0.99.7.1-4
 - pam_console: always decrement use count (#230823)
 - pam_namespace: use raw context for poly dir name (#227345)
