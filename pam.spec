@@ -11,7 +11,7 @@
 Summary: A security tool which provides authentication for applications
 Name: pam
 Version: 0.99.7.1
-Release: 5%{?dist}
+Release: 6%{?dist}
 License: GPL or BSD
 Group: System Environment/Base
 Source0: http://ftp.us.kernel.org/pub/linux/libs/pam/pre/library/Linux-PAM-%{version}.tar.bz2
@@ -27,9 +27,10 @@ Source10: config-util.5
 Patch1:  pam-0.99.7.0-redhat-modules.patch
 Patch2:  pam-0.99.7.1-console-more-displays.patch
 Patch3:  pam-0.99.7.1-console-decrement.patch
-Patch21: pam-0.78-unix-hpux-aging.patch
 Patch22: pam-0.99.7.1-unix-allow-pwmodify.patch
 Patch23: pam-0.99.7.1-unix-bigcrypt.patch
+Patch24: pam-0.99.7.1-unix-update-helper.patch
+Patch25: pam-0.99.7.1-unix-hpux-aging.patch
 Patch34: pam-0.99.7.0-dbpam.patch
 Patch70: pam-0.99.2.1-selinux-nofail.patch
 Patch80: pam-0.99.6.2-selinux-drop-multiple.patch
@@ -45,6 +46,8 @@ Patch95: pam-0.99.6.2-selinux-use-current-range.patch
 Patch96: pam-0.99.6.2-namespace-dirnames.patch
 Patch97: pam-0.99.7.1-namespace-unknown-user.patch
 Patch98: pam-0.99.6.2-selinux-audit-context.patch
+Patch99: pam-0.99.6.2-namespace-docfix.patch
+Patch100: pam-0.99.7.1-namespace-temp-logon.patch
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 Requires: cracklib, cracklib-dicts >= 2.8
@@ -100,9 +103,10 @@ cp %{SOURCE7} .
 %patch1 -p1 -b .redhat-modules
 %patch2 -p1 -b .displays
 %patch3 -p1 -b .decrement
-%patch21 -p1 -b .unix-hpux-aging
 %patch22 -p1 -b .pwmodify
 %patch23 -p1 -b .bigcrypt
+%patch24 -p1 -b .update-helper
+%patch25 -p1 -b .unix-hpux-aging
 %patch34 -p1 -b .dbpam
 %patch70 -p1 -b .nofail
 %patch80 -p1 -b .drop-multiple
@@ -118,6 +122,8 @@ cp %{SOURCE7} .
 %patch96 -p1 -b .dirnames
 %patch97 -p1 -b .unknown-user
 %patch98 -p1 -b .audit-context
+%patch99 -p1 -b .docfix
+%patch100 -p1 -b .temp-logon
 
 autoreconf
 
@@ -319,6 +325,7 @@ fi
 %{_sbindir}/pam_tally2
 %attr(4755,root,root) %{_sbindir}/pam_timestamp_check
 %attr(4755,root,root) %{_sbindir}/unix_chkpwd
+%attr(0700,root,root) %{_sbindir}/unix_update
 %if %{_lib} != lib
 %dir /lib/security
 %endif
@@ -406,6 +413,11 @@ fi
 %doc doc/adg/*.txt doc/adg/html
 
 %changelog
+* Thu Apr 26 2007 Tomas Mraz <tmraz@redhat.com> 0.99.7.1-6
+- pam_namespace: better document behavior on failure (#237249)
+- pam_unix: split out passwd change to a new helper binary (#236316)
+- pam_namespace: add support for temporary logons (#241226)
+
 * Fri Apr 13 2007 Tomas Mraz <tmraz@redhat.com> 0.99.7.1-5
 - pam_selinux: improve context change auditing (#234781)
 - pam_namespace: fix parsing config file with unknown users (#234513)

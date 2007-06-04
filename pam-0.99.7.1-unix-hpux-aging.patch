@@ -6,10 +6,10 @@ o For non-extensible-style hashes, strip off anything after the 13th character
   aging information (actually, for anything having to do with password aging)
   for users across operating systems, but there's nothing we can do about that
   here.
-  
---- Linux-PAM-0.78/modules/pam_unix/support.c.unix-hpux-aging	2004-10-06 16:05:17.000000000 +0200
-+++ Linux-PAM-0.78/modules/pam_unix/support.c	2004-11-23 14:55:27.885063264 +0100
-@@ -611,6 +611,21 @@
+
+--- Linux-PAM-0.99.7.1/modules/pam_unix/support.c.unix-hpux-aging	2007-06-01 15:21:08.000000000 +0200
++++ Linux-PAM-0.99.7.1/modules/pam_unix/support.c	2007-06-01 15:24:32.000000000 +0200
+@@ -573,6 +573,21 @@
      return retval;
  }
  
@@ -31,24 +31,25 @@ o For non-extensible-style hashes, strip off anything after the 13th character
  int _unix_verify_password(pam_handle_t * pamh, const char *name
  			  ,const char *p, unsigned int ctrl)
  {
-@@ -712,7 +727,9 @@
- 			retval = PAM_AUTHINFO_UNAVAIL;
+@@ -679,7 +694,9 @@
+ 			}
  		}
  	} else {
--	    int salt_len = strlen(salt);
-+	    int salt_len;
+-	    size_t salt_len = strlen(salt);
++	    size_t salt_len;
 +	    strip_hpux_aging(salt);
 +	    salt_len = strlen(salt);
  	    if (!salt_len) {
  		/* the stored password is NULL */
  		if (off(UNIX__NONULL, ctrl)) {/* this means we've succeeded */
---- Linux-PAM-0.78/modules/pam_unix/unix_chkpwd.c.unix-hpux-aging	2004-11-18 14:41:20.000000000 +0100
-+++ Linux-PAM-0.78/modules/pam_unix/unix_chkpwd.c	2004-11-23 15:03:43.979169586 +0100
-@@ -112,6 +112,21 @@
- 	(void) sigaction(SIGQUIT, &action, NULL);
+--- Linux-PAM-0.99.7.1/modules/pam_unix/passverify.c.unix-hpux-aging	2007-06-01 15:21:08.000000000 +0200
++++ Linux-PAM-0.99.7.1/modules/pam_unix/passverify.c	2007-06-01 15:26:26.000000000 +0200
+@@ -146,6 +146,22 @@
+ 	return i;
  }
  
-+static void strip_hpux_aging(char *p)
++static void
++strip_hpux_aging(char *p)
 +{
 +	const char *valid = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 +			    "abcdefghijklmnopqrstuvwxyz"
@@ -63,14 +64,14 @@ o For non-extensible-style hashes, strip off anything after the 13th character
 +	}
 +}
 +
- static int _unix_verify_password(const char *name, const char *p, int nullok)
+ int
+ _unix_verify_password(const char *name, const char *p, int nullok)
  {
- 	struct passwd *pwd = NULL;
-@@ -159,6 +174,7 @@
- 		return retval;
+@@ -194,6 +210,7 @@
+ 		return PAM_USER_UNKNOWN;
  	}
  
 +	strip_hpux_aging(salt);
  	salt_len = strlen(salt);
- 	if (salt_len == 0)
- 		return (nullok == 0) ? UNIX_FAILED : UNIX_PASSED;
+ 	if (salt_len == 0) {
+ 		return (nullok == 0) ? PAM_AUTH_ERR : PAM_SUCCESS;
