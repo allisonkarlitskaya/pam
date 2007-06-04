@@ -1,5 +1,5 @@
---- Linux-PAM-0.99.6.2/modules/pam_namespace/pam_namespace.h.temp-logon	2007-05-31 17:04:17.000000000 +0200
-+++ Linux-PAM-0.99.6.2/modules/pam_namespace/pam_namespace.h	2007-05-31 17:04:18.000000000 +0200
+--- Linux-PAM-0.99.7.1/modules/pam_namespace/pam_namespace.h.temp-logon	2007-06-01 15:29:11.000000000 +0200
++++ Linux-PAM-0.99.7.1/modules/pam_namespace/pam_namespace.h	2007-06-01 15:29:11.000000000 +0200
 @@ -90,6 +90,7 @@
  #define PAMNS_NO_UNMOUNT_ON_CLOSE  0x00010000 /* no unmount at session close */
  
@@ -25,8 +25,8 @@
      struct polydir_s *next;		/* pointer to the next polydir entry */
  };
  
---- Linux-PAM-0.99.6.2/modules/pam_namespace/pam_namespace.c.temp-logon	2007-05-31 17:04:18.000000000 +0200
-+++ Linux-PAM-0.99.6.2/modules/pam_namespace/pam_namespace.c	2007-05-31 17:54:14.000000000 +0200
+--- Linux-PAM-0.99.7.1/modules/pam_namespace/pam_namespace.c.temp-logon	2007-06-01 15:29:11.000000000 +0200
++++ Linux-PAM-0.99.7.1/modules/pam_namespace/pam_namespace.c	2007-06-01 15:33:30.000000000 +0200
 @@ -43,6 +43,7 @@
  	strcpy(pent->instance_prefix, ent->instance_prefix);
  	pent->method = ent->method;
@@ -177,7 +177,7 @@
  * execute it and pass directory to polyinstantiate and instance
  * directory as arguments.
  */
--static int inst_init(const struct polydir_s *polyptr, char *ipath,  
+-static int inst_init(const struct polydir_s *polyptr, char *ipath,
 +static int inst_init(const struct polydir_s *polyptr, const char *ipath,
  	   struct instance_data *idata)
  {
@@ -186,8 +186,8 @@
   * Create polyinstantiated instance directory (ipath).
   */
  #ifdef WITH_SELINUX
--static int create_dirs(const struct polydir_s *polyptr, char *ipath, 
-+static int create_dirs(struct polydir_s *polyptr, char *ipath, 
+-static int create_dirs(const struct polydir_s *polyptr, char *ipath,
++static int create_dirs(struct polydir_s *polyptr, char *ipath,
          security_context_t icontext, security_context_t ocontext,
  	struct instance_data *idata)
  #else
@@ -358,7 +358,7 @@
  				pptr->dir);
 @@ -1185,7 +1294,9 @@
                       break;
- 	}
+         }
      }
 -
 +out:
@@ -379,7 +379,7 @@
      return 0;
  }
  
-@@ -1349,7 +1462,8 @@
+@@ -1350,7 +1463,8 @@
      } else if (idata.flags & PAMNS_DEBUG)
          pam_syslog(idata.pamh, LOG_DEBUG, "Nothing to polyinstantiate");
  
@@ -389,7 +389,7 @@
      return retval;
  }
  
-@@ -1364,6 +1478,7 @@
+@@ -1365,6 +1479,7 @@
      struct instance_data idata;
      char *user_name;
      struct passwd *pwd;
@@ -397,8 +397,8 @@
  
      /* init instance data */
      idata.flags = 0;
-@@ -1425,16 +1540,12 @@
-     idata.user = user_name;
+@@ -1428,16 +1543,12 @@
+     strncat(idata.user, user_name, sizeof(idata.user) - 1);
      idata.uid = pwd->pw_uid;
  
 -    /*
@@ -420,8 +420,8 @@
  
      if (idata.flags & PAMNS_DEBUG)
          pam_syslog(idata.pamh, LOG_DEBUG, "Resetting namespace for pid %d",
-@@ -1449,7 +1560,9 @@
-             pam_syslog(idata.pamh, LOG_DEBUG, 
+@@ -1452,7 +1563,9 @@
+             pam_syslog(idata.pamh, LOG_DEBUG,
  		"resetting namespace ok for pid %d", getpid());
      }
 -    del_polydir_list(idata.polydirs_ptr);
