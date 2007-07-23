@@ -25,8 +25,6 @@ Source8: dlopen.sh
 Source9: system-auth.5
 Source10: config-util.5
 Patch1:  pam-0.99.7.0-redhat-modules.patch
-Patch2:  pam-0.99.7.1-console-more-displays.patch
-Patch3:  pam-0.99.7.1-console-decrement.patch
 Patch4:  pam-0.99.8.1-dbpam.patch
 Patch24: pam-0.99.8.1-unix-update-helper.patch
 Patch25: pam-0.99.7.1-unix-hpux-aging.patch
@@ -86,8 +84,6 @@ cp %{SOURCE6} .
 cp %{SOURCE7} .
 
 %patch1 -p1 -b .redhat-modules
-%patch2 -p1 -b .displays
-%patch3 -p1 -b .decrement
 %patch4 -p1 -b .dbpam
 %patch24 -p1 -b .update-helper
 %patch25 -p1 -b .unix-hpux-aging
