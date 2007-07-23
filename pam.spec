@@ -6,12 +6,12 @@
 %define pwdb_version 0.62
 %define db_version 4.5.20
 %define db_conflicting_version 4.6.0
-%define pam_redhat_version 0.99.7-1
+%define pam_redhat_version 0.99.8-1
 
 Summary: A security tool which provides authentication for applications
 Name: pam
-Version: 0.99.7.1
-Release: 6%{?dist}
+Version: 0.99.8.1
+Release: 1%{?dist}
 License: GPL or BSD
 Group: System Environment/Base
 Source0: http://ftp.us.kernel.org/pub/linux/libs/pam/pre/library/Linux-PAM-%{version}.tar.bz2
@@ -27,27 +27,12 @@ Source10: config-util.5
 Patch1:  pam-0.99.7.0-redhat-modules.patch
 Patch2:  pam-0.99.7.1-console-more-displays.patch
 Patch3:  pam-0.99.7.1-console-decrement.patch
-Patch22: pam-0.99.7.1-unix-allow-pwmodify.patch
-Patch23: pam-0.99.7.1-unix-bigcrypt.patch
-Patch24: pam-0.99.7.1-unix-update-helper.patch
+Patch4:  pam-0.99.8.1-dbpam.patch
+Patch24: pam-0.99.8.1-unix-update-helper.patch
 Patch25: pam-0.99.7.1-unix-hpux-aging.patch
-Patch34: pam-0.99.7.0-dbpam.patch
-Patch70: pam-0.99.2.1-selinux-nofail.patch
-Patch80: pam-0.99.6.2-selinux-drop-multiple.patch
-Patch81: pam-0.99.3.0-cracklib-try-first-pass.patch
-Patch82: pam-0.99.3.0-tally-fail-close.patch
-Patch84: pam-0.99.6.2-selinux-keycreate.patch
-Patch86: pam-0.99.7.0-namespace-no-unmount.patch
-Patch87: pam-0.99.6.2-namespace-preserve-uid.patch
-Patch92: pam-0.99.6.2-selinux-select-context.patch
-Patch93: pam-0.99.7.0-namespace-level.patch
-Patch94: pam-0.99.7.0-namespace-unmnt-override.patch
-Patch95: pam-0.99.6.2-selinux-use-current-range.patch
-Patch96: pam-0.99.6.2-namespace-dirnames.patch
-Patch97: pam-0.99.7.1-namespace-unknown-user.patch
-Patch98: pam-0.99.6.2-selinux-audit-context.patch
-Patch99: pam-0.99.6.2-namespace-docfix.patch
-Patch100: pam-0.99.7.1-namespace-temp-logon.patch
+Patch31: pam-0.99.3.0-cracklib-try-first-pass.patch
+Patch32: pam-0.99.3.0-tally-fail-close.patch
+Patch40: pam-0.99.7.1-namespace-temp-logon.patch
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 Requires: cracklib, cracklib-dicts >= 2.8
@@ -103,27 +88,12 @@ cp %{SOURCE7} .
 %patch1 -p1 -b .redhat-modules
 %patch2 -p1 -b .displays
 %patch3 -p1 -b .decrement
-%patch22 -p1 -b .pwmodify
-%patch23 -p1 -b .bigcrypt
+%patch4 -p1 -b .dbpam
 %patch24 -p1 -b .update-helper
 %patch25 -p1 -b .unix-hpux-aging
-%patch34 -p1 -b .dbpam
-%patch70 -p1 -b .nofail
-%patch80 -p1 -b .drop-multiple
-%patch81 -p1 -b .try-first-pass
-%patch82 -p1 -b .fail-close
-%patch84 -p1 -b .keycreate
-%patch86 -p1 -b .no-unmount
-%patch87 -p1 -b .preserve-uid
-%patch92 -p1 -b .select-context
-%patch93 -p1 -b .level
-%patch94 -p1 -b .unmnt-override
-%patch95 -p1 -b .range
-%patch96 -p1 -b .dirnames
-%patch97 -p1 -b .unknown-user
-%patch98 -p1 -b .audit-context
-%patch99 -p1 -b .docfix
-%patch100 -p1 -b .temp-logon
+%patch31 -p1 -b .try-first-pass
+%patch32 -p1 -b .fail-close
+%patch40 -p1 -b .temp-logon
 
 autoreconf
 
@@ -162,7 +132,8 @@ LDFLAGS=-L${topdir}/%{_lib} ; export LDFLAGS
 %configure \
 	--libdir=/%{_lib} \
 	--includedir=%{_includedir}/security \
-	--enable-isadir=../../%{_lib}/security
+	--enable-isadir=../../%{_lib}/security \
+	--with-db-uniquename=_pam
 make
 
 %install
@@ -413,6 +384,10 @@ fi
 %doc doc/adg/*.txt doc/adg/html
 
 %changelog
+* Mon Jul 23 2007 Tomas Mraz <tmraz@redhat.com> 0.99.8.1-1
+- upgrade to latest upstream version
+- add some firewire devices to default console perms (#240770)
+
 * Thu Apr 26 2007 Tomas Mraz <tmraz@redhat.com> 0.99.7.1-6
 - pam_namespace: better document behavior on failure (#237249)
 - pam_unix: split out passwd change to a new helper binary (#236316)
