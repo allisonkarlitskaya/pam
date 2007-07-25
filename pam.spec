@@ -11,7 +11,7 @@
 Summary: A security tool which provides authentication for applications
 Name: pam
 Version: 0.99.8.1
-Release: 1%{?dist}
+Release: 2%{?dist}
 License: GPL or BSD
 Group: System Environment/Base
 Source0: http://ftp.us.kernel.org/pub/linux/libs/pam/pre/library/Linux-PAM-%{version}.tar.bz2
@@ -380,6 +380,9 @@ fi
 %doc doc/adg/*.txt doc/adg/html
 
 %changelog
+* Wed Jul 25 2007 Jeremy Katz <katzj@redhat.com> - 0.99.8.1-2
+- rebuild for toolchain bug
+
 * Mon Jul 23 2007 Tomas Mraz <tmraz@redhat.com> 0.99.8.1-1
 - upgrade to latest upstream version
 - add some firewire devices to default console perms (#240770)
