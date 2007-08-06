@@ -25,6 +25,7 @@ Source8: dlopen.sh
 Source9: system-auth.5
 Source10: config-util.5
 Patch1:  pam-0.99.7.0-redhat-modules.patch
+Patch2:  db-4.6.18-glibc.patch
 Patch4:  pam-0.99.8.1-dbpam.patch
 Patch5:  pam-0.99.8.1-audit-no-log.patch
 Patch24: pam-0.99.8.1-unix-update-helper.patch
@@ -86,6 +87,7 @@ cp %{SOURCE6} .
 cp %{SOURCE7} .
 
 %patch1 -p1 -b .redhat-modules
+%patch2 -p0 -b .db4-glibc
 %patch4 -p1 -b .dbpam
 %patch5 -p1 -b .no-log
 %patch24 -p1 -b .update-helper
@@ -384,7 +386,7 @@ fi
 %doc doc/adg/*.txt doc/adg/html
 
 %changelog
-* Tue Jul 31 2007 Tomas Mraz <tmraz@redhat.com> 0.99.8.1-3
+* Mon Aug  6 2007 Tomas Mraz <tmraz@redhat.com> 0.99.8.1-3
 - updated db4 to 4.6.18 (#249740)
 - added user and new instance parameters to namespace init
 - document the new features of pam_namespace
