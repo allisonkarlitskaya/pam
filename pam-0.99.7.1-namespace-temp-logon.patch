@@ -1,5 +1,36 @@
---- Linux-PAM-0.99.7.1/modules/pam_namespace/pam_namespace.h.temp-logon	2007-06-01 15:29:11.000000000 +0200
-+++ Linux-PAM-0.99.7.1/modules/pam_namespace/pam_namespace.h	2007-06-01 15:29:11.000000000 +0200
+diff -up Linux-PAM-0.99.8.1/modules/pam_namespace/namespace.conf.5.xml.temp-logon Linux-PAM-0.99.8.1/modules/pam_namespace/namespace.conf.5.xml
+--- Linux-PAM-0.99.8.1/modules/pam_namespace/namespace.conf.5.xml.temp-logon	2007-06-18 12:46:47.000000000 +0200
++++ Linux-PAM-0.99.8.1/modules/pam_namespace/namespace.conf.5.xml	2007-08-06 13:16:56.000000000 +0200
+@@ -72,10 +72,13 @@
+ 
+     <para>
+       The third field, <replaceable>method</replaceable>, is the method
+-      used for polyinstantiation. It can take 3 different values; "user"
++      used for polyinstantiation. It can take these values; "user"
+       for polyinstantiation based on user name, "level" for 
+-      polyinstantiation based on process MLS level and user name, and "context" for
+-      polyinstantiation based on process security context and user name
++      polyinstantiation based on process MLS level and user name, "context" for
++      polyinstantiation based on process security context and user name,
++      "tmpfs" for mounting tmpfs filesystem as an instance dir, and
++      "tmpdir" for creating temporary directory as an instance dir which is
++      removed when the user's session is closed.
+       Methods "context" and "level" are only available with SELinux. This
+       field cannot be blank.
+     </para>
+@@ -84,7 +87,8 @@
+       The fourth field, <replaceable>list_of_uids</replaceable>, is
+       a comma separated list of user names for whom the polyinstantiation
+       is not performed. If left blank, polyinstantiation will be performed
+-      for all users.
++      for all users. If the list is preceded with a single "~" character,
++      polyinstantiation is performed only for users in the list.
+     </para>
+ 
+     <para>
+diff -up Linux-PAM-0.99.8.1/modules/pam_namespace/pam_namespace.h.temp-logon Linux-PAM-0.99.8.1/modules/pam_namespace/pam_namespace.h
+--- Linux-PAM-0.99.8.1/modules/pam_namespace/pam_namespace.h.temp-logon	2007-06-18 12:46:47.000000000 +0200
++++ Linux-PAM-0.99.8.1/modules/pam_namespace/pam_namespace.h	2007-08-06 11:41:46.000000000 +0200
 @@ -90,6 +90,7 @@
  #define PAMNS_NO_UNMOUNT_ON_CLOSE  0x00010000 /* no unmount at session close */
  
@@ -8,7 +39,7 @@
  
  /*
   * Polyinstantiation method options, based on user, security context
-@@ -100,6 +101,8 @@
+@@ -100,6 +101,8 @@ enum polymethod {
      USER,
      CONTEXT,
      LEVEL,
@@ -17,7 +48,7 @@
  };
  
  /*
-@@ -128,6 +131,7 @@
+@@ -128,6 +131,7 @@ struct polydir_s {
      enum polymethod method;		/* method used to polyinstantiate */
      unsigned int num_uids;		/* number of override uids */
      uid_t *uid;				/* list of override uids */
@@ -25,9 +56,10 @@
      struct polydir_s *next;		/* pointer to the next polydir entry */
  };
  
---- Linux-PAM-0.99.7.1/modules/pam_namespace/pam_namespace.c.temp-logon	2007-06-01 15:29:11.000000000 +0200
-+++ Linux-PAM-0.99.7.1/modules/pam_namespace/pam_namespace.c	2007-06-01 15:33:30.000000000 +0200
-@@ -43,6 +43,7 @@
+diff -up Linux-PAM-0.99.8.1/modules/pam_namespace/pam_namespace.c.temp-logon Linux-PAM-0.99.8.1/modules/pam_namespace/pam_namespace.c
+--- Linux-PAM-0.99.8.1/modules/pam_namespace/pam_namespace.c.temp-logon	2007-06-18 12:46:47.000000000 +0200
++++ Linux-PAM-0.99.8.1/modules/pam_namespace/pam_namespace.c	2007-08-06 11:41:46.000000000 +0200
+@@ -43,6 +43,7 @@ static int copy_ent(const struct polydir
  	strcpy(pent->instance_prefix, ent->instance_prefix);
  	pent->method = ent->method;
  	pent->num_uids = ent->num_uids;
@@ -35,7 +67,7 @@
  	if (ent->num_uids) {
  		uid_t *pptr, *eptr;
  
-@@ -120,6 +121,10 @@
+@@ -120,6 +121,10 @@ static void del_polydir_list(struct poly
  	}
  }
  
@@ -46,7 +78,7 @@
  
  /*
   * Called from parse_config_file, this function processes a single line
-@@ -140,6 +145,7 @@
+@@ -140,6 +145,7 @@ static int process_line(char *line, cons
  
      poly.uid = NULL;
      poly.num_uids = 0;
@@ -54,7 +86,7 @@
  
      /*
       * skip the leading white space
-@@ -223,24 +229,13 @@
+@@ -223,24 +229,13 @@ static int process_line(char *line, cons
      }
  
      /*
@@ -80,7 +112,7 @@
      }
      strcpy(poly.dir, dir);
      strcpy(poly.instance_prefix, instance_prefix);
-@@ -248,6 +243,18 @@
+@@ -248,6 +243,18 @@ static int process_line(char *line, cons
      poly.method = NONE;
      if (strcmp(method, "user") == 0) 
  	    poly.method = USER;
@@ -99,7 +131,7 @@
  
  #ifdef WITH_SELINUX
      if (strcmp(method, "level") == 0) {
-@@ -266,12 +273,24 @@
+@@ -266,12 +273,24 @@ static int process_line(char *line, cons
  
  #endif
  
@@ -125,7 +157,7 @@
       * If the line in namespace.conf for a directory to polyinstantiate
       * contains a list of override users (users for whom polyinstantiation
       * is not performed), read the user ids, convert names into uids, and
-@@ -281,7 +300,11 @@
+@@ -281,7 +300,11 @@ static int process_line(char *line, cons
          uid_t *uidptr;
          const char *ustr, *sstr;
          int count, i;
@@ -138,7 +170,7 @@
          for (count = 0, ustr = sstr = uids; sstr; ustr = sstr + 1, count++)
             sstr = strchr(ustr, ',');
  
-@@ -419,6 +442,7 @@
+@@ -419,6 +442,7 @@ static int parse_config_file(struct inst
   * directory's list of override uids. If the uid is one of the override
   * uids for the polyinstantiated directory, polyinstantiation is not
   * performed for that user for that directory.
@@ -146,7 +178,7 @@
   */
  static int ns_override(struct polydir_s *polyptr, struct instance_data *idata,
  		uid_t uid)
-@@ -432,11 +456,11 @@
+@@ -432,11 +456,11 @@ static int ns_override(struct polydir_s 
  
      for (i = 0; i < polyptr->num_uids; i++) {
          if (uid == polyptr->uid[i]) {
@@ -160,7 +192,7 @@
  }
  
  /*
-@@ -622,6 +646,12 @@
+@@ -622,6 +646,12 @@ static int poly_name(const struct polydi
  
  #endif /* WITH_SELINUX */
  
@@ -173,7 +205,7 @@
      	default:
      	    if (idata->flags & PAMNS_DEBUG)
      	        pam_syslog(idata->pamh, LOG_ERR, "Unknown method");
-@@ -725,7 +755,7 @@
+@@ -725,7 +755,7 @@ static int check_inst_parent(char *ipath
  * execute it and pass directory to polyinstantiate and instance
  * directory as arguments.
  */
@@ -182,7 +214,7 @@
  	   struct instance_data *idata)
  {
  	pid_t rc, pid;
-@@ -791,11 +821,11 @@
+@@ -791,11 +821,11 @@ out:
   * Create polyinstantiated instance directory (ipath).
   */
  #ifdef WITH_SELINUX
@@ -196,7 +228,7 @@
  	struct instance_data *idata)
  #endif
  {
-@@ -834,7 +864,17 @@
+@@ -834,7 +864,17 @@ static int create_dirs(const struct poly
       * attributes to match that of the original directory that is being
       * polyinstantiated.
       */
@@ -215,7 +247,7 @@
          if (errno == EEXIST)
              goto inst_init;
          else {
-@@ -920,13 +960,12 @@
+@@ -920,13 +960,12 @@ inst_init:
   * security attributes, and performs bind mount to setup the process
   * namespace.
   */
@@ -230,7 +262,7 @@
  #ifdef WITH_SELINUX
      security_context_t instcontext = NULL, origcontext = NULL;
  #endif
-@@ -935,9 +974,15 @@
+@@ -935,9 +974,15 @@ static int ns_setup(const struct polydir
          pam_syslog(idata->pamh, LOG_DEBUG,
                 "Set namespace for directory %s", polyptr->dir);
  
@@ -249,7 +281,7 @@
  
      /*
       * Obtain the name of instance pathname based on the
-@@ -1043,6 +1088,58 @@
+@@ -1043,6 +1088,58 @@ static int cwd_in(char *dir, struct inst
      return retval;
  }
  
@@ -308,7 +340,7 @@
  
  /*
   * This function checks to see if polyinstantiation is needed for any
-@@ -1111,13 +1208,22 @@
+@@ -1111,13 +1208,22 @@ static int setup_namespace(struct instan
       * disassociate from the parent namespace.
       */
      if (need_poly) {
@@ -333,7 +365,7 @@
  
      /*
       * Again cycle through all polyinstantiated directories, this time,
-@@ -1144,7 +1250,8 @@
+@@ -1144,7 +1250,8 @@ static int setup_namespace(struct instan
                   * umount
                   */
                  if ((changing_dir = cwd_in(pptr->dir, idata)) < 0) {
@@ -343,7 +375,7 @@
                  } else if (changing_dir) {
                      if (idata->flags & PAMNS_DEBUG)
                          pam_syslog(idata->pamh, LOG_DEBUG, "changing cwd");
-@@ -1172,8 +1279,10 @@
+@@ -1172,8 +1279,10 @@ static int setup_namespace(struct instan
              	    int saved_errno = errno;
              	    pam_syslog(idata->pamh, LOG_ERR, "Unmount of %s failed, %m",
                      	pptr->dir);
@@ -356,7 +388,7 @@
                  } else if (idata->flags & PAMNS_DEBUG)
                      pam_syslog(idata->pamh, LOG_DEBUG, "Umount succeeded %s",
  				pptr->dir);
-@@ -1185,7 +1294,9 @@
+@@ -1185,7 +1294,9 @@ static int setup_namespace(struct instan
                       break;
          }
      }
@@ -367,7 +399,7 @@
      return retval;
  }
  
-@@ -1224,8 +1335,10 @@
+@@ -1224,8 +1335,10 @@ static int orig_namespace(struct instanc
              } else if (idata->flags & PAMNS_DEBUG)
                  pam_syslog(idata->pamh, LOG_DEBUG, "Unmount of %s succeeded",
  			pptr->dir);
@@ -379,7 +411,7 @@
      return 0;
  }
  
-@@ -1350,7 +1463,8 @@
+@@ -1350,7 +1463,8 @@ PAM_EXTERN int pam_sm_open_session(pam_h
      } else if (idata.flags & PAMNS_DEBUG)
          pam_syslog(idata.pamh, LOG_DEBUG, "Nothing to polyinstantiate");
  
@@ -389,7 +421,7 @@
      return retval;
  }
  
-@@ -1365,6 +1479,7 @@
+@@ -1365,6 +1479,7 @@ PAM_EXTERN int pam_sm_close_session(pam_
      struct instance_data idata;
      char *user_name;
      struct passwd *pwd;
@@ -397,7 +429,7 @@
  
      /* init instance data */
      idata.flags = 0;
-@@ -1428,16 +1543,12 @@
+@@ -1428,16 +1543,12 @@ PAM_EXTERN int pam_sm_close_session(pam_
      strncat(idata.user, user_name, sizeof(idata.user) - 1);
      idata.uid = pwd->pw_uid;
  
@@ -420,7 +452,7 @@
  
      if (idata.flags & PAMNS_DEBUG)
          pam_syslog(idata.pamh, LOG_DEBUG, "Resetting namespace for pid %d",
-@@ -1452,7 +1563,9 @@
+@@ -1452,7 +1563,9 @@ PAM_EXTERN int pam_sm_close_session(pam_
              pam_syslog(idata.pamh, LOG_DEBUG,
  		"resetting namespace ok for pid %d", getpid());
      }

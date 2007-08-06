@@ -4,14 +4,14 @@
 %define _sysconfdir /etc
 
 %define pwdb_version 0.62
-%define db_version 4.5.20
-%define db_conflicting_version 4.6.0
+%define db_version 4.6.18
+%define db_conflicting_version 4.7.0
 %define pam_redhat_version 0.99.8-1
 
 Summary: A security tool which provides authentication for applications
 Name: pam
 Version: 0.99.8.1
-Release: 2%{?dist}
+Release: 3%{?dist}
 License: GPL or BSD
 Group: System Environment/Base
 Source0: http://ftp.us.kernel.org/pub/linux/libs/pam/pre/library/Linux-PAM-%{version}.tar.bz2
@@ -26,11 +26,13 @@ Source9: system-auth.5
 Source10: config-util.5
 Patch1:  pam-0.99.7.0-redhat-modules.patch
 Patch4:  pam-0.99.8.1-dbpam.patch
+Patch5:  pam-0.99.8.1-audit-no-log.patch
 Patch24: pam-0.99.8.1-unix-update-helper.patch
 Patch25: pam-0.99.7.1-unix-hpux-aging.patch
 Patch31: pam-0.99.3.0-cracklib-try-first-pass.patch
 Patch32: pam-0.99.3.0-tally-fail-close.patch
 Patch40: pam-0.99.7.1-namespace-temp-logon.patch
+Patch41: pam-0.99.8.1-namespace-init.patch
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 Requires: cracklib, cracklib-dicts >= 2.8
@@ -85,11 +87,13 @@ cp %{SOURCE7} .
 
 %patch1 -p1 -b .redhat-modules
 %patch4 -p1 -b .dbpam
+%patch5 -p1 -b .no-log
 %patch24 -p1 -b .update-helper
 %patch25 -p1 -b .unix-hpux-aging
 %patch31 -p1 -b .try-first-pass
 %patch32 -p1 -b .fail-close
 %patch40 -p1 -b .temp-logon
+%patch41 -p1 -b .ns-init
 
 autoreconf
 
@@ -380,6 +384,12 @@ fi
 %doc doc/adg/*.txt doc/adg/html
 
 %changelog
+* Tue Jul 31 2007 Tomas Mraz <tmraz@redhat.com> 0.99.8.1-3
+- updated db4 to 4.6.18 (#249740)
+- added user and new instance parameters to namespace init
+- document the new features of pam_namespace
+- do not log an audit error when uid != 0 (#249870)
+
 * Wed Jul 25 2007 Jeremy Katz <katzj@redhat.com> - 0.99.8.1-2
 - rebuild for toolchain bug
 
