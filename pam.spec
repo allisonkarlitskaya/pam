@@ -11,8 +11,10 @@
 Summary: A security tool which provides authentication for applications
 Name: pam
 Version: 0.99.8.1
-Release: 3%{?dist}
-License: GPL or BSD
+Release: 4%{?dist}
+# The library is BSD licensed with option to relicense as GPLv2+ - this option is redundant
+# as the BSD license allows that anyway. pam_timestamp and pam_console modules are GPLv2+
+License: BSD and GPLv2+
 Group: System Environment/Base
 Source0: http://ftp.us.kernel.org/pub/linux/libs/pam/pre/library/Linux-PAM-%{version}.tar.bz2
 Source1: http://ftp.us.kernel.org/pub/linux/libs/pam/pre/library/Linux-PAM-%{version}.tar.bz2.sign
@@ -386,6 +388,9 @@ fi
 %doc doc/adg/*.txt doc/adg/html
 
 %changelog
+* Mon Aug 13 2007 Tomas Mraz <tmraz@redhat.com> 0.99.8.1-4
+- fix auth regression when uid != 0 from previous build (#251804)
+
 * Mon Aug  6 2007 Tomas Mraz <tmraz@redhat.com> 0.99.8.1-3
 - updated db4 to 4.6.18 (#249740)
 - added user and new instance parameters to namespace init
