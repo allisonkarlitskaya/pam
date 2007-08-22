@@ -11,10 +11,11 @@
 Summary: A security tool which provides authentication for applications
 Name: pam
 Version: 0.99.8.1
-Release: 4%{?dist}
+Release: 5%{?dist}
 # The library is BSD licensed with option to relicense as GPLv2+ - this option is redundant
-# as the BSD license allows that anyway. pam_timestamp and pam_console modules are GPLv2+
-License: BSD and GPLv2+
+# as the BSD license allows that anyway. pam_timestamp and pam_console modules are GPLv2+,
+# pam_rhosts_auth module is BSD with advertising
+License: BSD and GPLv2+ and BSD with advertising
 Group: System Environment/Base
 Source0: http://ftp.us.kernel.org/pub/linux/libs/pam/pre/library/Linux-PAM-%{version}.tar.bz2
 Source1: http://ftp.us.kernel.org/pub/linux/libs/pam/pre/library/Linux-PAM-%{version}.tar.bz2.sign
@@ -36,6 +37,7 @@ Patch31: pam-0.99.3.0-cracklib-try-first-pass.patch
 Patch32: pam-0.99.3.0-tally-fail-close.patch
 Patch40: pam-0.99.7.1-namespace-temp-logon.patch
 Patch41: pam-0.99.8.1-namespace-init.patch
+Patch42: pam-0.99.8.1-console-hal-handled.patch
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 Requires: cracklib, cracklib-dicts >= 2.8
@@ -98,6 +100,7 @@ cp %{SOURCE7} .
 %patch32 -p1 -b .fail-close
 %patch40 -p1 -b .temp-logon
 %patch41 -p1 -b .ns-init
+%patch42 -p1 -b .hal-handled
 
 autoreconf
 
@@ -388,6 +391,10 @@ fi
 %doc doc/adg/*.txt doc/adg/html
 
 %changelog
+* Wed Aug 22 2007 Tomas Mraz <tmraz@redhat.com> 0.99.8.1-5
+- most devices are now handled by HAL and not pam_console (patch by davidz)
+- license tag fix
+
 * Mon Aug 13 2007 Tomas Mraz <tmraz@redhat.com> 0.99.8.1-4
 - fix auth regression when uid != 0 from previous build (#251804)
 
