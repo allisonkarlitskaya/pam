@@ -38,6 +38,7 @@ Patch32: pam-0.99.3.0-tally-fail-close.patch
 Patch40: pam-0.99.7.1-namespace-temp-logon.patch
 Patch41: pam-0.99.8.1-namespace-init.patch
 Patch42: pam-0.99.8.1-console-hal-handled.patch
+Patch43: pam-0.99.8.1-console-mfd-scanners.patch
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 Requires: cracklib, cracklib-dicts >= 2.8
@@ -101,6 +102,7 @@ cp %{SOURCE7} .
 %patch40 -p1 -b .temp-logon
 %patch41 -p1 -b .ns-init
 %patch42 -p1 -b .hal-handled
+%patch43 -p1 -b .mfd-scanners
 
 autoreconf
 
@@ -394,6 +396,7 @@ fi
 * Wed Aug 22 2007 Tomas Mraz <tmraz@redhat.com> 0.99.8.1-5
 - most devices are now handled by HAL and not pam_console (patch by davidz)
 - license tag fix
+- multifunction scanner device support (#251468)
 
 * Mon Aug 13 2007 Tomas Mraz <tmraz@redhat.com> 0.99.8.1-4
 - fix auth regression when uid != 0 from previous build (#251804)
