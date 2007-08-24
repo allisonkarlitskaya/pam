@@ -1,0 +1,65 @@
+diff -up Linux-PAM-0.99.8.1/modules/pam_unix/unix_chkpwd.c.blankpass Linux-PAM-0.99.8.1/modules/pam_unix/unix_chkpwd.c
+--- Linux-PAM-0.99.8.1/modules/pam_unix/unix_chkpwd.c.blankpass	2007-08-22 18:45:17.000000000 +0200
++++ Linux-PAM-0.99.8.1/modules/pam_unix/unix_chkpwd.c	2007-08-24 10:21:54.000000000 +0200
+@@ -48,7 +48,7 @@ int main(int argc, char *argv[])
+ 	char pass[MAXPASS + 1];
+ 	char *option;
+ 	int npass, nullok;
+-	int force_failure = 0;
++	int blankpass = 0;
+ 	int retval = PAM_AUTH_ERR;
+ 	char *user;
+ 	char *passwords[] = { pass };
+@@ -113,6 +113,10 @@ int main(int argc, char *argv[])
+ 	if (npass != 1) {	/* is it a valid password? */
+ 		_log_err(LOG_DEBUG, "no valid password supplied");
+ 	}
++	
++	if (*pass == '\0') {
++		blankpass = 1;
++	}
+ 
+ 	retval = _unix_verify_password(user, pass, nullok);
+ 
+@@ -120,8 +124,11 @@ int main(int argc, char *argv[])
+ 
+ 	/* return pass or fail */
+ 
+-	if ((retval != PAM_SUCCESS) || force_failure) {
+-	    _log_err(LOG_NOTICE, "password check failed for user (%s)", user);
++	if (retval != PAM_SUCCESS) {
++	    /* don't log if it is a test for blank password */
++	    if (!blankpass) {
++		_log_err(LOG_NOTICE, "password check failed for user (%s)", user);
++	    }
+ 	    return PAM_AUTH_ERR;
+ 	} else {
+ 	    return PAM_SUCCESS;
+diff -up Linux-PAM-0.99.8.1/modules/pam_unix/support.c.blankpass Linux-PAM-0.99.8.1/modules/pam_unix/support.c
+--- Linux-PAM-0.99.8.1/modules/pam_unix/support.c.blankpass	2007-08-22 18:45:17.000000000 +0200
++++ Linux-PAM-0.99.8.1/modules/pam_unix/support.c	2007-08-24 10:38:09.000000000 +0200
+@@ -36,6 +36,9 @@
+ #define SELINUX_ENABLED 0
+ #endif
+ 
++static int _unix_run_helper_binary(pam_handle_t *pamh, const char *passwd,
++				   unsigned int ctrl, const char *user);
++
+ /* this is a front-end for module-application conversations */
+ 
+ int _make_remark(pam_handle_t * pamh, unsigned int ctrl,
+@@ -441,6 +444,14 @@ _unix_blankpasswd (pam_handle_t *pamh, u
+ 			 * if shadowing is enabled
+ 			 */
+ 			spwdent = pam_modutil_getspnam(pamh, name);
++			if (spwdent == NULL && (geteuid() || SELINUX_ENABLED)) {
++				/* we are not root perhaps this is the reason? Run helper */
++				D(("running helper binary"));
++				if (_unix_run_helper_binary(pamh, "", ctrl, name) == PAM_SUCCESS)
++					return 1;
++				else
++					return 0;
++			}
+ 		}
+ 		if (spwdent)
+ 			salt = x_strdup(spwdent->sp_pwdp);

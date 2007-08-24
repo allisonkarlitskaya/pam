@@ -1,0 +1,29 @@
+diff -up Linux-PAM-0.99.7.1/modules/pam_namespace/namespace.init.namespace_homedir Linux-PAM-0.99.7.1/modules/pam_namespace/namespace.init
+--- Linux-PAM-0.99.7.1/modules/pam_namespace/namespace.init.namespace_homedir	2007-08-23 15:49:45.000000000 -0400
++++ Linux-PAM-0.99.7.1/modules/pam_namespace/namespace.init	2007-08-23 15:51:56.000000000 -0400
+@@ -1,6 +1,23 @@
+ #!/bin/sh -p
+-# This is only a boilerplate for the instance initialization script.
+-# It receives polydir path as $1 and the instance path as $2.
++# It receives polydir path as $1 and the instance path as $2,
++# $3 is an indicatory whether $2 is a newly created directory,
++# $4 is the user who is logging in.
++#
++# The following section will copy the contents of /etc/skel if this is a
++# newly created home directory.
++if [ "$3" = 1 ]; then
++        user="$4"
++        passwd=$(getent passwd "$user")
++        homedir=$(echo "$passwd" | cut -f6 -d":")
++        if [ "$1" = "$homedir" ]; then
++                gid=$(echo "$passwd" | cut -f4 -d":")
++                cp -aT /etc/skel "$homedir"
++                [ -x /sbin/restorecon ] && /sbin/restorecon -R "$homedir"
++                chown -R "$user":"$gid" "$homedir"
++                mode=$(awk '/^UMASK/{gsub("#.*$", "", $2); printf "%o", and(0777,compl(strtonum("0" $2))); exit}' /etc/login.defs)
++                chmod ${mode:-700} "$homedir"
++        fi
++fi
+ #
+ # If you intend to polyinstantiate /tmp and you also want to use the X windows
+ # environment, you will have to use this script to bind mount the socket that

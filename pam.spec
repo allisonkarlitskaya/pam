@@ -11,7 +11,7 @@
 Summary: A security tool which provides authentication for applications
 Name: pam
 Version: 0.99.8.1
-Release: 5%{?dist}
+Release: 6%{?dist}
 # The library is BSD licensed with option to relicense as GPLv2+ - this option is redundant
 # as the BSD license allows that anyway. pam_timestamp and pam_console modules are GPLv2+,
 # pam_rhosts_auth module is BSD with advertising
@@ -33,12 +33,14 @@ Patch4:  pam-0.99.8.1-dbpam.patch
 Patch5:  pam-0.99.8.1-audit-no-log.patch
 Patch24: pam-0.99.8.1-unix-update-helper.patch
 Patch25: pam-0.99.7.1-unix-hpux-aging.patch
+Patch26: pam-0.99.8.1-unix-blankpass.patch
 Patch31: pam-0.99.3.0-cracklib-try-first-pass.patch
 Patch32: pam-0.99.3.0-tally-fail-close.patch
 Patch40: pam-0.99.7.1-namespace-temp-logon.patch
 Patch41: pam-0.99.8.1-namespace-init.patch
 Patch42: pam-0.99.8.1-console-hal-handled.patch
 Patch43: pam-0.99.8.1-console-mfd-scanners.patch
+Patch44: pam-0.99.7.1-namespace-homedir.patch
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 Requires: cracklib, cracklib-dicts >= 2.8
@@ -97,12 +99,14 @@ cp %{SOURCE7} .
 %patch5 -p1 -b .no-log
 %patch24 -p1 -b .update-helper
 %patch25 -p1 -b .unix-hpux-aging
+%patch26 -p1 -b .blankpass
 %patch31 -p1 -b .try-first-pass
 %patch32 -p1 -b .fail-close
 %patch40 -p1 -b .temp-logon
 %patch41 -p1 -b .ns-init
 %patch42 -p1 -b .hal-handled
 %patch43 -p1 -b .mfd-scanners
+%patch44 -p1 -b .homedir
 
 autoreconf
 
@@ -393,6 +397,10 @@ fi
 %doc doc/adg/*.txt doc/adg/html
 
 %changelog
+* Fri Aug 24 2007 Tomas Mraz <tmraz@redhat.com> 0.99.8.1-6
+- do not ask for blank password when SELinux confined (#254044)
+- initialize homedirs in namespace init script (original patch by dwalsh)
+
 * Wed Aug 22 2007 Tomas Mraz <tmraz@redhat.com> 0.99.8.1-5
 - most devices are now handled by HAL and not pam_console (patch by davidz)
 - license tag fix
