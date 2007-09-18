@@ -11,7 +11,7 @@
 Summary: A security tool which provides authentication for applications
 Name: pam
 Version: 0.99.8.1
-Release: 6%{?dist}
+Release: 7%{?dist}
 # The library is BSD licensed with option to relicense as GPLv2+ - this option is redundant
 # as the BSD license allows that anyway. pam_timestamp and pam_console modules are GPLv2+,
 # pam_rhosts_auth module is BSD with advertising
@@ -397,6 +397,10 @@ fi
 %doc doc/adg/*.txt doc/adg/html
 
 %changelog
+* Tue Sep 18 2007 Tomas Mraz <tmraz@redhat.com> 0.99.8.1-7
+- when SELinux enabled always run the helper binary instead of
+  direct shadow access (#293181)
+
 * Fri Aug 24 2007 Tomas Mraz <tmraz@redhat.com> 0.99.8.1-6
 - do not ask for blank password when SELinux confined (#254044)
 - initialize homedirs in namespace init script (original patch by dwalsh)

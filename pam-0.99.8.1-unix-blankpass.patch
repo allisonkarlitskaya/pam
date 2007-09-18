@@ -1,7 +1,7 @@
 diff -up Linux-PAM-0.99.8.1/modules/pam_unix/unix_chkpwd.c.blankpass Linux-PAM-0.99.8.1/modules/pam_unix/unix_chkpwd.c
---- Linux-PAM-0.99.8.1/modules/pam_unix/unix_chkpwd.c.blankpass	2007-08-22 18:45:17.000000000 +0200
-+++ Linux-PAM-0.99.8.1/modules/pam_unix/unix_chkpwd.c	2007-08-24 10:21:54.000000000 +0200
-@@ -48,7 +48,7 @@ int main(int argc, char *argv[])
+--- Linux-PAM-0.99.8.1/modules/pam_unix/unix_chkpwd.c.blankpass	2007-09-18 13:50:40.000000000 +0200
++++ Linux-PAM-0.99.8.1/modules/pam_unix/unix_chkpwd.c	2007-09-18 13:50:40.000000000 +0200
+@@ -50,7 +50,7 @@ int main(int argc, char *argv[])
  	char pass[MAXPASS + 1];
  	char *option;
  	int npass, nullok;
@@ -10,7 +10,7 @@ diff -up Linux-PAM-0.99.8.1/modules/pam_unix/unix_chkpwd.c.blankpass Linux-PAM-0
  	int retval = PAM_AUTH_ERR;
  	char *user;
  	char *passwords[] = { pass };
-@@ -113,6 +113,10 @@ int main(int argc, char *argv[])
+@@ -115,6 +115,10 @@ int main(int argc, char *argv[])
  	if (npass != 1) {	/* is it a valid password? */
  		_log_err(LOG_DEBUG, "no valid password supplied");
  	}
@@ -21,7 +21,7 @@ diff -up Linux-PAM-0.99.8.1/modules/pam_unix/unix_chkpwd.c.blankpass Linux-PAM-0
  
  	retval = _unix_verify_password(user, pass, nullok);
  
-@@ -120,8 +124,11 @@ int main(int argc, char *argv[])
+@@ -122,8 +126,11 @@ int main(int argc, char *argv[])
  
  	/* return pass or fail */
  
@@ -36,11 +36,11 @@ diff -up Linux-PAM-0.99.8.1/modules/pam_unix/unix_chkpwd.c.blankpass Linux-PAM-0
  	} else {
  	    return PAM_SUCCESS;
 diff -up Linux-PAM-0.99.8.1/modules/pam_unix/support.c.blankpass Linux-PAM-0.99.8.1/modules/pam_unix/support.c
---- Linux-PAM-0.99.8.1/modules/pam_unix/support.c.blankpass	2007-08-22 18:45:17.000000000 +0200
-+++ Linux-PAM-0.99.8.1/modules/pam_unix/support.c	2007-08-24 10:38:09.000000000 +0200
-@@ -36,6 +36,9 @@
- #define SELINUX_ENABLED 0
- #endif
+--- Linux-PAM-0.99.8.1/modules/pam_unix/support.c.blankpass	2007-09-18 13:50:40.000000000 +0200
++++ Linux-PAM-0.99.8.1/modules/pam_unix/support.c	2007-09-18 17:56:57.000000000 +0200
+@@ -38,6 +38,9 @@
+ 
+ const char app_name[]="pam_unix";
  
 +static int _unix_run_helper_binary(pam_handle_t *pamh, const char *passwd,
 +				   unsigned int ctrl, const char *user);
@@ -48,18 +48,17 @@ diff -up Linux-PAM-0.99.8.1/modules/pam_unix/support.c.blankpass Linux-PAM-0.99.
  /* this is a front-end for module-application conversations */
  
  int _make_remark(pam_handle_t * pamh, unsigned int ctrl,
-@@ -441,6 +444,14 @@ _unix_blankpasswd (pam_handle_t *pamh, u
+@@ -442,6 +445,13 @@ _unix_blankpasswd (pam_handle_t *pamh, u
+ 			 * ...and shadow password file entry for this user,
  			 * if shadowing is enabled
  			 */
- 			spwdent = pam_modutil_getspnam(pamh, name);
-+			if (spwdent == NULL && (geteuid() || SELINUX_ENABLED)) {
-+				/* we are not root perhaps this is the reason? Run helper */
++			if (geteuid() || SELINUX_ENABLED) {
++				/* We do not have direct access to shadow. Run helper. */
 +				D(("running helper binary"));
 +				if (_unix_run_helper_binary(pamh, "", ctrl, name) == PAM_SUCCESS)
 +					return 1;
-+				else
-+					return 0;
++				return 0;
 +			}
+ 			spwdent = pam_modutil_getspnam(pamh, name);
  		}
  		if (spwdent)
- 			salt = x_strdup(spwdent->sp_pwdp);
