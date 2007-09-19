@@ -11,7 +11,7 @@
 Summary: A security tool which provides authentication for applications
 Name: pam
 Version: 0.99.8.1
-Release: 7%{?dist}
+Release: 8%{?dist}
 # The library is BSD licensed with option to relicense as GPLv2+ - this option is redundant
 # as the BSD license allows that anyway. pam_timestamp and pam_console modules are GPLv2+,
 # pam_rhosts_auth module is BSD with advertising
@@ -41,6 +41,8 @@ Patch41: pam-0.99.8.1-namespace-init.patch
 Patch42: pam-0.99.8.1-console-hal-handled.patch
 Patch43: pam-0.99.8.1-console-mfd-scanners.patch
 Patch44: pam-0.99.7.1-namespace-homedir.patch
+Patch45: pam-0.99.8.1-selinux-permit.patch
+Patch46: pam-0.99.8.1-succif-in-operator.patch
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 Requires: cracklib, cracklib-dicts >= 2.8
@@ -107,6 +109,8 @@ cp %{SOURCE7} .
 %patch42 -p1 -b .hal-handled
 %patch43 -p1 -b .mfd-scanners
 %patch44 -p1 -b .homedir
+%patch45 -p1 -b .permit
+%patch46 -p1 -b .in-operator
 
 autoreconf
 
@@ -346,6 +350,7 @@ fi
 /%{_lib}/security/pam_rootok.so
 /%{_lib}/security/pam_rps.so
 /%{_lib}/security/pam_selinux.so
+/%{_lib}/security/pam_selinux_permit.so
 /%{_lib}/security/pam_securetty.so
 /%{_lib}/security/pam_shells.so
 /%{_lib}/security/pam_stress.so
@@ -375,6 +380,7 @@ fi
 %config(noreplace) %{_sysconfdir}/security/namespace.conf
 %attr(755,root,root) %config(noreplace) %{_sysconfdir}/security/namespace.init
 %config(noreplace) %{_sysconfdir}/security/pam_env.conf
+%config(noreplace) %{_sysconfdir}/security/sepermit.conf
 %config(noreplace) %{_sysconfdir}/security/time.conf
 %config(noreplace) %{_sysconfdir}/security/opasswd
 %dir %{_sysconfdir}/security/console.apps
@@ -397,6 +403,10 @@ fi
 %doc doc/adg/*.txt doc/adg/html
 
 %changelog
+* Wed Sep 19 2007 Tomas Mraz <tmraz@redhat.com> 0.99.8.1-8
+- add pam_selinux_permit module
+- pam_succeed_if: fix in operator (#295151)
+
 * Tue Sep 18 2007 Tomas Mraz <tmraz@redhat.com> 0.99.8.1-7
 - when SELinux enabled always run the helper binary instead of
   direct shadow access (#293181)
