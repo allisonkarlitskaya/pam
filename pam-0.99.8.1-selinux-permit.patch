@@ -1,6 +1,9 @@
+Written-by: Tomas Mraz <tmraz@redhat.com>
+Reviewed-by: Karel Zak <kzak@redhat.com>
+
 diff -up /dev/null Linux-PAM-0.99.8.1/modules/pam_selinux/pam_selinux_permit.8.xml
 --- /dev/null	2007-09-17 08:57:19.474470099 +0200
-+++ Linux-PAM-0.99.8.1/modules/pam_selinux/pam_selinux_permit.8.xml	2007-09-19 17:18:43.000000000 +0200
++++ Linux-PAM-0.99.8.1/modules/pam_selinux/pam_selinux_permit.8.xml	2007-09-19 19:37:26.000000000 +0200
 @@ -0,0 +1,182 @@
 +<?xml version="1.0" encoding='UTF-8'?>
 +<!DOCTYPE refentry PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
@@ -186,7 +189,7 @@ diff -up /dev/null Linux-PAM-0.99.8.1/modules/pam_selinux/pam_selinux_permit.8.x
 +</refentry>
 diff -up /dev/null Linux-PAM-0.99.8.1/modules/pam_selinux/pam_selinux_permit.c
 --- /dev/null	2007-09-17 08:57:19.474470099 +0200
-+++ Linux-PAM-0.99.8.1/modules/pam_selinux/pam_selinux_permit.c	2007-09-19 18:14:36.000000000 +0200
++++ Linux-PAM-0.99.8.1/modules/pam_selinux/pam_selinux_permit.c	2007-09-19 20:29:47.000000000 +0200
 @@ -0,0 +1,222 @@
 +/******************************************************************************
 + * A module for Linux-PAM that allows/denies acces based on SELinux state.
@@ -255,7 +258,7 @@ diff -up /dev/null Linux-PAM-0.99.8.1/modules/pam_selinux/pam_selinux_permit.c
 +	FILE *f;
 +	char *line = NULL;
 +	char *start;
-+	size_t n = 0;
++	size_t len = 0;
 +	int matched = 0;
 +	
 +	f = fopen(cfgfile, "r");
@@ -264,11 +267,13 @@ diff -up /dev/null Linux-PAM-0.99.8.1/modules/pam_selinux/pam_selinux_permit.c
 +		pam_syslog(pamh, LOG_ERR, "Failed to open config file %s: %m", cfgfile);
 +		return PAM_SERVICE_ERR;
 +	}
-+	
-+	while (!matched && getline(&line, &n, f) != -1) {
++
++	while (!matched && getline(&line, &len, f) != -1) {
++		size_t n;
++
 +		if (line[0] == '#')
-+			goto cleanup;
-+		
++			continue;
++
 +		start = line;
 +		while (isspace(*start))
 +			++start;
@@ -277,10 +282,10 @@ diff -up /dev/null Linux-PAM-0.99.8.1/modules/pam_selinux/pam_selinux_permit.c
 +			--n;
 +		}
 +		if (n == 0)
-+			goto cleanup;
-+		
++			continue;
++
 +		start[n] = '\0';
-+		
++
 +		switch (start[0]) {
 +			case '@': 
 +				++start;
@@ -304,12 +309,10 @@ diff -up /dev/null Linux-PAM-0.99.8.1/modules/pam_selinux/pam_selinux_permit.c
 +				if (strcmp(user, start) == 0) {
 +					matched = 1;
 +				}
-+		}		
-+cleanup:
-+		free(line);
-+		line = NULL;
++		}
 +	}
-+	
++
++	free(line);
 +	fclose(f);
 +	return matched ? 0 : -1;
 +}
@@ -336,7 +339,7 @@ diff -up /dev/null Linux-PAM-0.99.8.1/modules/pam_selinux/pam_selinux_permit.c
 +			cfgfile = argv[i] + 5;
 +		}
 +	}
-+	
++
 +	if (debug)
 +		pam_syslog(pamh, LOG_NOTICE, "Parsing config file: %s", cfgfile);
 +
@@ -350,16 +353,16 @@ diff -up /dev/null Linux-PAM-0.99.8.1/modules/pam_selinux/pam_selinux_permit.c
 +		if (security_getenforce() == 1) {
 +			if (debug)
 +				pam_syslog(pamh, LOG_NOTICE, "Enforcing mode, access will be allowed on match");
-+			sense = PAM_SUCCESS;		
++			sense = PAM_SUCCESS;
 +		}
-+		
++
 +		if (getseuserbyname(user, &seuser, &level) != 0) {
 +			seuser = NULL;
 +			level = NULL;
 +			pam_syslog(pamh, LOG_ERR, "getseuserbyname failed: %m");
 +		}
 +	}
-+	
++
 +	if (debug && sense != PAM_SUCCESS)
 +		pam_syslog(pamh, LOG_NOTICE, "Access will not be allowed on match");
 +
@@ -367,10 +370,10 @@ diff -up /dev/null Linux-PAM-0.99.8.1/modules/pam_selinux/pam_selinux_permit.c
 +
 +	if (debug)
 +		pam_syslog(pamh, LOG_NOTICE, "sepermit_match returned: %d", rv);
-+	
++
 +	free(seuser);
 +	free(level);
-+	
++
 +	switch (rv) {
 +		case -1:
 +			return PAM_IGNORE;
@@ -412,7 +415,7 @@ diff -up /dev/null Linux-PAM-0.99.8.1/modules/pam_selinux/pam_selinux_permit.c
 +
 diff -up /dev/null Linux-PAM-0.99.8.1/modules/pam_selinux/sepermit.conf
 --- /dev/null	2007-09-17 08:57:19.474470099 +0200
-+++ Linux-PAM-0.99.8.1/modules/pam_selinux/sepermit.conf	2007-09-19 17:18:43.000000000 +0200
++++ Linux-PAM-0.99.8.1/modules/pam_selinux/sepermit.conf	2007-09-19 19:37:26.000000000 +0200
 @@ -0,0 +1,6 @@
 +# /etc/security/sepermit.conf
 +#
@@ -422,7 +425,7 @@ diff -up /dev/null Linux-PAM-0.99.8.1/modules/pam_selinux/sepermit.conf
 +#        - a SELinux user name, with %seuser syntax
 diff -up Linux-PAM-0.99.8.1/modules/pam_selinux/Makefile.am.permit Linux-PAM-0.99.8.1/modules/pam_selinux/Makefile.am
 --- Linux-PAM-0.99.8.1/modules/pam_selinux/Makefile.am.permit	2007-01-23 11:09:25.000000000 +0100
-+++ Linux-PAM-0.99.8.1/modules/pam_selinux/Makefile.am	2007-09-19 18:19:42.000000000 +0200
++++ Linux-PAM-0.99.8.1/modules/pam_selinux/Makefile.am	2007-09-19 19:37:26.000000000 +0200
 @@ -5,20 +5,21 @@
  CLEANFILES = *~
  
