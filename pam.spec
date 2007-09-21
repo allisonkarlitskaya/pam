@@ -11,7 +11,7 @@
 Summary: A security tool which provides authentication for applications
 Name: pam
 Version: 0.99.8.1
-Release: 8%{?dist}
+Release: 9%{?dist}
 # The library is BSD licensed with option to relicense as GPLv2+ - this option is redundant
 # as the BSD license allows that anyway. pam_timestamp and pam_console modules are GPLv2+,
 # pam_rhosts_auth module is BSD with advertising
@@ -43,6 +43,7 @@ Patch43: pam-0.99.8.1-console-mfd-scanners.patch
 Patch44: pam-0.99.7.1-namespace-homedir.patch
 Patch45: pam-0.99.8.1-selinux-permit.patch
 Patch46: pam-0.99.8.1-succif-in-operator.patch
+Patch47: pam-0.99.8.1-xauth-no-free.patch
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 Requires: cracklib, cracklib-dicts >= 2.8
@@ -111,6 +112,7 @@ cp %{SOURCE7} .
 %patch44 -p1 -b .homedir
 %patch45 -p1 -b .permit
 %patch46 -p1 -b .in-operator
+%patch47 -p1 -b .no-free
 
 autoreconf
 
@@ -403,6 +405,11 @@ fi
 %doc doc/adg/*.txt doc/adg/html
 
 %changelog
+* Fri Sep 21 2007 Tomas Mraz <tmraz@redhat.com> 0.99.8.1-9
+- do not preserve contexts when copying skel and other namespace.init
+  fixes (#298941)
+- do not free memory sent to putenv (#231698)
+
 * Wed Sep 19 2007 Tomas Mraz <tmraz@redhat.com> 0.99.8.1-8
 - add pam_selinux_permit module
 - pam_succeed_if: fix in operator (#295151)
