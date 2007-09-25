@@ -97,7 +97,9 @@ cp %{SOURCE6} .
 cp %{SOURCE7} .
 
 %patch1 -p1 -b .redhat-modules
-%patch2 -p0 -b .db4-glibc
+pushd db-%{db_version}
+%patch2 -p1 -b .db4-glibc
+popd
 %patch4 -p1 -b .dbpam
 %patch5 -p1 -b .no-log
 %patch24 -p1 -b .update-helper
