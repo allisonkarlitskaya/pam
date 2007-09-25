@@ -4,14 +4,14 @@
 %define _sysconfdir /etc
 
 %define pwdb_version 0.62
-%define db_version 4.6.18
+%define db_version 4.6.19
 %define db_conflicting_version 4.7.0
 %define pam_redhat_version 0.99.8-1
 
 Summary: A security tool which provides authentication for applications
 Name: pam
 Version: 0.99.8.1
-Release: 9%{?dist}
+Release: 10%{?dist}
 # The library is BSD licensed with option to relicense as GPLv2+ - this option is redundant
 # as the BSD license allows that anyway. pam_timestamp and pam_console modules are GPLv2+,
 # pam_rhosts_auth module is BSD with advertising
@@ -405,6 +405,9 @@ fi
 %doc doc/adg/*.txt doc/adg/html
 
 %changelog
+* Tue Sep 25 2007 Tomas Mraz <tmraz@redhat.com> 0.99.8.1-10
+- update db4 to 4.6.19 (#274661)
+
 * Fri Sep 21 2007 Tomas Mraz <tmraz@redhat.com> 0.99.8.1-9
 - do not preserve contexts when copying skel and other namespace.init
   fixes (#298941)
