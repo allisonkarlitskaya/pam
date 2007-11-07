@@ -11,7 +11,7 @@
 Summary: A security tool which provides authentication for applications
 Name: pam
 Version: 0.99.8.1
-Release: 10%{?dist}
+Release: 11%{?dist}
 # The library is BSD licensed with option to relicense as GPLv2+ - this option is redundant
 # as the BSD license allows that anyway. pam_timestamp and pam_console modules are GPLv2+,
 # pam_rhosts_auth module is BSD with advertising
@@ -44,6 +44,7 @@ Patch44: pam-0.99.7.1-namespace-homedir.patch
 Patch45: pam-0.99.8.1-selinux-permit.patch
 Patch46: pam-0.99.8.1-succif-in-operator.patch
 Patch47: pam-0.99.8.1-xauth-no-free.patch
+Patch48: pam-0.99.8.1-substack.patch
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 Requires: cracklib, cracklib-dicts >= 2.8
@@ -115,6 +116,7 @@ popd
 %patch45 -p1 -b .permit
 %patch46 -p1 -b .in-operator
 %patch47 -p1 -b .no-free
+%patch48 -p0 -b .substack
 
 autoreconf
 
@@ -407,6 +409,9 @@ fi
 %doc doc/adg/*.txt doc/adg/html
 
 %changelog
+* Wed Nov  7 2007 Tomas Mraz <tmraz@redhat.com> 0.99.8.1-11
+- add substack support
+
 * Tue Sep 25 2007 Tomas Mraz <tmraz@redhat.com> 0.99.8.1-10
 - update db4 to 4.6.19 (#274661)
 
