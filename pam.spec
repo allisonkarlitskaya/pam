@@ -11,7 +11,7 @@
 Summary: A security tool which provides authentication for applications
 Name: pam
 Version: 0.99.8.1
-Release: 11%{?dist}
+Release: 12%{?dist}
 # The library is BSD licensed with option to relicense as GPLv2+ - this option is redundant
 # as the BSD license allows that anyway. pam_timestamp and pam_console modules are GPLv2+,
 # pam_rhosts_auth module is BSD with advertising
@@ -45,6 +45,7 @@ Patch45: pam-0.99.8.1-selinux-permit.patch
 Patch46: pam-0.99.8.1-succif-in-operator.patch
 Patch47: pam-0.99.8.1-xauth-no-free.patch
 Patch48: pam-0.99.8.1-substack.patch
+Patch49: pam-0.99.8.1-tty-audit.patch
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 Requires: cracklib, cracklib-dicts >= 2.8
@@ -117,6 +118,7 @@ popd
 %patch46 -p1 -b .in-operator
 %patch47 -p1 -b .no-free
 %patch48 -p0 -b .substack
+%patch49 -p1 -b .tty-audit
 
 autoreconf
 
@@ -365,6 +367,7 @@ fi
 /%{_lib}/security/pam_tally2.so
 /%{_lib}/security/pam_time.so
 /%{_lib}/security/pam_timestamp.so
+/%{_lib}/security/pam_tty_audit.so
 /%{_lib}/security/pam_umask.so
 /%{_lib}/security/pam_unix.so
 /%{_lib}/security/pam_unix_acct.so
@@ -409,6 +412,9 @@ fi
 %doc doc/adg/*.txt doc/adg/html
 
 %changelog
+* Thu Nov 29 2007 Tomas Mraz <tmraz@redhat.com> 0.99.8.1-12
+- add pam_tty_audit module (#244352) - written by Miloslav Trmač
+
 * Wed Nov  7 2007 Tomas Mraz <tmraz@redhat.com> 0.99.8.1-11
 - add substack support
 
