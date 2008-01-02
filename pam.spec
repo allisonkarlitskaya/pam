@@ -11,7 +11,7 @@
 Summary: A security tool which provides authentication for applications
 Name: pam
 Version: 0.99.8.1
-Release: 12%{?dist}
+Release: 13%{?dist}
 # The library is BSD licensed with option to relicense as GPLv2+ - this option is redundant
 # as the BSD license allows that anyway. pam_timestamp and pam_console modules are GPLv2+,
 # pam_rhosts_auth module is BSD with advertising
@@ -46,6 +46,7 @@ Patch46: pam-0.99.8.1-succif-in-operator.patch
 Patch47: pam-0.99.8.1-xauth-no-free.patch
 Patch48: pam-0.99.8.1-substack.patch
 Patch49: pam-0.99.8.1-tty-audit.patch
+Patch50: pam-0.99.8.1-tty-audit2.patch
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 Requires: cracklib, cracklib-dicts >= 2.8
@@ -119,6 +120,7 @@ popd
 %patch47 -p1 -b .no-free
 %patch48 -p0 -b .substack
 %patch49 -p1 -b .tty-audit
+%patch50 -p1 -b .tty-audit2
 
 autoreconf
 
@@ -412,6 +414,9 @@ fi
 %doc doc/adg/*.txt doc/adg/html
 
 %changelog
+* Wed Jan  2 2008 Tomas Mraz <tmraz@redhat.com> 0.99.8.1-13
+- wildcard match support in pam_tty_audit (by Miloslav Trmač)
+
 * Thu Nov 29 2007 Tomas Mraz <tmraz@redhat.com> 0.99.8.1-12
 - add pam_tty_audit module (#244352) - written by Miloslav Trmač
 
