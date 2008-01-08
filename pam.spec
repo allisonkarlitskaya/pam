@@ -11,7 +11,7 @@
 Summary: A security tool which provides authentication for applications
 Name: pam
 Version: 0.99.8.1
-Release: 13%{?dist}
+Release: 14%{?dist}
 # The library is BSD licensed with option to relicense as GPLv2+ - this option is redundant
 # as the BSD license allows that anyway. pam_timestamp and pam_console modules are GPLv2+,
 # pam_rhosts_auth module is BSD with advertising
@@ -32,8 +32,7 @@ Patch2:  db-4.6.18-glibc.patch
 Patch4:  pam-0.99.8.1-dbpam.patch
 Patch5:  pam-0.99.8.1-audit-no-log.patch
 Patch24: pam-0.99.8.1-unix-update-helper.patch
-Patch25: pam-0.99.7.1-unix-hpux-aging.patch
-Patch26: pam-0.99.8.1-unix-blankpass.patch
+Patch25: pam-0.99.8.1-unix-hpux-aging.patch
 Patch31: pam-0.99.3.0-cracklib-try-first-pass.patch
 Patch32: pam-0.99.3.0-tally-fail-close.patch
 Patch40: pam-0.99.7.1-namespace-temp-logon.patch
@@ -107,7 +106,7 @@ popd
 %patch5 -p1 -b .no-log
 %patch24 -p1 -b .update-helper
 %patch25 -p1 -b .unix-hpux-aging
-%patch26 -p1 -b .blankpass
+#%patch26 -p1 -b .blankpass
 %patch31 -p1 -b .try-first-pass
 %patch32 -p1 -b .fail-close
 %patch40 -p1 -b .temp-logon
@@ -414,6 +413,10 @@ fi
 %doc doc/adg/*.txt doc/adg/html
 
 %changelog
+* Wed Jan  8 2008 Tomas Mraz <tmraz@redhat.com> 0.99.8.1-14
+- support for sha256 and sha512 password hashes
+- account expiry checks moved to unix_chkpwd helper
+
 * Wed Jan  2 2008 Tomas Mraz <tmraz@redhat.com> 0.99.8.1-13
 - wildcard match support in pam_tty_audit (by Miloslav Trmač)
 
