@@ -11,7 +11,7 @@
 Summary: A security tool which provides authentication for applications
 Name: pam
 Version: 0.99.8.1
-Release: 14%{?dist}
+Release: 15%{?dist}
 # The library is BSD licensed with option to relicense as GPLv2+ - this option is redundant
 # as the BSD license allows that anyway. pam_timestamp and pam_console modules are GPLv2+,
 # pam_rhosts_auth module is BSD with advertising
@@ -49,8 +49,7 @@ Patch50: pam-0.99.8.1-tty-audit2.patch
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 Requires: cracklib, cracklib-dicts >= 2.8
-Requires(pre): grep, coreutils
-Requires(post): mktemp, sed, coreutils, /sbin/ldconfig
+Requires(post): coreutils, /sbin/ldconfig
 BuildRequires: autoconf >= 2.60
 BuildRequires: automake, libtool
 BuildRequires: bison, flex, sed
@@ -73,6 +72,8 @@ URL: http://www.us.kernel.org/pub/linux/libs/pam/index.html
 # We internalize libdb to get a non-threaded copy, but we should at least try
 # to coexist with the system's copy of libdb, which will be used to make the
 # files for use by pam_userdb (either by db_load or Perl's DB_File module).
+# The non-threaded db4 is necessary so we do not break single threaded
+# services when they call pam_userdb.so module.
 Conflicts: db4 >= %{db_conflicting_version}
 
 %description
@@ -94,9 +95,6 @@ PAM-aware applications and modules for use with PAM.
 
 %prep
 %setup -q -n Linux-PAM-%{version} -a 2 -a 4
-cp %{SOURCE5} .
-cp %{SOURCE6} .
-cp %{SOURCE7} .
 
 %patch1 -p1 -b .redhat-modules
 pushd db-%{db_version}
@@ -106,7 +104,6 @@ popd
 %patch5 -p1 -b .no-log
 %patch24 -p1 -b .update-helper
 %patch25 -p1 -b .unix-hpux-aging
-#%patch26 -p1 -b .blankpass
 %patch31 -p1 -b .try-first-pass
 %patch32 -p1 -b .fail-close
 %patch40 -p1 -b .temp-logon
@@ -180,16 +177,13 @@ rm -f $RPM_BUILD_ROOT%{_sysconfdir}/environment
 
 # Install default configuration files.
 install -d -m 755 $RPM_BUILD_ROOT%{_sysconfdir}/pam.d
-install -m 644 other.pamd $RPM_BUILD_ROOT%{_sysconfdir}/pam.d/other
-install -m 644 system-auth.pamd $RPM_BUILD_ROOT%{_sysconfdir}/pam.d/system-auth
-install -m 644 config-util.pamd $RPM_BUILD_ROOT%{_sysconfdir}/pam.d/config-util
+install -m 644 %{SOURCE5} $RPM_BUILD_ROOT%{_sysconfdir}/pam.d/other
+install -m 644 %{SOURCE6} $RPM_BUILD_ROOT%{_sysconfdir}/pam.d/system-auth
+install -m 644 %{SOURCE7} $RPM_BUILD_ROOT%{_sysconfdir}/pam.d/config-util
 install -m 600 /dev/null $RPM_BUILD_ROOT%{_sysconfdir}/security/opasswd
 install -d -m 755 $RPM_BUILD_ROOT/var/log
 install -m 600 /dev/null $RPM_BUILD_ROOT/var/log/faillog
 install -m 600 /dev/null $RPM_BUILD_ROOT/var/log/tallylog
-
-# Forcibly strip binaries.
-strip $RPM_BUILD_ROOT%{_sbindir}/* ||:
 
 # Install man pages.
 install -m 644 %{SOURCE9} %{SOURCE10} $RPM_BUILD_ROOT%{_mandir}/man5/
@@ -209,7 +203,7 @@ done
 /sbin/ldconfig -n $RPM_BUILD_ROOT/%{_lib}
 for module in $RPM_BUILD_ROOT/%{_lib}/security/pam*.so ; do
 	if ! env LD_LIBRARY_PATH=$RPM_BUILD_ROOT/%{_lib} \
-		 $RPM_SOURCE_DIR/dlopen.sh -ldl -lpam -L$RPM_BUILD_ROOT/%{_lib} ${module} ; then
+		 %{SOURCE8} -ldl -lpam -L$RPM_BUILD_ROOT/%{_lib} ${module} ; then
 		echo ERROR module: ${module} cannot be loaded.
 		exit 1
 	fi
@@ -250,51 +244,8 @@ install -m755 -d $RPM_BUILD_ROOT/lib/security
 %clean
 rm -rf $RPM_BUILD_ROOT
 
-%pre
-# Figure whether or not we're using shadow/md5 passwords if we're upgrading.
-if [ -f %{_sysconfdir}/pam.d/other ] ; then
-	USEMD5=
-	if [ -f /etc/sysconfig/authconfig ] ; then
-		. /etc/sysconfig/authconfig
-	fi
-	if [ -z "$USEMD5" ] ; then
-		if [ -f /etc/shadow ] ; then
-			passwdfiles="/etc/passwd /etc/shadow"
-		else
-			passwdfiles="/etc/passwd"
-		fi
-		if cut -f2 -d: $passwdfiles | grep -q '^\$1\$' ; then
-			echo USEMD5=yes >> /etc/sysconfig/authconfig
-			USEMD5=yes
-		else
-			echo USEMD5=no  >> /etc/sysconfig/authconfig
-			USEMD5=no
-		fi
-	fi
-fi
-exit 0
-
 %post
 /sbin/ldconfig
-if [ ! -f /etc/shadow ] ; then
-	tmp=`mktemp /etc/pam.d/pam-post.XXXXXX`
-	if [ -n "$tmp" ] ; then
-		sed 's| shadow||g' /etc/pam.d/system-auth > $tmp && \
-		cat $tmp > /etc/pam.d/system-auth
-		rm -f $tmp
-	fi
-fi
-if [ -f /etc/sysconfig/authconfig ] ; then
-	. /etc/sysconfig/authconfig
-fi
-if [ "$USEMD5" = "no" ] ; then
-	tmp=`mktemp /etc/pam.d/pam-post.XXXXXX`
-	if [ -n "$tmp" ] ; then
-		sed 's| md5||g' /etc/pam.d/system-auth > $tmp && \
-		cat $tmp > /etc/pam.d/system-auth
-		rm -f $tmp
-	fi
-fi
 if [ ! -a /var/log/faillog ] ; then
 	install -m 600 /dev/null /var/log/faillog
 fi
@@ -413,6 +364,9 @@ fi
 %doc doc/adg/*.txt doc/adg/html
 
 %changelog
+* Mon Jan 14 2008 Tomas Mraz <tmraz@redhat.com> 0.99.8.1-15
+- merge review fixes (#226228)
+
 * Wed Jan  8 2008 Tomas Mraz <tmraz@redhat.com> 0.99.8.1-14
 - support for sha256 and sha512 password hashes
 - account expiry checks moved to unix_chkpwd helper
