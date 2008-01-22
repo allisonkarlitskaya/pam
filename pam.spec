@@ -11,7 +11,7 @@
 Summary: A security tool which provides authentication for applications
 Name: pam
 Version: 0.99.8.1
-Release: 15%{?dist}
+Release: 16%{?dist}
 # The library is BSD licensed with option to relicense as GPLv2+ - this option is redundant
 # as the BSD license allows that anyway. pam_timestamp and pam_console modules are GPLv2+,
 # pam_rhosts_auth module is BSD with advertising
@@ -46,6 +46,7 @@ Patch47: pam-0.99.8.1-xauth-no-free.patch
 Patch48: pam-0.99.8.1-substack.patch
 Patch49: pam-0.99.8.1-tty-audit.patch
 Patch50: pam-0.99.8.1-tty-audit2.patch
+Patch51: pam-0.99.8.1-audit-failed.patch
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 Requires: cracklib, cracklib-dicts >= 2.8
@@ -117,6 +118,7 @@ popd
 %patch48 -p0 -b .substack
 %patch49 -p1 -b .tty-audit
 %patch50 -p1 -b .tty-audit2
+%patch51 -p1 -b .audit-failed
 
 autoreconf
 
@@ -158,6 +160,7 @@ LDFLAGS=-L${topdir}/%{_lib} ; export LDFLAGS
 	--enable-isadir=../../%{_lib}/security \
 	--with-db-uniquename=_pam
 make
+# we do not use _smp_mflags because the build of sources in yacc/flex fails
 
 %install
 rm -rf $RPM_BUILD_ROOT
@@ -188,35 +191,6 @@ install -m 600 /dev/null $RPM_BUILD_ROOT/var/log/tallylog
 # Install man pages.
 install -m 644 %{SOURCE9} %{SOURCE10} $RPM_BUILD_ROOT%{_mandir}/man5/
 
-# Make sure every module subdirectory gave us a module.  Yes, this is hackish.
-for dir in modules/pam_* ; do
-if [ -d ${dir} ] ; then
-	if ! ls -1 $RPM_BUILD_ROOT/%{_lib}/security/`basename ${dir}`*.so ; then
-		echo ERROR `basename ${dir}` did not build a module.
-		exit 1
-	fi
-fi
-done
-
-# Check for module problems.  Specifically, check that every module we just
-# installed can actually be loaded by a minimal PAM-aware application.
-/sbin/ldconfig -n $RPM_BUILD_ROOT/%{_lib}
-for module in $RPM_BUILD_ROOT/%{_lib}/security/pam*.so ; do
-	if ! env LD_LIBRARY_PATH=$RPM_BUILD_ROOT/%{_lib} \
-		 %{SOURCE8} -ldl -lpam -L$RPM_BUILD_ROOT/%{_lib} ${module} ; then
-		echo ERROR module: ${module} cannot be loaded.
-		exit 1
-	fi
-# And for good measure, make sure that none of the modules pull in threading
-# libraries, which if loaded in a non-threaded application, can cause Very
-# Bad Things to happen.
-	if env LD_LIBRARY_PATH=$RPM_BUILD_ROOT/%{_lib} \
-	       LD_PRELOAD=$RPM_BUILD_ROOT/%{_lib}/libpam.so ldd -r ${module} | fgrep -q libpthread ; then
-		echo ERROR module: ${module} pulls threading libraries.
-		exit 1
-	fi
-done
-
 for phase in auth acct passwd session ; do
 	ln -sf pam_unix.so $RPM_BUILD_ROOT/%{_lib}/security/pam_unix_${phase}.so 
 done
@@ -240,6 +214,36 @@ rm -fr $RPM_BUILD_ROOT/usr/share/doc/pam
 install -m755 -d $RPM_BUILD_ROOT/lib/security
 
 %find_lang Linux-PAM
+
+%check
+# Make sure every module subdirectory gave us a module.  Yes, this is hackish.
+for dir in modules/pam_* ; do
+if [ -d ${dir} ] ; then
+	if ! ls -1 $RPM_BUILD_ROOT/%{_lib}/security/`basename ${dir}`*.so ; then
+		echo ERROR `basename ${dir}` did not build a module.
+		exit 1
+	fi
+fi
+done
+
+# Check for module problems.  Specifically, check that every module we just
+# installed can actually be loaded by a minimal PAM-aware application.
+/sbin/ldconfig -n $RPM_BUILD_ROOT/%{_lib}
+for module in $RPM_BUILD_ROOT/%{_lib}/security/pam*.so ; do
+	if ! env LD_LIBRARY_PATH=$RPM_BUILD_ROOT/%{_lib} \
+		 %{SOURCE8} -ldl -lpam -L$RPM_BUILD_ROOT/%{_lib} ${module} ; then
+		echo ERROR module: ${module} cannot be loaded.
+		exit 1
+	fi
+# And for good measure, make sure that none of the modules pull in threading
+# libraries, which if loaded in a non-threaded application, can cause Very
+# Bad Things to happen.
+	if env LD_LIBRARY_PATH=$RPM_BUILD_ROOT/%{_lib} \
+	       LD_PRELOAD=$RPM_BUILD_ROOT%{_libdir}/libpam.so ldd -r ${module} | fgrep -q libpthread ; then
+		echo ERROR module: ${module} pulls threading libraries.
+		exit 1
+	fi
+done
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -364,6 +368,10 @@ fi
 %doc doc/adg/*.txt doc/adg/html
 
 %changelog
+* Tue Jan 22 2008 Tomas Mraz <tmraz@redhat.com> 0.99.8.1-16
+- add auditing to pam_access, pam_limits, and pam_time
+- moved sanity testing code to check script
+
 * Mon Jan 14 2008 Tomas Mraz <tmraz@redhat.com> 0.99.8.1-15
 - merge review fixes (#226228)
 
