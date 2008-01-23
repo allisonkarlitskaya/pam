@@ -231,7 +231,7 @@ done
 /sbin/ldconfig -n $RPM_BUILD_ROOT/%{_lib}
 for module in $RPM_BUILD_ROOT/%{_lib}/security/pam*.so ; do
 	if ! env LD_LIBRARY_PATH=$RPM_BUILD_ROOT/%{_lib} \
-		 %{SOURCE8} -ldl -lpam -L$RPM_BUILD_ROOT/%{_lib} ${module} ; then
+		 %{SOURCE8} -ldl -lpam -L$RPM_BUILD_ROOT/%{_libdir} ${module} ; then
 		echo ERROR module: ${module} cannot be loaded.
 		exit 1
 	fi
