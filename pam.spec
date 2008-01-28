@@ -11,7 +11,7 @@
 Summary: A security tool which provides authentication for applications
 Name: pam
 Version: 0.99.8.1
-Release: 16%{?dist}
+Release: 17%{?dist}
 # The library is BSD licensed with option to relicense as GPLv2+ - this option is redundant
 # as the BSD license allows that anyway. pam_timestamp and pam_console modules are GPLv2+,
 # pam_rhosts_auth module is BSD with advertising
@@ -47,6 +47,8 @@ Patch48: pam-0.99.8.1-substack.patch
 Patch49: pam-0.99.8.1-tty-audit.patch
 Patch50: pam-0.99.8.1-tty-audit2.patch
 Patch51: pam-0.99.8.1-audit-failed.patch
+Patch52: pam-0.99.8.1-setkeycreatecon.patch
+Patch53: pam-0.99.8.1-sepermit-kill-user.patch
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 Requires: cracklib, cracklib-dicts >= 2.8
@@ -119,6 +121,8 @@ popd
 %patch49 -p1 -b .tty-audit
 %patch50 -p1 -b .tty-audit2
 %patch51 -p1 -b .audit-failed
+%patch52 -p1 -b .setkeycreatecon
+%patch53 -p1 -b .kill-user
 
 autoreconf
 
@@ -352,6 +356,7 @@ fi
 %dir %{_sysconfdir}/security/console.perms.d
 %config %{_sysconfdir}/security/console.perms.d/50-default.perms
 %dir /var/run/console
+%dir /var/run/sepermit
 %ghost %verify(not md5 size mtime) /var/log/faillog
 %ghost %verify(not md5 size mtime) /var/log/tallylog
 %{_mandir}/man5/*
@@ -368,6 +373,11 @@ fi
 %doc doc/adg/*.txt doc/adg/html
 
 %changelog
+* Mon Jan 28 2008 Tomas Mraz <tmraz@redhat.com> 0.99.8.1-17
+- test for setkeycreatecon correctly
+- add exclusive login mode of operation to pam_selinux_permit (original
+  patch by Dan Walsh)
+
 * Tue Jan 22 2008 Tomas Mraz <tmraz@redhat.com> 0.99.8.1-16
 - add auditing to pam_access, pam_limits, and pam_time
 - moved sanity testing code to check script
