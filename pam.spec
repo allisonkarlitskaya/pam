@@ -4,8 +4,8 @@
 
 Summary: A security tool which provides authentication for applications
 Name: pam
-Version: 0.99.8.1
-Release: 18%{?dist}
+Version: 0.99.10.0
+Release: 1%{?dist}
 # The library is BSD licensed with option to relicense as GPLv2+ - this option is redundant
 # as the BSD license allows that anyway. pam_timestamp and pam_console modules are GPLv2+,
 # pam_rhosts_auth module is BSD with advertising
@@ -21,28 +21,15 @@ Source7: config-util.pamd
 Source8: dlopen.sh
 Source9: system-auth.5
 Source10: config-util.5
+Source11: 90-nproc.conf
 Patch1:  pam-0.99.7.0-redhat-modules.patch
 Patch2:  db-4.6.18-glibc.patch
 Patch4:  pam-0.99.8.1-dbpam.patch
 Patch5:  pam-0.99.8.1-audit-no-log.patch
-Patch24: pam-0.99.8.1-unix-update-helper.patch
-Patch25: pam-0.99.8.1-unix-hpux-aging.patch
 Patch31: pam-0.99.3.0-cracklib-try-first-pass.patch
 Patch32: pam-0.99.3.0-tally-fail-close.patch
-Patch40: pam-0.99.7.1-namespace-temp-logon.patch
-Patch41: pam-0.99.8.1-namespace-init.patch
 Patch42: pam-0.99.8.1-console-hal-handled.patch
 Patch43: pam-0.99.8.1-console-mfd-scanners.patch
-Patch44: pam-0.99.7.1-namespace-homedir.patch
-Patch45: pam-0.99.8.1-selinux-permit.patch
-Patch46: pam-0.99.8.1-succif-in-operator.patch
-Patch47: pam-0.99.8.1-xauth-no-free.patch
-Patch48: pam-0.99.8.1-substack.patch
-Patch49: pam-0.99.8.1-tty-audit.patch
-Patch50: pam-0.99.8.1-tty-audit2.patch
-Patch51: pam-0.99.8.1-audit-failed.patch
-Patch52: pam-0.99.8.1-setkeycreatecon.patch
-Patch53: pam-0.99.8.1-sepermit-kill-user.patch
 
 %define _sbindir /sbin
 %define _moduledir /%{_lib}/security
@@ -113,24 +100,10 @@ pushd db-%{db_version}
 popd
 %patch4 -p1 -b .dbpam
 %patch5 -p1 -b .no-log
-%patch24 -p1 -b .update-helper
-%patch25 -p1 -b .unix-hpux-aging
 %patch31 -p1 -b .try-first-pass
 %patch32 -p1 -b .fail-close
-%patch40 -p1 -b .temp-logon
-%patch41 -p1 -b .ns-init
 %patch42 -p1 -b .hal-handled
 %patch43 -p1 -b .mfd-scanners
-%patch44 -p1 -b .homedir
-%patch45 -p1 -b .permit
-%patch46 -p1 -b .in-operator
-%patch47 -p1 -b .no-free
-%patch48 -p0 -b .substack
-%patch49 -p1 -b .tty-audit
-%patch50 -p1 -b .tty-audit2
-%patch51 -p1 -b .audit-failed
-%patch52 -p1 -b .setkeycreatecon
-%patch53 -p1 -b .kill-user
 
 autoreconf
 
@@ -191,6 +164,11 @@ done
 # Install the binaries, libraries, and modules.
 make install DESTDIR=$RPM_BUILD_ROOT LDCONFIG=:
 
+%if %{WITH_SELINUX}
+# Temporary compat link
+ln -sf pam_sepermit.so $RPM_BUILD_ROOT%{_moduledir}/pam_selinux_permit.so
+%endif
+
 # RPM uses docs from source tree
 rm -rf $RPM_BUILD_ROOT%{_datadir}/doc/Linux-PAM
 # Included in setup package
@@ -201,6 +179,7 @@ install -d -m 755 $RPM_BUILD_ROOT%{_pamconfdir}
 install -m 644 %{SOURCE5} $RPM_BUILD_ROOT%{_pamconfdir}/other
 install -m 644 %{SOURCE6} $RPM_BUILD_ROOT%{_pamconfdir}/system-auth
 install -m 644 %{SOURCE7} $RPM_BUILD_ROOT%{_pamconfdir}/config-util
+install -m 644 %{SOURCE11} $RPM_BUILD_ROOT%{_secconfdir}/limits.d/90-nproc.conf
 install -m 600 /dev/null $RPM_BUILD_ROOT%{_secconfdir}/opasswd
 install -d -m 755 $RPM_BUILD_ROOT/var/log
 install -m 600 /dev/null $RPM_BUILD_ROOT/var/log/faillog
@@ -331,12 +310,12 @@ fi
 %{_moduledir}/pam_permit.so
 %{_moduledir}/pam_postgresok.so
 %{_moduledir}/pam_rhosts.so
-%{_moduledir}/pam_rhosts_auth.so
 %{_moduledir}/pam_rootok.so
 %{_moduledir}/pam_rps.so
 %if %{WITH_SELINUX}
 %{_moduledir}/pam_selinux.so
 %{_moduledir}/pam_selinux_permit.so
+%{_moduledir}/pam_sepermit.so
 %endif
 %{_moduledir}/pam_securetty.so
 %{_moduledir}/pam_shells.so
@@ -365,7 +344,10 @@ fi
 %config(noreplace) %{_secconfdir}/console.handlers
 %config(noreplace) %{_secconfdir}/group.conf
 %config(noreplace) %{_secconfdir}/limits.conf
+%dir %{_secconfdir}/limits.d
+%config(noreplace) %{_secconfdir}/limits.d/90-nproc.conf
 %config(noreplace) %{_secconfdir}/namespace.conf
+%dir %{_secconfdir}/namespace.d
 %attr(755,root,root) %config(noreplace) %{_secconfdir}/namespace.init
 %config(noreplace) %{_secconfdir}/pam_env.conf
 %config(noreplace) %{_secconfdir}/sepermit.conf
@@ -392,6 +374,11 @@ fi
 %doc doc/adg/*.txt doc/adg/html
 
 %changelog
+* Fri Feb 15 2008 Tomas Mraz <tmraz@redhat.com> 0.99.10.0-1
+- new upstream release
+- add default soft limit for nproc of 1024 to prevent
+  accidental fork bombs (#432903)
+
 * Mon Feb  4 2008 Tomas Mraz <tmraz@redhat.com> 0.99.8.1-18
 - allow the package to build without SELinux and audit support (#431415)
 - macro usage cleanup
