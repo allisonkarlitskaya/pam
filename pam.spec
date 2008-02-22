@@ -5,7 +5,7 @@
 Summary: A security tool which provides authentication for applications
 Name: pam
 Version: 0.99.10.0
-Release: 1%{?dist}
+Release: 2%{?dist}
 # The library is BSD licensed with option to relicense as GPLv2+ - this option is redundant
 # as the BSD license allows that anyway. pam_timestamp and pam_console modules are GPLv2+,
 # pam_rhosts_auth module is BSD with advertising
@@ -26,6 +26,8 @@ Patch1:  pam-0.99.7.0-redhat-modules.patch
 Patch2:  db-4.6.18-glibc.patch
 Patch4:  pam-0.99.8.1-dbpam.patch
 Patch5:  pam-0.99.8.1-audit-no-log.patch
+Patch20: pam-0.99.10.0-unix-any-user.patch
+Patch21: pam-0.99.10.0-unix-audit-failed.patch
 Patch31: pam-0.99.3.0-cracklib-try-first-pass.patch
 Patch32: pam-0.99.3.0-tally-fail-close.patch
 Patch42: pam-0.99.8.1-console-hal-handled.patch
@@ -100,6 +102,8 @@ pushd db-%{db_version}
 popd
 %patch4 -p1 -b .dbpam
 %patch5 -p1 -b .no-log
+%patch20 -p1 -b .any-user
+%patch21 -p1 -b .audit-failed
 %patch31 -p1 -b .try-first-pass
 %patch32 -p1 -b .fail-close
 %patch42 -p1 -b .hal-handled
@@ -374,6 +378,11 @@ fi
 %doc doc/adg/*.txt doc/adg/html
 
 %changelog
+* Fri Feb 22 2008 Tomas Mraz <tmraz@redhat.com> 0.99.10.0-2
+- if shadow is readable for an user do not prevent him from
+  authenticating any user with unix_chkpwd (#433459)
+- call audit from unix_chkpwd when appropriate
+
 * Fri Feb 15 2008 Tomas Mraz <tmraz@redhat.com> 0.99.10.0-1
 - new upstream release
 - add default soft limit for nproc of 1024 to prevent

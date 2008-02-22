@@ -1,0 +1,15 @@
+diff -up Linux-PAM-0.99.10.0/modules/pam_unix/unix_chkpwd.c.any-user Linux-PAM-0.99.10.0/modules/pam_unix/unix_chkpwd.c
+--- Linux-PAM-0.99.10.0/modules/pam_unix/unix_chkpwd.c.any-user	2008-01-28 13:21:48.000000000 +0100
++++ Linux-PAM-0.99.10.0/modules/pam_unix/unix_chkpwd.c	2008-02-21 14:06:56.000000000 +0100
+@@ -101,7 +101,10 @@ int main(int argc, char *argv[])
+ 	  /* if the caller specifies the username, verify that user
+ 	     matches it */
+ 	  if (strcmp(user, argv[1])) {
+-	    return PAM_AUTH_ERR;
++	    user = argv[1];
++	    /* no match -> permanently change to the real user and proceed */
++	    if (setuid(getuid()) != 0)
++		return PAM_AUTH_ERR;
+ 	  }
+ 	}
+ 
