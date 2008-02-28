@@ -1,11 +1,11 @@
-%define db_version 4.6.19
+%define db_version 4.6.21
 %define db_conflicting_version 4.7.0
-%define pam_redhat_version 0.99.8-1
+%define pam_redhat_version 0.99.9-1
 
 Summary: A security tool which provides authentication for applications
 Name: pam
 Version: 0.99.10.0
-Release: 2%{?dist}
+Release: 3%{?dist}
 # The library is BSD licensed with option to relicense as GPLv2+ - this option is redundant
 # as the BSD license allows that anyway. pam_timestamp and pam_console modules are GPLv2+,
 # pam_rhosts_auth module is BSD with advertising
@@ -13,8 +13,8 @@ License: BSD and GPLv2+ and BSD with advertising
 Group: System Environment/Base
 Source0: http://ftp.us.kernel.org/pub/linux/libs/pam/pre/library/Linux-PAM-%{version}.tar.bz2
 Source1: http://ftp.us.kernel.org/pub/linux/libs/pam/pre/library/Linux-PAM-%{version}.tar.bz2.sign
-Source2: pam-redhat-%{pam_redhat_version}.tar.bz2
-Source4: db-%{db_version}.tar.gz
+Source2: https://fedorahosted.org/releases/p/a/pam-redhat/pam-redhat-%{pam_redhat_version}.tar.bz2
+Source4: http://download.oracle.com/berkeley-db/db-%{db_version}.tar.gz
 Source5: other.pamd
 Source6: system-auth.pamd
 Source7: config-util.pamd
@@ -30,8 +30,6 @@ Patch20: pam-0.99.10.0-unix-any-user.patch
 Patch21: pam-0.99.10.0-unix-audit-failed.patch
 Patch31: pam-0.99.3.0-cracklib-try-first-pass.patch
 Patch32: pam-0.99.3.0-tally-fail-close.patch
-Patch42: pam-0.99.8.1-console-hal-handled.patch
-Patch43: pam-0.99.8.1-console-mfd-scanners.patch
 
 %define _sbindir /sbin
 %define _moduledir /%{_lib}/security
@@ -96,6 +94,9 @@ PAM-aware applications and modules for use with PAM.
 %prep
 %setup -q -n Linux-PAM-%{version} -a 2 -a 4
 
+# Add custom modules.
+mv pam-redhat-%{pam_redhat_version}/* modules
+
 %patch1 -p1 -b .redhat-modules
 pushd db-%{db_version}
 %patch2 -p1 -b .db4-glibc
@@ -106,8 +107,6 @@ popd
 %patch21 -p1 -b .audit-failed
 %patch31 -p1 -b .try-first-pass
 %patch32 -p1 -b .fail-close
-%patch42 -p1 -b .hal-handled
-%patch43 -p1 -b .mfd-scanners
 
 autoreconf
 
@@ -315,7 +314,6 @@ fi
 %{_moduledir}/pam_postgresok.so
 %{_moduledir}/pam_rhosts.so
 %{_moduledir}/pam_rootok.so
-%{_moduledir}/pam_rps.so
 %if %{WITH_SELINUX}
 %{_moduledir}/pam_selinux.so
 %{_moduledir}/pam_selinux_permit.so
@@ -378,6 +376,10 @@ fi
 %doc doc/adg/*.txt doc/adg/html
 
 %changelog
+* Thu Feb 28 2008 Tomas Mraz <tmraz@redhat.com> 0.99.10.0-3
+- update pam-redhat module tarball
+- update internal db4
+
 * Fri Feb 22 2008 Tomas Mraz <tmraz@redhat.com> 0.99.10.0-2
 - if shadow is readable for an user do not prevent him from
   authenticating any user with unix_chkpwd (#433459)
