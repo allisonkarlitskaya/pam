@@ -5,7 +5,7 @@
 Summary: A security tool which provides authentication for applications
 Name: pam
 Version: 0.99.10.0
-Release: 3%{?dist}
+Release: 4%{?dist}
 # The library is BSD licensed with option to relicense as GPLv2+ - this option is redundant
 # as the BSD license allows that anyway. pam_timestamp and pam_console modules are GPLv2+,
 # pam_rhosts_auth module is BSD with advertising
@@ -30,6 +30,9 @@ Patch20: pam-0.99.10.0-unix-any-user.patch
 Patch21: pam-0.99.10.0-unix-audit-failed.patch
 Patch31: pam-0.99.3.0-cracklib-try-first-pass.patch
 Patch32: pam-0.99.3.0-tally-fail-close.patch
+Patch33: pam-0.99.10.0-namespace-umount.patch
+Patch34: pam-0.99.10.0-namespace-level.patch
+Patch35: pam-0.99.10.0-selinux-prev-context.patch
 
 %define _sbindir /sbin
 %define _moduledir /%{_lib}/security
@@ -107,6 +110,9 @@ popd
 %patch21 -p1 -b .audit-failed
 %patch31 -p1 -b .try-first-pass
 %patch32 -p1 -b .fail-close
+%patch33 -p1 -b .umount
+%patch34 -p1 -b .level
+%patch35 -p1 -b .prev-context
 
 autoreconf
 
@@ -376,6 +382,11 @@ fi
 %doc doc/adg/*.txt doc/adg/html
 
 %changelog
+* Thu Mar 20 2008 Tomas Mraz <tmraz@redhat.com> 0.99.10.0-4
+- pam_namespace: fix problem with level polyinst (#438264)
+- pam_namespace: improve override checking for umount
+- pam_selinux: fix syslogging a context after free() (#438338)
+
 * Thu Feb 28 2008 Tomas Mraz <tmraz@redhat.com> 0.99.10.0-3
 - update pam-redhat module tarball
 - update internal db4

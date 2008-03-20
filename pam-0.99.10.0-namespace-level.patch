@@ -1,0 +1,17 @@
+diff -up Linux-PAM-0.99.10.0/modules/pam_namespace/pam_namespace.c.umount Linux-PAM-0.99.10.0/modules/pam_namespace/pam_namespace.c
+--- Linux-PAM-0.99.10.0/modules/pam_namespace/pam_namespace.c.umount	2008-02-13 14:52:13.000000000 +0100
++++ Linux-PAM-0.99.10.0/modules/pam_namespace/pam_namespace.c	2008-03-20 15:29:11.000000000 +0100
+@@ -822,10 +822,11 @@ static int poly_name(const struct polydi
+      */
+ 
+     pm = polyptr->method;
+-    if (pm == LEVEL || pm == USER) {
++    if (pm == LEVEL || pm == CONTEXT)
+ #ifdef WITH_SELINUX
+-        if (!(idata->flags & PAMNS_CTXT_BASED_INST))
++        if (!(idata->flags & PAMNS_CTXT_BASED_INST)) {
+ #else
++    {
+ 	pam_syslog(idata->pamh, LOG_NOTICE,
+ 		"Context and level methods not available, using user method");
+ #endif

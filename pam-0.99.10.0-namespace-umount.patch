@@ -1,0 +1,16 @@
+diff -up Linux-PAM-0.99.10.0/modules/pam_namespace/pam_namespace.c.umount Linux-PAM-0.99.10.0/modules/pam_namespace/pam_namespace.c
+--- Linux-PAM-0.99.10.0/modules/pam_namespace/pam_namespace.c.umount	2008-02-13 14:52:13.000000000 +0100
++++ Linux-PAM-0.99.10.0/modules/pam_namespace/pam_namespace.c	2008-03-17 11:40:02.000000000 +0100
+@@ -1528,8 +1528,11 @@ static int setup_namespace(struct instan
+      */
+     for (pptr = idata->polydirs_ptr; pptr; pptr = pptr->next) {
+ 	enum unmnt_op dir_unmnt = unmnt;
++	if (ns_override(pptr, idata, idata->ruid)) {
++	    dir_unmnt = NO_UNMNT;
++	}
+         if (ns_override(pptr, idata, idata->uid)) {
+-    	    if (unmnt == NO_UNMNT || ns_override(pptr, idata, idata->ruid)) {
++    	    if (dir_unmnt == NO_UNMNT) {
+     		continue;
+ 	    } else {
+ 		dir_unmnt = UNMNT_ONLY;
