@@ -25,6 +25,7 @@ Source11: 90-nproc.conf
 Patch1:  pam-0.99.7.0-redhat-modules.patch
 Patch2:  db-4.6.18-glibc.patch
 Patch4:  pam-0.99.8.1-dbpam.patch
+Patch5:  pam-1.0.1-autoreconf.patch
 Patch10: pam-1.0.0-sepermit-screensaver.patch
 Patch11: pam-1.0.1-selinux-restore-execcon.patch
 Patch12: pam-1.0.0-selinux-env-params.patch
@@ -103,6 +104,7 @@ pushd db-%{db_version}
 %patch2 -p1 -b .db4-glibc
 popd
 %patch4 -p1 -b .dbpam
+%patch5 -p1 -b .autoreconf
 %patch10 -p1 -b .screensaver
 %patch11 -p1 -b .restore-execcon
 %patch12 -p0 -b .env-params
@@ -378,8 +380,9 @@ fi
 %doc doc/adg/*.txt doc/adg/html
 
 %changelog
-* Mon May 19 2008 Tomas Mraz <tmraz@redhat.com> 1.0.1-3
+* Tue May 20 2008 Tomas Mraz <tmraz@redhat.com> 1.0.1-3
 - pam_selinux: add env_params option which will be used by OpenSSH
+- fix build with new autoconf
 
 * Tue Apr 22 2008 Tomas Mraz <tmraz@redhat.com> 1.0.1-2
 - pam_selinux: restore execcon properly (#443667)
