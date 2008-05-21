@@ -5,7 +5,7 @@
 Summary: A security tool which provides authentication for applications
 Name: pam
 Version: 1.0.1
-Release: 3%{?dist}
+Release: 4%{?dist}
 # The library is BSD licensed with option to relicense as GPLv2+ - this option is redundant
 # as the BSD license allows that anyway. pam_timestamp and pam_console modules are GPLv2+,
 # pam_rhosts_auth module is BSD with advertising
@@ -30,8 +30,10 @@ Patch10: pam-1.0.0-sepermit-screensaver.patch
 Patch11: pam-1.0.1-selinux-restore-execcon.patch
 Patch12: pam-1.0.0-selinux-env-params.patch
 Patch21: pam-0.99.10.0-unix-audit-failed.patch
+Patch22: pam-1.0.1-unix-prompts.patch
 Patch31: pam-0.99.3.0-cracklib-try-first-pass.patch
 Patch32: pam-0.99.3.0-tally-fail-close.patch
+Patch41: pam-1.0.1-namespace-create.patch
 
 %define _sbindir /sbin
 %define _moduledir /%{_lib}/security
@@ -109,8 +111,10 @@ popd
 %patch11 -p1 -b .restore-execcon
 %patch12 -p0 -b .env-params
 %patch21 -p1 -b .audit-failed
+%patch22 -p1 -b .prompts
 %patch31 -p1 -b .try-first-pass
 %patch32 -p1 -b .fail-close
+%patch41 -p1 -b .create
 
 autoreconf
 
@@ -380,6 +384,10 @@ fi
 %doc doc/adg/*.txt doc/adg/html
 
 %changelog
+* Wed May 21 2008 Tomas Mraz <tmraz@redhat.com> 1.0.1-4
+- pam_namespace: allow safe creation of directories owned by user (#437116)
+- pam_unix: fix multiple error prompts on password change (#443872)
+
 * Tue May 20 2008 Tomas Mraz <tmraz@redhat.com> 1.0.1-3
 - pam_selinux: add env_params option which will be used by OpenSSH
 - fix build with new autoconf
