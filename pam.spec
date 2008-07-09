@@ -1,18 +1,18 @@
-%define db_version 4.6.21
-%define db_conflicting_version 4.7.0
+%define db_version 4.7.25
+%define db_conflicting_version 4.8.0
 %define pam_redhat_version 0.99.9-1
 
 Summary: A security tool which provides authentication for applications
 Name: pam
 Version: 1.0.1
-Release: 4%{?dist}
+Release: 5%{?dist}
 # The library is BSD licensed with option to relicense as GPLv2+ - this option is redundant
 # as the BSD license allows that anyway. pam_timestamp and pam_console modules are GPLv2+,
 # pam_rhosts_auth module is BSD with advertising
 License: BSD and GPLv2+ and BSD with advertising
 Group: System Environment/Base
-Source0: http://ftp.us.kernel.org/pub/linux/libs/pam/pre/library/Linux-PAM-%{version}.tar.bz2
-Source1: http://ftp.us.kernel.org/pub/linux/libs/pam/pre/library/Linux-PAM-%{version}.tar.bz2.sign
+Source0: http://ftp.us.kernel.org/pub/linux/libs/pam/library/Linux-PAM-%{version}.tar.bz2
+Source1: http://ftp.us.kernel.org/pub/linux/libs/pam/library/Linux-PAM-%{version}.tar.bz2.sign
 Source2: https://fedorahosted.org/releases/p/a/pam-redhat/pam-redhat-%{pam_redhat_version}.tar.bz2
 Source4: http://download.oracle.com/berkeley-db/db-%{db_version}.tar.gz
 Source5: other.pamd
@@ -23,7 +23,6 @@ Source9: system-auth.5
 Source10: config-util.5
 Source11: 90-nproc.conf
 Patch1:  pam-0.99.7.0-redhat-modules.patch
-Patch2:  db-4.6.18-glibc.patch
 Patch4:  pam-0.99.8.1-dbpam.patch
 Patch5:  pam-1.0.1-autoreconf.patch
 Patch10: pam-1.0.0-sepermit-screensaver.patch
@@ -102,9 +101,6 @@ PAM-aware applications and modules for use with PAM.
 mv pam-redhat-%{pam_redhat_version}/* modules
 
 %patch1 -p1 -b .redhat-modules
-pushd db-%{db_version}
-%patch2 -p1 -b .db4-glibc
-popd
 %patch4 -p1 -b .dbpam
 %patch5 -p1 -b .autoreconf
 %patch10 -p1 -b .screensaver
@@ -384,6 +380,9 @@ fi
 %doc doc/adg/*.txt doc/adg/html
 
 %changelog
+* Wed Jul  9 2008 Tomas Mraz <tmraz@redhat.com> 1.0.1-5
+- update internal db4
+
 * Wed May 21 2008 Tomas Mraz <tmraz@redhat.com> 1.0.1-4
 - pam_namespace: allow safe creation of directories owned by user (#437116)
 - pam_unix: fix multiple error prompts on password change (#443872)
