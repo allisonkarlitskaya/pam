@@ -1,5 +1,4 @@
 *.src.rpm
 *.tar.bz2
 pam-redhat-0.99.9-1.tar.bz2
-Linux-PAM-1.0.1.tar.bz2
-db-4.7.25.tar.gz
+Linux-PAM-1.0.2.tar.bz2

@@ -1,11 +1,9 @@
-%define db_version 4.7.25
-%define db_conflicting_version 4.8.0
 %define pam_redhat_version 0.99.9-1
 
 Summary: A security tool which provides authentication for applications
 Name: pam
-Version: 1.0.1
-Release: 5%{?dist}
+Version: 1.0.2
+Release: 1%{?dist}
 # The library is BSD licensed with option to relicense as GPLv2+ - this option is redundant
 # as the BSD license allows that anyway. pam_timestamp and pam_console modules are GPLv2+,
 # pam_rhosts_auth module is BSD with advertising
@@ -14,7 +12,6 @@ Group: System Environment/Base
 Source0: http://ftp.us.kernel.org/pub/linux/libs/pam/library/Linux-PAM-%{version}.tar.bz2
 Source1: http://ftp.us.kernel.org/pub/linux/libs/pam/library/Linux-PAM-%{version}.tar.bz2.sign
 Source2: https://fedorahosted.org/releases/p/a/pam-redhat/pam-redhat-%{pam_redhat_version}.tar.bz2
-Source4: http://download.oracle.com/berkeley-db/db-%{db_version}.tar.gz
 Source5: other.pamd
 Source6: system-auth.pamd
 Source7: config-util.pamd
@@ -23,15 +20,13 @@ Source9: system-auth.5
 Source10: config-util.5
 Source11: 90-nproc.conf
 Patch1:  pam-0.99.7.0-redhat-modules.patch
-Patch4:  pam-0.99.8.1-dbpam.patch
 Patch5:  pam-1.0.1-autoreconf.patch
 Patch10: pam-1.0.0-sepermit-screensaver.patch
-Patch11: pam-1.0.1-selinux-restore-execcon.patch
 Patch12: pam-1.0.0-selinux-env-params.patch
 Patch21: pam-0.99.10.0-unix-audit-failed.patch
 Patch22: pam-1.0.1-unix-prompts.patch
-Patch31: pam-0.99.3.0-cracklib-try-first-pass.patch
-Patch32: pam-0.99.3.0-tally-fail-close.patch
+Patch31: pam-1.0.1-cracklib-try-first-pass.patch
+Patch32: pam-1.0.1-tally-fail-close.patch
 Patch41: pam-1.0.1-namespace-create.patch
 
 %define _sbindir /sbin
@@ -64,18 +59,12 @@ Requires: libselinux >= 1.33.2
 %endif
 BuildRequires: glibc >= 2.3.90-37
 Requires: glibc >= 2.3.90-37
+BuildRequires: db4-devel
 # Following deps are necessary only to build the pam library documentation.
 BuildRequires: linuxdoc-tools, w3m, libxslt
 BuildRequires: docbook-style-xsl, docbook-dtds
 
 URL: http://www.us.kernel.org/pub/linux/libs/pam/index.html
-
-# We internalize libdb to get a non-threaded copy, but we should at least try
-# to coexist with the system's copy of libdb, which will be used to make the
-# files for use by pam_userdb (either by db_load or Perl's DB_File module).
-# The non-threaded db4 is necessary so we do not break single threaded
-# services when they call pam_userdb.so module.
-Conflicts: db4 >= %{db_conflicting_version}
 
 %description
 PAM (Pluggable Authentication Modules) is a system security tool that
@@ -95,16 +84,14 @@ contains header files and static libraries used for building both
 PAM-aware applications and modules for use with PAM.
 
 %prep
-%setup -q -n Linux-PAM-%{version} -a 2 -a 4
+%setup -q -n Linux-PAM-%{version} -a 2
 
 # Add custom modules.
 mv pam-redhat-%{pam_redhat_version}/* modules
 
 %patch1 -p1 -b .redhat-modules
-%patch4 -p1 -b .dbpam
 %patch5 -p1 -b .autoreconf
 %patch10 -p1 -b .screensaver
-%patch11 -p1 -b .restore-execcon
 %patch12 -p0 -b .env-params
 %patch21 -p1 -b .audit-failed
 %patch22 -p1 -b .prompts
@@ -115,48 +102,16 @@ mv pam-redhat-%{pam_redhat_version}/* modules
 autoreconf
 
 %build
-CFLAGS="-fPIC $RPM_OPT_FLAGS" ; export CFLAGS
-
-topdir=`pwd`/pam-instroot
-test -d ${topdir}         || mkdir ${topdir}
-test -d ${topdir}/include || mkdir ${topdir}/include
-test -d ${topdir}/%{_lib} || mkdir ${topdir}/%{_lib}
-
-pushd db-%{db_version}/build_unix
-echo db_cv_mutex=UNIX/fcntl > config.cache
-../dist/configure -C \
-	--disable-compat185 \
-	--disable-cxx \
-	--disable-diagnostic \
-	--disable-dump185 \
-	--disable-java \
-	--disable-rpc \
-	--disable-tcl \
-	--disable-shared \
-	--with-pic \
-	--with-uniquename=_pam \
-	--with-mutex="UNIX/fcntl" \
-	--prefix=${topdir} \
-	--includedir=${topdir}/include \
-	--libdir=${topdir}/%{_lib}
-make
-make install
-popd
-
-CPPFLAGS=-I${topdir}/include ; export CPPFLAGS
-export LIBNAME="%{_lib}"
-LDFLAGS=-L${topdir}/%{_lib} ; export LDFLAGS
 %configure \
 	--libdir=/%{_lib} \
 	--includedir=%{_includedir}/security \
-	--enable-isadir=../..%{_moduledir} \
 %if ! %{WITH_SELINUX}
 	--disable-selinux \
 %endif
 %if ! %{WITH_AUDIT}
 	--disable-audit \
 %endif
-	--with-db-uniquename=_pam
+	--enable-isadir=../..%{_moduledir}
 make
 # we do not use _smp_mflags because the build of sources in yacc/flex fails
 
@@ -240,14 +195,6 @@ for module in $RPM_BUILD_ROOT%{_moduledir}/pam*.so ; do
 	if ! env LD_LIBRARY_PATH=$RPM_BUILD_ROOT/%{_lib} \
 		 %{SOURCE8} -ldl -lpam -L$RPM_BUILD_ROOT/%{_libdir} ${module} ; then
 		echo ERROR module: ${module} cannot be loaded.
-		exit 1
-	fi
-# And for good measure, make sure that none of the modules pull in threading
-# libraries, which if loaded in a non-threaded application, can cause Very
-# Bad Things to happen.
-	if env LD_LIBRARY_PATH=$RPM_BUILD_ROOT/%{_lib} \
-	       LD_PRELOAD=$RPM_BUILD_ROOT%{_libdir}/libpam.so ldd -r ${module} | fgrep -q libpthread ; then
-		echo ERROR module: ${module} pulls threading libraries.
 		exit 1
 	fi
 done
@@ -380,6 +327,13 @@ fi
 %doc doc/adg/*.txt doc/adg/html
 
 %changelog
+* Mon Sep  8 2008 Tomas Mraz <tmraz@redhat.com> 1.0.2-1
+- pam_loginuid: uids are unsigned (#460241)
+- new minor upstream release
+- use external db4
+- drop tests for not pulling in libpthread (as NPTL should
+  be safe)
+
 * Wed Jul  9 2008 Tomas Mraz <tmraz@redhat.com> 1.0.1-5
 - update internal db4
 
