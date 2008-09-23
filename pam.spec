@@ -3,7 +3,7 @@
 Summary: A security tool which provides authentication for applications
 Name: pam
 Version: 1.0.2
-Release: 1%{?dist}
+Release: 2%{?dist}
 # The library is BSD licensed with option to relicense as GPLv2+ - this option is redundant
 # as the BSD license allows that anyway. pam_timestamp and pam_console modules are GPLv2+,
 # pam_rhosts_auth module is BSD with advertising
@@ -27,7 +27,11 @@ Patch21: pam-0.99.10.0-unix-audit-failed.patch
 Patch22: pam-1.0.1-unix-prompts.patch
 Patch31: pam-1.0.1-cracklib-try-first-pass.patch
 Patch32: pam-1.0.1-tally-fail-close.patch
+Patch33: pam-1.0.2-tally-fdleak.patch
 Patch41: pam-1.0.1-namespace-create.patch
+Patch42: pam-1.0.2-cracklib-pwquality.patch
+Patch43: pam-0.99.6.2-lastlog-failed.patch
+Patch44: pam-1.0.2-many-groups.patch
 
 %define _sbindir /sbin
 %define _moduledir /%{_lib}/security
@@ -97,7 +101,11 @@ mv pam-redhat-%{pam_redhat_version}/* modules
 %patch22 -p1 -b .prompts
 %patch31 -p1 -b .try-first-pass
 %patch32 -p1 -b .fail-close
+%patch33 -p1 -b .fdleak
 %patch41 -p1 -b .create
+%patch42 -p1 -b .pwquality
+%patch43 -p1 -b .failed
+%patch44 -p1 -b .many-groups
 
 autoreconf
 
@@ -327,6 +335,12 @@ fi
 %doc doc/adg/*.txt doc/adg/html
 
 %changelog
+* Tue Sep 23 2008 Tomas Mraz <tmraz@redhat.com> 1.0.2-2
+- new password quality checks in pam_cracklib
+- report failed logins from btmp in pam_lastlog
+- allow larger groups in modutil functions
+- fix leaked file descriptor in pam_tally
+
 * Mon Sep  8 2008 Tomas Mraz <tmraz@redhat.com> 1.0.2-1
 - pam_loginuid: uids are unsigned (#460241)
 - new minor upstream release

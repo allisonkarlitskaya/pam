@@ -1,0 +1,75 @@
+diff -up Linux-PAM-1.0.2/libpam/pam_modutil_getpwnam.c.many-groups Linux-PAM-1.0.2/libpam/pam_modutil_getpwnam.c
+--- Linux-PAM-1.0.2/libpam/pam_modutil_getpwnam.c.many-groups	2007-08-30 06:00:39.000000000 +0200
++++ Linux-PAM-1.0.2/libpam/pam_modutil_getpwnam.c	2008-09-23 15:59:46.000000000 +0200
+@@ -104,7 +104,7 @@ pam_modutil_getpwnam(pam_handle_t *pamh,
+                 break;
+         }
+ 	
+-	length <<= 2;
++	length <<= PWD_LENGTH_SHIFT;
+ 
+     } while (length < PWD_ABSURD_PWD_LENGTH);
+ 
+diff -up Linux-PAM-1.0.2/libpam/pam_modutil_getpwuid.c.many-groups Linux-PAM-1.0.2/libpam/pam_modutil_getpwuid.c
+--- Linux-PAM-1.0.2/libpam/pam_modutil_getpwuid.c.many-groups	2007-08-30 06:00:39.000000000 +0200
++++ Linux-PAM-1.0.2/libpam/pam_modutil_getpwuid.c	2008-09-23 15:59:59.000000000 +0200
+@@ -115,7 +115,7 @@ pam_modutil_getpwuid(pam_handle_t *pamh,
+                 break;
+         }
+ 	
+-	length <<= 2;
++	length <<= PWD_LENGTH_SHIFT;
+ 
+     } while (length < PWD_ABSURD_PWD_LENGTH);
+ 
+diff -up Linux-PAM-1.0.2/libpam/pam_modutil_getgrnam.c.many-groups Linux-PAM-1.0.2/libpam/pam_modutil_getgrnam.c
+--- Linux-PAM-1.0.2/libpam/pam_modutil_getgrnam.c.many-groups	2007-08-30 06:00:39.000000000 +0200
++++ Linux-PAM-1.0.2/libpam/pam_modutil_getgrnam.c	2008-09-23 15:59:29.000000000 +0200
+@@ -104,7 +104,7 @@ pam_modutil_getgrnam(pam_handle_t *pamh,
+                 break;
+         }
+ 	
+-	length <<= 2;
++	length <<= PWD_LENGTH_SHIFT;
+ 
+     } while (length < PWD_ABSURD_PWD_LENGTH);
+ 
+diff -up Linux-PAM-1.0.2/libpam/pam_modutil_getspnam.c.many-groups Linux-PAM-1.0.2/libpam/pam_modutil_getspnam.c
+--- Linux-PAM-1.0.2/libpam/pam_modutil_getspnam.c.many-groups	2007-08-30 06:00:39.000000000 +0200
++++ Linux-PAM-1.0.2/libpam/pam_modutil_getspnam.c	2008-09-23 16:00:11.000000000 +0200
+@@ -104,7 +104,7 @@ pam_modutil_getspnam(pam_handle_t *pamh,
+                 break;
+         }
+ 	
+-	length <<= 2;
++	length <<= PWD_LENGTH_SHIFT;
+ 
+     } while (length < PWD_ABSURD_PWD_LENGTH);
+ 
+diff -up Linux-PAM-1.0.2/libpam/pam_modutil_getgrgid.c.many-groups Linux-PAM-1.0.2/libpam/pam_modutil_getgrgid.c
+--- Linux-PAM-1.0.2/libpam/pam_modutil_getgrgid.c.many-groups	2007-08-30 06:00:39.000000000 +0200
++++ Linux-PAM-1.0.2/libpam/pam_modutil_getgrgid.c	2008-09-23 15:59:07.000000000 +0200
+@@ -115,7 +115,7 @@ pam_modutil_getgrgid(pam_handle_t *pamh,
+ 		break;
+ 	}
+ 	
+-	length <<= 2;
++	length <<= PWD_LENGTH_SHIFT;
+ 
+     } while (length < PWD_ABSURD_PWD_LENGTH);
+ 
+diff -up Linux-PAM-1.0.2/libpam/pam_modutil_private.h.many-groups Linux-PAM-1.0.2/libpam/pam_modutil_private.h
+--- Linux-PAM-1.0.2/libpam/pam_modutil_private.h.many-groups	2005-09-21 12:00:58.000000000 +0200
++++ Linux-PAM-1.0.2/libpam/pam_modutil_private.h	2008-09-23 16:00:30.000000000 +0200
+@@ -13,8 +13,9 @@
+ #include <security/pam_modules.h>
+ #include <security/pam_modutil.h>
+ 
+-#define PWD_INITIAL_LENGTH     0x100
+-#define PWD_ABSURD_PWD_LENGTH  0x8000
++#define PWD_INITIAL_LENGTH     0x400
++#define PWD_ABSURD_PWD_LENGTH  0x40001
++#define PWD_LENGTH_SHIFT 4 /* 2^4 == 16 */
+ 
+ extern void
+ pam_modutil_cleanup(pam_handle_t *pamh, void *data,
