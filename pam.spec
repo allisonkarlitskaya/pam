@@ -1,16 +1,16 @@
-%define pam_redhat_version 0.99.9-1
+%define pam_redhat_version 0.99.10-1
 
-Summary: A security tool which provides authentication for applications
+Summary: An extensible library which provides authentication for applications
 Name: pam
-Version: 1.0.2
-Release: 2%{?dist}
+Version: 1.0.90
+Release: 1%{?dist}
 # The library is BSD licensed with option to relicense as GPLv2+ - this option is redundant
 # as the BSD license allows that anyway. pam_timestamp and pam_console modules are GPLv2+,
 # pam_rhosts_auth module is BSD with advertising
 License: BSD and GPLv2+ and BSD with advertising
 Group: System Environment/Base
-Source0: http://ftp.us.kernel.org/pub/linux/libs/pam/library/Linux-PAM-%{version}.tar.bz2
-Source1: http://ftp.us.kernel.org/pub/linux/libs/pam/library/Linux-PAM-%{version}.tar.bz2.sign
+Source0: http://ftp.us.kernel.org/pub/linux/libs/pam/beta/Linux-PAM-%{version}.tar.bz2
+Source1: http://ftp.us.kernel.org/pub/linux/libs/pam/beta/Linux-PAM-%{version}.tar.bz2.sign
 Source2: https://fedorahosted.org/releases/p/a/pam-redhat/pam-redhat-%{pam_redhat_version}.tar.bz2
 Source5: other.pamd
 Source6: system-auth.pamd
@@ -19,19 +19,7 @@ Source8: dlopen.sh
 Source9: system-auth.5
 Source10: config-util.5
 Source11: 90-nproc.conf
-Patch1:  pam-0.99.7.0-redhat-modules.patch
-Patch5:  pam-1.0.1-autoreconf.patch
-Patch10: pam-1.0.0-sepermit-screensaver.patch
-Patch12: pam-1.0.0-selinux-env-params.patch
-Patch21: pam-0.99.10.0-unix-audit-failed.patch
-Patch22: pam-1.0.1-unix-prompts.patch
-Patch31: pam-1.0.1-cracklib-try-first-pass.patch
-Patch32: pam-1.0.1-tally-fail-close.patch
-Patch33: pam-1.0.2-tally-fdleak.patch
-Patch41: pam-1.0.1-namespace-create.patch
-Patch42: pam-1.0.2-cracklib-pwquality.patch
-Patch43: pam-0.99.6.2-lastlog-failed.patch
-Patch44: pam-1.0.2-many-groups.patch
+Patch1:  pam-1.0.90-redhat-modules.patch
 
 %define _sbindir /sbin
 %define _moduledir /%{_lib}/security
@@ -94,18 +82,6 @@ PAM-aware applications and modules for use with PAM.
 mv pam-redhat-%{pam_redhat_version}/* modules
 
 %patch1 -p1 -b .redhat-modules
-%patch5 -p1 -b .autoreconf
-%patch10 -p1 -b .screensaver
-%patch12 -p0 -b .env-params
-%patch21 -p1 -b .audit-failed
-%patch22 -p1 -b .prompts
-%patch31 -p1 -b .try-first-pass
-%patch32 -p1 -b .fail-close
-%patch33 -p1 -b .fdleak
-%patch41 -p1 -b .create
-%patch42 -p1 -b .pwquality
-%patch43 -p1 -b .failed
-%patch44 -p1 -b .many-groups
 
 autoreconf
 
@@ -113,6 +89,7 @@ autoreconf
 %configure \
 	--libdir=/%{_lib} \
 	--includedir=%{_includedir}/security \
+	--disable-prelude \
 %if ! %{WITH_SELINUX}
 	--disable-selinux \
 %endif
@@ -271,6 +248,7 @@ fi
 %{_moduledir}/pam_nologin.so
 %{_moduledir}/pam_permit.so
 %{_moduledir}/pam_postgresok.so
+%{_moduledir}/pam_pwhistory.so
 %{_moduledir}/pam_rhosts.so
 %{_moduledir}/pam_rootok.so
 %if %{WITH_SELINUX}
@@ -335,6 +313,10 @@ fi
 %doc doc/adg/*.txt doc/adg/html
 
 %changelog
+* Tue Dec 16 2008 Tomas Mraz <tmraz@redhat.com> 1.0.90-1
+- upgrade to new upstream release
+- add --disable-prelude (#466242)
+
 * Tue Sep 23 2008 Tomas Mraz <tmraz@redhat.com> 1.0.2-2
 - new password quality checks in pam_cracklib
 - report failed logins from btmp in pam_lastlog
