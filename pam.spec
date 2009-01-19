@@ -3,7 +3,7 @@
 Summary: An extensible library which provides authentication for applications
 Name: pam
 Version: 1.0.90
-Release: 1%{?dist}
+Release: 2%{?dist}
 # The library is BSD licensed with option to relicense as GPLv2+ - this option is redundant
 # as the BSD license allows that anyway. pam_timestamp and pam_console modules are GPLv2+,
 # pam_rhosts_auth module is BSD with advertising
@@ -20,6 +20,7 @@ Source9: system-auth.5
 Source10: config-util.5
 Source11: 90-nproc.conf
 Patch1:  pam-1.0.90-redhat-modules.patch
+Patch2:  pam-1.0.90-mkhomedir-helper.patch
 
 %define _sbindir /sbin
 %define _moduledir /%{_lib}/security
@@ -82,6 +83,7 @@ PAM-aware applications and modules for use with PAM.
 mv pam-redhat-%{pam_redhat_version}/* modules
 
 %patch1 -p1 -b .redhat-modules
+%patch2 -p1 -b .mkhomedir-helper
 
 autoreconf
 
@@ -217,6 +219,7 @@ fi
 %attr(4755,root,root) %{_sbindir}/pam_timestamp_check
 %attr(4755,root,root) %{_sbindir}/unix_chkpwd
 %attr(0700,root,root) %{_sbindir}/unix_update
+%attr(0755,root,root) %{_sbindir}/mkhomedir_helper
 %if %{_lib} != lib
 %dir /lib/security
 %endif
@@ -313,6 +316,9 @@ fi
 %doc doc/adg/*.txt doc/adg/html
 
 %changelog
+* Mon Jan 19 2009 Tomas Mraz <tmraz@redhat.com> 1.0.90-2
+- add helper to pam_mkhomedir for proper SELinux confinement (#476784)
+
 * Tue Dec 16 2008 Tomas Mraz <tmraz@redhat.com> 1.0.90-1
 - upgrade to new upstream release
 - add --disable-prelude (#466242)
