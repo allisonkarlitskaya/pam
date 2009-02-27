@@ -3,7 +3,7 @@
 Summary: An extensible library which provides authentication for applications
 Name: pam
 Version: 1.0.90
-Release: 3%{?dist}
+Release: 4%{?dist}
 # The library is BSD licensed with option to relicense as GPLv2+ - this option is redundant
 # as the BSD license allows that anyway. pam_timestamp and pam_console modules are GPLv2+,
 # pam_rhosts_auth module is BSD with advertising
@@ -21,6 +21,9 @@ Source10: config-util.5
 Source11: 90-nproc.conf
 Patch1:  pam-1.0.90-redhat-modules.patch
 Patch2:  pam-1.0.90-mkhomedir-helper.patch
+Patch3:  pam-1.0.90-unix-mindays.patch
+Patch4:  pam-1.0.90-access-no-resolve.patch
+Patch5:  pam-1.0.90-strtok-unsigned.patch
 
 %define _sbindir /sbin
 %define _moduledir /%{_lib}/security
@@ -84,6 +87,9 @@ mv pam-redhat-%{pam_redhat_version}/* modules
 
 %patch1 -p1 -b .redhat-modules
 %patch2 -p1 -b .mkhomedir-helper
+%patch3 -p0 -b .mindays
+%patch4 -p0 -b .no-resolve
+%patch5 -p0 -b .strtok-unsigned
 
 autoreconf
 
@@ -316,6 +322,11 @@ fi
 %doc doc/adg/*.txt doc/adg/html
 
 %changelog
+* Fri Feb 27 2009 Tomas Mraz <tmraz@redhat.com> 1.0.90-4
+- fix parsing of config files containing non-ASCII characters
+- fix CVE-2009-0579 (mininimum days for password change ignored) (#487216)
+- pam_access: improve handling of hostname resolution
+
 * Thu Feb 26 2009 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.0.90-3
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_11_Mass_Rebuild
 
