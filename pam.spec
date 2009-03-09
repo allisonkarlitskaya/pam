@@ -49,7 +49,6 @@ Requires: audit-libs >= 1.0.8
 BuildRequires: libselinux-devel >= 1.33.2
 Requires: libselinux >= 1.33.2
 %endif
-BuildRequires: glibc >= 2.3.90-37
 Requires: glibc >= 2.3.90-37
 BuildRequires: db4-devel
 # Following deps are necessary only to build the pam library documentation.
