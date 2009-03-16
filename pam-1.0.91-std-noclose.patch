@@ -1,0 +1,58 @@
+diff -up Linux-PAM-1.0.91/modules/pam_mkhomedir/pam_mkhomedir.c.std-noclose Linux-PAM-1.0.91/modules/pam_mkhomedir/pam_mkhomedir.c
+--- Linux-PAM-1.0.91/modules/pam_mkhomedir/pam_mkhomedir.c.std-noclose	2009-03-13 17:31:17.000000000 +0100
++++ Linux-PAM-1.0.91/modules/pam_mkhomedir/pam_mkhomedir.c	2009-03-13 17:31:02.000000000 +0100
+@@ -137,7 +137,7 @@ create_homedir (pam_handle_t *pamh, int 
+ 	if (getrlimit(RLIMIT_NOFILE, &rlim)==0) {
+           if (rlim.rlim_max >= MAX_FD_NO)
+                 rlim.rlim_max = MAX_FD_NO;
+-	  for (i=0; i < (int)rlim.rlim_max; i++) {
++	  for (i = STDERR_FILENO + 1; i < (int)rlim.rlim_max; i++) {
+ 	  	close(i);
+ 	  }
+ 	}
+diff -up Linux-PAM-1.0.91/modules/pam_unix/support.c.std-noclose Linux-PAM-1.0.91/modules/pam_unix/support.c
+--- Linux-PAM-1.0.91/modules/pam_unix/support.c.std-noclose	2009-03-03 14:56:01.000000000 +0100
++++ Linux-PAM-1.0.91/modules/pam_unix/support.c	2009-03-13 17:34:02.000000000 +0100
+@@ -447,9 +447,8 @@ static int _unix_run_helper_binary(pam_h
+ 	if (getrlimit(RLIMIT_NOFILE,&rlim)==0) {
+           if (rlim.rlim_max >= MAX_FD_NO)
+                 rlim.rlim_max = MAX_FD_NO;
+-	  for (i=0; i < (int)rlim.rlim_max; i++) {
+-		if (i != STDIN_FILENO)
+-	  	   close(i);
++	  for (i = STDERR_FILENO + 1; i < (int)rlim.rlim_max; i++) {
++	  	close(i);
+ 	  }
+ 	}
+ 
+diff -up Linux-PAM-1.0.91/modules/pam_unix/pam_unix_passwd.c.std-noclose Linux-PAM-1.0.91/modules/pam_unix/pam_unix_passwd.c
+--- Linux-PAM-1.0.91/modules/pam_unix/pam_unix_passwd.c.std-noclose	2009-03-03 14:56:01.000000000 +0100
++++ Linux-PAM-1.0.91/modules/pam_unix/pam_unix_passwd.c	2009-03-13 17:32:36.000000000 +0100
+@@ -179,9 +179,8 @@ static int _unix_run_update_binary(pam_h
+ 	if (getrlimit(RLIMIT_NOFILE,&rlim)==0) {
+ 	  if (rlim.rlim_max >= MAX_FD_NO)
+ 	    rlim.rlim_max = MAX_FD_NO;
+-	  for (i=0; i < (int)rlim.rlim_max; i++) {
+-	    if (i != STDIN_FILENO)
+-	  	   close(i);
++	  for (i = STDERR_FILENO + 1; i < (int)rlim.rlim_max; i++) {
++	    close(i);
+ 	  }
+ 	}
+ 
+diff -up Linux-PAM-1.0.91/modules/pam_unix/pam_unix_acct.c.std-noclose Linux-PAM-1.0.91/modules/pam_unix/pam_unix_acct.c
+--- Linux-PAM-1.0.91/modules/pam_unix/pam_unix_acct.c.std-noclose	2009-03-03 14:56:01.000000000 +0100
++++ Linux-PAM-1.0.91/modules/pam_unix/pam_unix_acct.c	2009-03-13 17:33:21.000000000 +0100
+@@ -106,10 +106,8 @@ int _unix_run_verify_binary(pam_handle_t
+     if (getrlimit(RLIMIT_NOFILE,&rlim)==0) {
+       if (rlim.rlim_max >= MAX_FD_NO)
+         rlim.rlim_max = MAX_FD_NO;
+-      for (i=0; i < (int)rlim.rlim_max; i++) {
+-	if (i != STDOUT_FILENO) {
+-	  close(i);
+-	}
++      for (i = STDERR_FILENO + 1; i < (int)rlim.rlim_max; i++) {
++	close(i);
+       }
+     }
+ 

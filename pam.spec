@@ -3,7 +3,7 @@
 Summary: An extensible library which provides authentication for applications
 Name: pam
 Version: 1.0.91
-Release: 1%{?dist}
+Release: 2%{?dist}
 # The library is BSD licensed with option to relicense as GPLv2+ - this option is redundant
 # as the BSD license allows that anyway. pam_timestamp and pam_console modules are GPLv2+,
 # pam_rhosts_auth module is BSD with advertising
@@ -20,6 +20,7 @@ Source9: system-auth.5
 Source10: config-util.5
 Source11: 90-nproc.conf
 Patch1:  pam-1.0.90-redhat-modules.patch
+Patch2:  pam-1.0.91-std-noclose.patch
 
 %define _sbindir /sbin
 %define _moduledir /%{_lib}/security
@@ -81,6 +82,7 @@ PAM-aware applications and modules for use with PAM.
 mv pam-redhat-%{pam_redhat_version}/* modules
 
 %patch1 -p1 -b .redhat-modules
+%patch2 -p1 -b .std-noclose
 
 autoreconf
 
@@ -313,6 +315,9 @@ fi
 %doc doc/adg/*.txt doc/adg/html
 
 %changelog
+* Mon Mar 16 2009 Tomas Mraz <tmraz@redhat.com> 1.0.91-2
+- do not close stdout/err when execing the helpers (#488147)
+
 * Mon Mar  9 2009 Tomas Mraz <tmraz@redhat.com> 1.0.91-1
 - upgrade to new upstream release
 
