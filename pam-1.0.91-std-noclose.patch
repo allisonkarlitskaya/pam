@@ -42,8 +42,17 @@ diff -up Linux-PAM-1.0.91/modules/pam_unix/pam_unix_passwd.c.std-noclose Linux-P
  
 diff -up Linux-PAM-1.0.91/modules/pam_unix/pam_unix_acct.c.std-noclose Linux-PAM-1.0.91/modules/pam_unix/pam_unix_acct.c
 --- Linux-PAM-1.0.91/modules/pam_unix/pam_unix_acct.c.std-noclose	2009-03-03 14:56:01.000000000 +0100
-+++ Linux-PAM-1.0.91/modules/pam_unix/pam_unix_acct.c	2009-03-13 17:33:21.000000000 +0100
-@@ -106,10 +106,8 @@ int _unix_run_verify_binary(pam_handle_t
++++ Linux-PAM-1.0.91/modules/pam_unix/pam_unix_acct.c	2009-03-17 15:08:51.000000000 +0100
+@@ -100,16 +100,17 @@ int _unix_run_verify_binary(pam_handle_t
+ 
+     /* reopen stdout as pipe */
+     dup2(fds[1], STDOUT_FILENO);
++    /* and replace also the stdin so we do not exec the helper with
++       tty as stdin, it will not read anything from there anyway */
++    dup2(fds[0], STDIN_FILENO);
+ 
+     /* XXX - should really tidy up PAM here too */
+ 
      if (getrlimit(RLIMIT_NOFILE,&rlim)==0) {
        if (rlim.rlim_max >= MAX_FD_NO)
          rlim.rlim_max = MAX_FD_NO;

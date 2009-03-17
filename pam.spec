@@ -3,7 +3,7 @@
 Summary: An extensible library which provides authentication for applications
 Name: pam
 Version: 1.0.91
-Release: 2%{?dist}
+Release: 3%{?dist}
 # The library is BSD licensed with option to relicense as GPLv2+ - this option is redundant
 # as the BSD license allows that anyway. pam_timestamp and pam_console modules are GPLv2+,
 # pam_rhosts_auth module is BSD with advertising
@@ -315,6 +315,9 @@ fi
 %doc doc/adg/*.txt doc/adg/html
 
 %changelog
+* Tue Mar 16 2009 Tomas Mraz <tmraz@redhat.com> 1.0.91-3
+- we must replace the stdin when execing the helper (#490644)
+
 * Mon Mar 16 2009 Tomas Mraz <tmraz@redhat.com> 1.0.91-2
 - do not close stdout/err when execing the helpers (#488147)
 
