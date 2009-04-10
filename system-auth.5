@@ -1,24 +1,36 @@
-.TH SYSTEM-AUTH 5 "2006 Feb 3" "Red Hat" "Linux-PAM Manual"
+.TH SYSTEM-AUTH 5 "2009 Apr 10" "Red Hat" "Linux-PAM Manual"
 .SH NAME
 
 system-auth \- Common configuration file for PAMified services
 
 .SH SYNOPSIS
 .B /etc/pam.d/system-auth
+.B /etc/pam.d/password-auth
+.B /etc/pam.d/fingerprint-auth
+.B /etc/pam.d/smartcard-auth
 .sp 2
 .SH DESCRIPTION
 
-The purpose of this configuration file is to provide common 
-configuration file for all applications and service daemons
-calling PAM library.
+The purpose of these configuration files are to provide a common
+interface for all applications and service daemons calling into
+the PAM library.
 
 .sp
 The
 .BR system-auth
-configuration file is included from all individual service configuration
+configuration file is included from nearly all individual service configuration
 files with the help of the
 .BR include
 directive.
+
+.sp
+The
+.BR password-auth
+.BR fingerprint-auth
+.BR smartcard-auth
+configuration files are for applications which handle authentication from
+different types of devices via simultaneously running individual conversations
+instead of one aggregate conversation.
 
 .SH NOTES
 There should be no

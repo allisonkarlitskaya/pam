@@ -3,7 +3,7 @@
 Summary: An extensible library which provides authentication for applications
 Name: pam
 Version: 1.0.91
-Release: 5%{?dist}
+Release: 6%{?dist}
 # The library is BSD licensed with option to relicense as GPLv2+ - this option is redundant
 # as the BSD license allows that anyway. pam_timestamp and pam_console modules are GPLv2+,
 # pam_rhosts_auth module is BSD with advertising
@@ -14,11 +14,14 @@ Source1: http://ftp.us.kernel.org/pub/linux/libs/pam/beta/Linux-PAM-%{version}.t
 Source2: https://fedorahosted.org/releases/p/a/pam-redhat/pam-redhat-%{pam_redhat_version}.tar.bz2
 Source5: other.pamd
 Source6: system-auth.pamd
-Source7: config-util.pamd
-Source8: dlopen.sh
-Source9: system-auth.5
-Source10: config-util.5
-Source11: 90-nproc.conf
+Source7: password-auth.pamd
+Source8: fingerprint-auth.pamd
+Source9: smartcard-auth.pamd
+Source10: config-util.pamd
+Source11: dlopen.sh
+Source12: system-auth.5
+Source13: config-util.5
+Source14: 90-nproc.conf
 Patch1:  pam-1.0.90-redhat-modules.patch
 Patch2:  pam-1.0.91-std-noclose.patch
 
@@ -84,6 +87,7 @@ mv pam-redhat-%{pam_redhat_version}/* modules
 %patch1 -p1 -b .redhat-modules
 %patch2 -p1 -b .std-noclose
 
+libtoolize -f
 autoreconf
 
 %build
@@ -126,15 +130,18 @@ rm -f $RPM_BUILD_ROOT%{_sysconfdir}/environment
 install -d -m 755 $RPM_BUILD_ROOT%{_pamconfdir}
 install -m 644 %{SOURCE5} $RPM_BUILD_ROOT%{_pamconfdir}/other
 install -m 644 %{SOURCE6} $RPM_BUILD_ROOT%{_pamconfdir}/system-auth
-install -m 644 %{SOURCE7} $RPM_BUILD_ROOT%{_pamconfdir}/config-util
-install -m 644 %{SOURCE11} $RPM_BUILD_ROOT%{_secconfdir}/limits.d/90-nproc.conf
+install -m 644 %{SOURCE7} $RPM_BUILD_ROOT%{_pamconfdir}/password-auth
+install -m 644 %{SOURCE8} $RPM_BUILD_ROOT%{_pamconfdir}/fingerprint-auth
+install -m 644 %{SOURCE9} $RPM_BUILD_ROOT%{_pamconfdir}/smartcard-auth
+install -m 644 %{SOURCE10} $RPM_BUILD_ROOT%{_pamconfdir}/config-util
+install -m 644 %{SOURCE14} $RPM_BUILD_ROOT%{_secconfdir}/limits.d/90-nproc.conf
 install -m 600 /dev/null $RPM_BUILD_ROOT%{_secconfdir}/opasswd
 install -d -m 755 $RPM_BUILD_ROOT/var/log
 install -m 600 /dev/null $RPM_BUILD_ROOT/var/log/faillog
 install -m 600 /dev/null $RPM_BUILD_ROOT/var/log/tallylog
 
 # Install man pages.
-install -m 644 %{SOURCE9} %{SOURCE10} $RPM_BUILD_ROOT%{_mandir}/man5/
+install -m 644 %{SOURCE12} %{SOURCE13} $RPM_BUILD_ROOT%{_mandir}/man5/
 
 for phase in auth acct passwd session ; do
 	ln -sf pam_unix.so $RPM_BUILD_ROOT%{_moduledir}/pam_unix_${phase}.so 
@@ -179,7 +186,7 @@ done
 /sbin/ldconfig -n $RPM_BUILD_ROOT/%{_lib}
 for module in $RPM_BUILD_ROOT%{_moduledir}/pam*.so ; do
 	if ! env LD_LIBRARY_PATH=$RPM_BUILD_ROOT/%{_lib} \
-		 %{SOURCE8} -ldl -lpam -L$RPM_BUILD_ROOT/%{_libdir} ${module} ; then
+		 %{SOURCE11} -ldl -lpam -L$RPM_BUILD_ROOT/%{_libdir} ${module} ; then
 		echo ERROR module: ${module} cannot be loaded.
 		exit 1
 	fi
@@ -204,6 +211,9 @@ fi
 %dir %{_pamconfdir}
 %config(noreplace) %{_pamconfdir}/other
 %config(noreplace) %{_pamconfdir}/system-auth
+%config(noreplace) %{_pamconfdir}/password-auth
+%config(noreplace) %{_pamconfdir}/fingerprint-auth
+%config(noreplace) %{_pamconfdir}/smartcard-auth
 %config(noreplace) %{_pamconfdir}/config-util
 %doc Copyright
 %doc doc/txts
@@ -315,6 +325,11 @@ fi
 %doc doc/adg/*.txt doc/adg/html
 
 %changelog
+* Fri Apr 10 2009 Tomas Mraz <tmraz@redhat.com> 1.0.91-6
+- add password-auth, fingerprint-auth, and smartcard-auth
+  for applications which can use them namely gdm (#494874)
+  patch by Ray Strode
+
 * Thu Mar 26 2009 Tomas Mraz <tmraz@redhat.com> 1.0.91-5
 - replace also other std descriptors (#491471)
 
