@@ -2,8 +2,8 @@
 
 Summary: An extensible library which provides authentication for applications
 Name: pam
-Version: 1.0.91
-Release: 6%{?dist}
+Version: 1.0.92
+Release: 1%{?dist}
 # The library is BSD licensed with option to relicense as GPLv2+ - this option is redundant
 # as the BSD license allows that anyway. pam_timestamp and pam_console modules are GPLv2+,
 # pam_rhosts_auth module is BSD with advertising
@@ -325,6 +325,9 @@ fi
 %doc doc/adg/*.txt doc/adg/html
 
 %changelog
+* Wed May 13 2009 Tomas Mraz <tmraz@redhat.com> 1.0.92-1
+- update to new upstream version
+
 * Fri Apr 10 2009 Tomas Mraz <tmraz@redhat.com> 1.0.91-6
 - add password-auth, fingerprint-auth, and smartcard-auth
   for applications which can use them namely gdm (#494874)
