@@ -3,7 +3,7 @@
 Summary: An extensible library which provides authentication for applications
 Name: pam
 Version: 1.1.0
-Release: 2%{?dist}
+Release: 3%{?dist}
 # The library is BSD licensed with option to relicense as GPLv2+ - this option is redundant
 # as the BSD license allows that anyway. pam_timestamp and pam_console modules are GPLv2+,
 # pam_rhosts_auth module is BSD with advertising
@@ -24,6 +24,7 @@ Source13: config-util.5
 Source14: 90-nproc.conf
 Patch1:  pam-1.0.90-redhat-modules.patch
 Patch2:  pam-1.0.91-std-noclose.patch
+Patch3:  pam-1.1.0-cracklib-authtok.patch
 
 %define _sbindir /sbin
 %define _moduledir /%{_lib}/security
@@ -86,6 +87,7 @@ mv pam-redhat-%{pam_redhat_version}/* modules
 
 %patch1 -p1 -b .redhat-modules
 %patch2 -p1 -b .std-noclose
+%patch3 -p1 -b .authtok
 
 libtoolize -f
 autoreconf
@@ -325,6 +327,9 @@ fi
 %doc doc/adg/*.txt doc/adg/html
 
 %changelog
+* Mon Jul 27 2009 Tomas Mraz <tmraz@redhat.com> 1.1.0-3
+- fix for pam_cracklib from upstream
+
 * Sat Jul 25 2009 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.1.0-2
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_12_Mass_Rebuild
 
