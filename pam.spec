@@ -9,8 +9,8 @@ Release: 3%{?dist}
 # pam_rhosts_auth module is BSD with advertising
 License: BSD and GPLv2+ and BSD with advertising
 Group: System Environment/Base
-Source0: http://ftp.us.kernel.org/pub/linux/libs/pam/beta/Linux-PAM-%{version}.tar.bz2
-Source1: http://ftp.us.kernel.org/pub/linux/libs/pam/beta/Linux-PAM-%{version}.tar.bz2.sign
+Source0: http://ftp.us.kernel.org/pub/linux/libs/pam/library/Linux-PAM-%{version}.tar.bz2
+Source1: http://ftp.us.kernel.org/pub/linux/libs/pam/library/Linux-PAM-%{version}.tar.bz2.sign
 Source2: https://fedorahosted.org/releases/p/a/pam-redhat/pam-redhat-%{pam_redhat_version}.tar.bz2
 Source5: other.pamd
 Source6: system-auth.pamd
