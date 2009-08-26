@@ -6,8 +6,7 @@ Version: 1.1.0
 Release: 4%{?dist}
 # The library is BSD licensed with option to relicense as GPLv2+ - this option is redundant
 # as the BSD license allows that anyway. pam_timestamp and pam_console modules are GPLv2+,
-# pam_rhosts_auth module is BSD with advertising
-License: BSD and GPLv2+ and BSD with advertising
+License: BSD and GPLv2+
 Group: System Environment/Base
 Source0: http://ftp.us.kernel.org/pub/linux/libs/pam/library/Linux-PAM-%{version}.tar.bz2
 Source1: http://ftp.us.kernel.org/pub/linux/libs/pam/library/Linux-PAM-%{version}.tar.bz2.sign
