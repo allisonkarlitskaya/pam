@@ -3,7 +3,7 @@
 Summary: An extensible library which provides authentication for applications
 Name: pam
 Version: 1.1.0
-Release: 4%{?dist}
+Release: 5%{?dist}
 # The library is BSD licensed with option to relicense as GPLv2+ - this option is redundant
 # as the BSD license allows that anyway. pam_timestamp and pam_console modules are GPLv2+,
 License: BSD and GPLv2+
@@ -24,6 +24,8 @@ Source14: 90-nproc.conf
 Patch1:  pam-1.0.90-redhat-modules.patch
 Patch2:  pam-1.0.91-std-noclose.patch
 Patch3:  pam-1.1.0-cracklib-authtok.patch
+Patch4:  pam-1.1.0-console-nochmod.patch
+Patch5:  pam-1.1.0-notally.patch
 
 %define _sbindir /sbin
 %define _moduledir /%{_lib}/security
@@ -87,6 +89,8 @@ mv pam-redhat-%{pam_redhat_version}/* modules
 %patch1 -p1 -b .redhat-modules
 %patch2 -p1 -b .std-noclose
 %patch3 -p1 -b .authtok
+%patch4 -p1 -b .nochmod
+%patch5 -p1 -b .notally
 
 libtoolize -f
 autoreconf
@@ -138,7 +142,6 @@ install -m 644 %{SOURCE10} $RPM_BUILD_ROOT%{_pamconfdir}/config-util
 install -m 644 %{SOURCE14} $RPM_BUILD_ROOT%{_secconfdir}/limits.d/90-nproc.conf
 install -m 600 /dev/null $RPM_BUILD_ROOT%{_secconfdir}/opasswd
 install -d -m 755 $RPM_BUILD_ROOT/var/log
-install -m 600 /dev/null $RPM_BUILD_ROOT/var/log/faillog
 install -m 600 /dev/null $RPM_BUILD_ROOT/var/log/tallylog
 
 # Install man pages.
@@ -174,7 +177,8 @@ for dir in modules/pam_* ; do
 if [ -d ${dir} ] ; then
 %if ! %{WITH_SELINUX}
         [ ${dir} = "modules/pam_selinux" ] && continue
-%endif	
+%endif
+	[ ${dir} = "modules/pam_tally" ] && continue
 	if ! ls -1 $RPM_BUILD_ROOT%{_moduledir}/`basename ${dir}`*.so ; then
 		echo ERROR `basename ${dir}` did not build a module.
 		exit 1
@@ -198,9 +202,6 @@ rm -rf $RPM_BUILD_ROOT
 
 %post
 /sbin/ldconfig
-if [ ! -a /var/log/faillog ] ; then
-	install -m 600 /dev/null /var/log/faillog
-fi
 if [ ! -a /var/log/tallylog ] ; then
 	install -m 600 /dev/null /var/log/tallylog
 fi
@@ -224,7 +225,6 @@ fi
 /%{_lib}/libpamc.so.*
 /%{_lib}/libpam_misc.so.*
 %{_sbindir}/pam_console_apply
-%{_sbindir}/pam_tally
 %{_sbindir}/pam_tally2
 %attr(4755,root,root) %{_sbindir}/pam_timestamp_check
 %attr(4755,root,root) %{_sbindir}/unix_chkpwd
@@ -273,7 +273,6 @@ fi
 %{_moduledir}/pam_shells.so
 %{_moduledir}/pam_stress.so
 %{_moduledir}/pam_succeed_if.so
-%{_moduledir}/pam_tally.so
 %{_moduledir}/pam_tally2.so
 %{_moduledir}/pam_time.so
 %{_moduledir}/pam_timestamp.so
@@ -307,10 +306,8 @@ fi
 %config(noreplace) %{_secconfdir}/opasswd
 %dir %{_secconfdir}/console.apps
 %dir %{_secconfdir}/console.perms.d
-%config %{_secconfdir}/console.perms.d/50-default.perms
 %dir /var/run/console
 %dir /var/run/sepermit
-%ghost %verify(not md5 size mtime) /var/log/faillog
 %ghost %verify(not md5 size mtime) /var/log/tallylog
 %{_mandir}/man5/*
 %{_mandir}/man8/*
@@ -326,6 +323,10 @@ fi
 %doc doc/adg/*.txt doc/adg/html
 
 %changelog
+* Tue Sep  1 2009 Tomas Mraz <tmraz@redhat.com> 1.1.0-5
+- do not change permissions with pam_console_apply
+- drop obsolete pam_tally module and the faillog file (#461258)
+
 * Wed Aug 19 2009 Tomas Mraz <tmraz@redhat.com> 1.1.0-4
 - rebuild with new libaudit
 
