@@ -3,7 +3,7 @@
 Summary: An extensible library which provides authentication for applications
 Name: pam
 Version: 1.1.0
-Release: 5%{?dist}
+Release: 6%{?dist}
 # The library is BSD licensed with option to relicense as GPLv2+ - this option is redundant
 # as the BSD license allows that anyway. pam_timestamp and pam_console modules are GPLv2+,
 License: BSD and GPLv2+
@@ -26,6 +26,7 @@ Patch2:  pam-1.0.91-std-noclose.patch
 Patch3:  pam-1.1.0-cracklib-authtok.patch
 Patch4:  pam-1.1.0-console-nochmod.patch
 Patch5:  pam-1.1.0-notally.patch
+Patch6:  pam-1.1.0-xauth-context.patch
 
 %define _sbindir /sbin
 %define _moduledir /%{_lib}/security
@@ -91,6 +92,7 @@ mv pam-redhat-%{pam_redhat_version}/* modules
 %patch3 -p1 -b .authtok
 %patch4 -p1 -b .nochmod
 %patch5 -p1 -b .notally
+%patch6 -p1 -b .xauth-context
 
 libtoolize -f
 autoreconf
@@ -323,6 +325,9 @@ fi
 %doc doc/adg/*.txt doc/adg/html
 
 %changelog
+* Thu Oct 29 2009 Tomas Mraz <tmraz@redhat.com> 1.1.0-6
+- pam_xauth: set the approprate context when creating .xauth files (#531530)
+
 * Tue Sep  1 2009 Tomas Mraz <tmraz@redhat.com> 1.1.0-5
 - do not change permissions with pam_console_apply
 - drop obsolete pam_tally module and the faillog file (#461258)
