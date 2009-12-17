@@ -2,8 +2,8 @@
 
 Summary: An extensible library which provides authentication for applications
 Name: pam
-Version: 1.1.0
-Release: 7%{?dist}
+Version: 1.1.1
+Release: 1%{?dist}
 # The library is BSD licensed with option to relicense as GPLv2+ - this option is redundant
 # as the BSD license allows that anyway. pam_timestamp and pam_console modules are GPLv2+,
 License: BSD and GPLv2+
@@ -23,10 +23,8 @@ Source13: config-util.5
 Source14: 90-nproc.conf
 Patch1:  pam-1.0.90-redhat-modules.patch
 Patch2:  pam-1.0.91-std-noclose.patch
-Patch3:  pam-1.1.0-cracklib-authtok.patch
 Patch4:  pam-1.1.0-console-nochmod.patch
 Patch5:  pam-1.1.0-notally.patch
-Patch6:  pam-1.1.0-xauth-context.patch
 Patch7:  pam-1.1.0-console-fixes.patch
 
 %define _sbindir /sbin
@@ -90,10 +88,8 @@ mv pam-redhat-%{pam_redhat_version}/* modules
 
 %patch1 -p1 -b .redhat-modules
 %patch2 -p1 -b .std-noclose
-%patch3 -p1 -b .authtok
 %patch4 -p1 -b .nochmod
 %patch5 -p1 -b .notally
-%patch6 -p1 -b .xauth-context
 %patch7 -p1 -b .console-fixes
 
 libtoolize -f
@@ -180,7 +176,7 @@ install -m755 -d $RPM_BUILD_ROOT/lib/security
 for dir in modules/pam_* ; do
 if [ -d ${dir} ] ; then
 %if ! %{WITH_SELINUX}
-        [ ${dir} = "modules/pam_selinux" ] && continue
+	[ ${dir} = "modules/pam_selinux" ] && continue
 %endif
 	[ ${dir} = "modules/pam_tally" ] && continue
 	if ! ls -1 $RPM_BUILD_ROOT%{_moduledir}/`basename ${dir}`*.so ; then
@@ -327,6 +323,9 @@ fi
 %doc doc/adg/*.txt doc/adg/html
 
 %changelog
+* Thu Dec 17 2009 Tomas Mraz <tmraz@redhat.com> 1.1.1-1
+- new upstream version with minor changes
+
 * Mon Nov  2 2009 Tomas Mraz <tmraz@redhat.com> 1.1.0-7
 - pam_console: fix memory corruption when executing handlers (patch by
   Stas Sergeev) and a few more fixes in the handler execution code (#532302)
