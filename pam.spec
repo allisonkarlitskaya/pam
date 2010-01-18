@@ -3,7 +3,7 @@
 Summary: An extensible library which provides authentication for applications
 Name: pam
 Version: 1.1.1
-Release: 1%{?dist}
+Release: 2%{?dist}
 # The library is BSD licensed with option to relicense as GPLv2+ - this option is redundant
 # as the BSD license allows that anyway. pam_timestamp and pam_console modules are GPLv2+,
 License: BSD and GPLv2+
@@ -177,6 +177,10 @@ for dir in modules/pam_* ; do
 if [ -d ${dir} ] ; then
 %if ! %{WITH_SELINUX}
 	[ ${dir} = "modules/pam_selinux" ] && continue
+	[ ${dir} = "modules/pam_sepermit" ] && continue
+%endif
+%if ! %{WITH_AUDIT}
+	[ ${dir} = "modules/pam_tty_audit" ] && continue
 %endif
 	[ ${dir} = "modules/pam_tally" ] && continue
 	if ! ls -1 $RPM_BUILD_ROOT%{_moduledir}/`basename ${dir}`*.so ; then
@@ -276,7 +280,9 @@ fi
 %{_moduledir}/pam_tally2.so
 %{_moduledir}/pam_time.so
 %{_moduledir}/pam_timestamp.so
+%if %{WITH_AUDIT}
 %{_moduledir}/pam_tty_audit.so
+%endif
 %{_moduledir}/pam_umask.so
 %{_moduledir}/pam_unix.so
 %{_moduledir}/pam_unix_acct.so
@@ -301,13 +307,15 @@ fi
 %dir %{_secconfdir}/namespace.d
 %attr(755,root,root) %config(noreplace) %{_secconfdir}/namespace.init
 %config(noreplace) %{_secconfdir}/pam_env.conf
-%config(noreplace) %{_secconfdir}/sepermit.conf
 %config(noreplace) %{_secconfdir}/time.conf
 %config(noreplace) %{_secconfdir}/opasswd
 %dir %{_secconfdir}/console.apps
 %dir %{_secconfdir}/console.perms.d
 %dir /var/run/console
+%if %{WITH_SELINUX}
+%config(noreplace) %{_secconfdir}/sepermit.conf
 %dir /var/run/sepermit
+%endif
 %ghost %verify(not md5 size mtime) /var/log/tallylog
 %{_mandir}/man5/*
 %{_mandir}/man8/*
@@ -323,6 +331,9 @@ fi
 %doc doc/adg/*.txt doc/adg/html
 
 %changelog
+* Mon Jan 18 2010 Tomas Mraz <tmraz@redhat.com> 1.1.1-2
+- fix build with disabled audit and SELinux (#556211, #556212)
+
 * Thu Dec 17 2009 Tomas Mraz <tmraz@redhat.com> 1.1.1-1
 - new upstream version with minor changes
 
