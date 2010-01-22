@@ -3,7 +3,7 @@
 Summary: An extensible library which provides authentication for applications
 Name: pam
 Version: 1.1.1
-Release: 2%{?dist}
+Release: 3%{?dist}
 # The library is BSD licensed with option to relicense as GPLv2+ - this option is redundant
 # as the BSD license allows that anyway. pam_timestamp and pam_console modules are GPLv2+,
 License: BSD and GPLv2+
@@ -26,6 +26,7 @@ Patch2:  pam-1.0.91-std-noclose.patch
 Patch4:  pam-1.1.0-console-nochmod.patch
 Patch5:  pam-1.1.0-notally.patch
 Patch7:  pam-1.1.0-console-fixes.patch
+Patch8:  pam-1.1.1-authtok-prompt.patch
 
 %define _sbindir /sbin
 %define _moduledir /%{_lib}/security
@@ -91,6 +92,7 @@ mv pam-redhat-%{pam_redhat_version}/* modules
 %patch4 -p1 -b .nochmod
 %patch5 -p1 -b .notally
 %patch7 -p1 -b .console-fixes
+%patch8 -p0 -b .prompt
 
 libtoolize -f
 autoreconf
@@ -331,6 +333,9 @@ fi
 %doc doc/adg/*.txt doc/adg/html
 
 %changelog
+* Fri Jan 22 2010 Tomas Mraz <tmraz@redhat.com> 1.1.1-3
+- fix wrong prompt when pam_get_authtok is used for new password
+
 * Mon Jan 18 2010 Tomas Mraz <tmraz@redhat.com> 1.1.1-2
 - fix build with disabled audit and SELinux (#556211, #556212)
 
