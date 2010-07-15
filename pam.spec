@@ -3,7 +3,7 @@
 Summary: An extensible library which provides authentication for applications
 Name: pam
 Version: 1.1.1
-Release: 4%{?dist}
+Release: 5%{?dist}
 # The library is BSD licensed with option to relicense as GPLv2+ - this option is redundant
 # as the BSD license allows that anyway. pam_timestamp and pam_console modules are GPLv2+,
 License: BSD and GPLv2+
@@ -208,7 +208,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %post
 /sbin/ldconfig
-if [ ! -a /var/log/tallylog ] ; then
+if [ ! -e /var/log/tallylog ] ; then
 	install -m 600 /dev/null /var/log/tallylog
 fi
 
@@ -333,6 +333,9 @@ fi
 %doc doc/adg/*.txt doc/adg/html
 
 %changelog
+* Thu Jul 15 2010 Tomas Mraz <tmraz@redhat.com> 1.1.1-5
+- do not overwrite tallylog with empty file on upgrade
+
 * Mon Feb 15 2010 Tomas Mraz <tmraz@redhat.com> 1.1.1-4
 - change the default password hash to sha512
 
