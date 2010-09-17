@@ -2,8 +2,8 @@
 
 Summary: An extensible library which provides authentication for applications
 Name: pam
-Version: 1.1.1
-Release: 5%{?dist}
+Version: 1.1.2
+Release: 1%{?dist}
 # The library is BSD licensed with option to relicense as GPLv2+ - this option is redundant
 # as the BSD license allows that anyway. pam_timestamp and pam_console modules are GPLv2+,
 License: BSD and GPLv2+
@@ -26,7 +26,7 @@ Patch2:  pam-1.0.91-std-noclose.patch
 Patch4:  pam-1.1.0-console-nochmod.patch
 Patch5:  pam-1.1.0-notally.patch
 Patch7:  pam-1.1.0-console-fixes.patch
-Patch8:  pam-1.1.1-authtok-prompt.patch
+Patch8:  pam-1.1.1-faillock.patch
 
 %define _sbindir /sbin
 %define _moduledir /%{_lib}/security
@@ -92,7 +92,7 @@ mv pam-redhat-%{pam_redhat_version}/* modules
 %patch4 -p1 -b .nochmod
 %patch5 -p1 -b .notally
 %patch7 -p1 -b .console-fixes
-%patch8 -p0 -b .prompt
+%patch8 -p1 -b .faillock
 
 libtoolize -f
 autoreconf
@@ -145,6 +145,7 @@ install -m 644 %{SOURCE14} $RPM_BUILD_ROOT%{_secconfdir}/limits.d/90-nproc.conf
 install -m 600 /dev/null $RPM_BUILD_ROOT%{_secconfdir}/opasswd
 install -d -m 755 $RPM_BUILD_ROOT/var/log
 install -m 600 /dev/null $RPM_BUILD_ROOT/var/log/tallylog
+install -d -m 755 $RPM_BUILD_ROOT/var/run/faillock
 
 # Install man pages.
 install -m 644 %{SOURCE12} %{SOURCE13} $RPM_BUILD_ROOT%{_mandir}/man5/
@@ -232,6 +233,7 @@ fi
 /%{_lib}/libpam_misc.so.*
 %{_sbindir}/pam_console_apply
 %{_sbindir}/pam_tally2
+%{_sbindir}/faillock
 %attr(4755,root,root) %{_sbindir}/pam_timestamp_check
 %attr(4755,root,root) %{_sbindir}/unix_chkpwd
 %attr(0700,root,root) %{_sbindir}/unix_update
@@ -250,6 +252,7 @@ fi
 %{_moduledir}/pam_env.so
 %{_moduledir}/pam_exec.so
 %{_moduledir}/pam_faildelay.so
+%{_moduledir}/pam_faillock.so
 %{_moduledir}/pam_filter.so
 %{_moduledir}/pam_ftp.so
 %{_moduledir}/pam_group.so
@@ -319,6 +322,7 @@ fi
 %dir /var/run/sepermit
 %endif
 %ghost %verify(not md5 size mtime) /var/log/tallylog
+%dir /var/run/faillock
 %{_mandir}/man5/*
 %{_mandir}/man8/*
 
@@ -333,6 +337,11 @@ fi
 %doc doc/adg/*.txt doc/adg/html
 
 %changelog
+* Fri Sep 17 2010 Tomas Mraz <tmraz@redhat.com> 1.1.2-1
+- add pam_faillock module implementing temporary account lock out based
+  on authentication failures during a specified interval
+- upgrade to new upstream release
+
 * Thu Jul 15 2010 Tomas Mraz <tmraz@redhat.com> 1.1.1-5
 - do not overwrite tallylog with empty file on upgrade
 
