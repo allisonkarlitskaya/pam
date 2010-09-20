@@ -27,6 +27,7 @@ Patch4:  pam-1.1.0-console-nochmod.patch
 Patch5:  pam-1.1.0-notally.patch
 Patch7:  pam-1.1.0-console-fixes.patch
 Patch8:  pam-1.1.1-faillock.patch
+Patch9:  pam-1.1.2-noflex.patch
 
 %define _sbindir /sbin
 %define _moduledir /%{_lib}/security
@@ -93,6 +94,7 @@ mv pam-redhat-%{pam_redhat_version}/* modules
 %patch5 -p1 -b .notally
 %patch7 -p1 -b .console-fixes
 %patch8 -p1 -b .faillock
+%patch9 -p1 -b .noflex
 
 libtoolize -f
 autoreconf
@@ -337,9 +339,11 @@ fi
 %doc doc/adg/*.txt doc/adg/html
 
 %changelog
-* Fri Sep 17 2010 Tomas Mraz <tmraz@redhat.com> 1.1.2-1
+* Mon Sep 20 2010 Tomas Mraz <tmraz@redhat.com> 1.1.2-1
 - add pam_faillock module implementing temporary account lock out based
   on authentication failures during a specified interval
+- do not build some auxiliary tools that are not installed that require
+  flex-static to build
 - upgrade to new upstream release
 
 * Thu Jul 15 2010 Tomas Mraz <tmraz@redhat.com> 1.1.1-5
