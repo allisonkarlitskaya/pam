@@ -349,6 +349,9 @@ fi
 - try to connect to an abstract X-socket first to verify we are
   at real console (#647191)
 
+* Wed Sep 29 2010 jkeating - 1.1.2-2
+- Rebuilt for gcc bug 634757
+
 * Mon Sep 20 2010 Tomas Mraz <tmraz@redhat.com> 1.1.2-1
 - add pam_faillock module implementing temporary account lock out based
   on authentication failures during a specified interval
