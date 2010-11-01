@@ -2,7 +2,7 @@
 
 Summary: An extensible library which provides authentication for applications
 Name: pam
-Version: 1.1.2
+Version: 1.1.3
 Release: 1%{?dist}
 # The library is BSD licensed with option to relicense as GPLv2+ - this option is redundant
 # as the BSD license allows that anyway. pam_timestamp and pam_console modules are GPLv2+,
@@ -28,6 +28,8 @@ Patch5:  pam-1.1.0-notally.patch
 Patch7:  pam-1.1.0-console-fixes.patch
 Patch8:  pam-1.1.1-faillock.patch
 Patch9:  pam-1.1.2-noflex.patch
+Patch10: pam-1.1.3-nouserenv.patch
+Patch11: pam-1.1.3-console-abstract.patch
 
 %define _sbindir /sbin
 %define _moduledir /%{_lib}/security
@@ -95,6 +97,8 @@ mv pam-redhat-%{pam_redhat_version}/* modules
 %patch7 -p1 -b .console-fixes
 %patch8 -p1 -b .faillock
 %patch9 -p1 -b .noflex
+%patch10 -p1 -b .nouserenv
+%patch11 -p1 -b .abstract
 
 libtoolize -f
 autoreconf
@@ -339,6 +343,12 @@ fi
 %doc doc/adg/*.txt doc/adg/html
 
 %changelog
+* Mon Nov  1 2010 Tomas Mraz <tmraz@redhat.com> 1.1.3-1
+- upgrade to new upstream release fixing CVE-2010-3316 CVE-2010-3435
+  CVE-2010-3853
+- try to connect to an abstract X-socket first to verify we are
+  at real console (#647191)
+
 * Mon Sep 20 2010 Tomas Mraz <tmraz@redhat.com> 1.1.2-1
 - add pam_faillock module implementing temporary account lock out based
   on authentication failures during a specified interval
