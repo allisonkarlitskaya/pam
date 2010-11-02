@@ -3,7 +3,7 @@
 Summary: An extensible library which provides authentication for applications
 Name: pam
 Version: 1.1.1
-Release: 5%{?dist}
+Release: 6%{?dist}
 # The library is BSD licensed with option to relicense as GPLv2+ - this option is redundant
 # as the BSD license allows that anyway. pam_timestamp and pam_console modules are GPLv2+,
 License: BSD and GPLv2+
@@ -27,6 +27,9 @@ Patch4:  pam-1.1.0-console-nochmod.patch
 Patch5:  pam-1.1.0-notally.patch
 Patch7:  pam-1.1.0-console-fixes.patch
 Patch8:  pam-1.1.1-authtok-prompt.patch
+# Fixes CVE-2010-3435 and CVE-2010-3316
+Patch9:  pam-1.1.1-drop-privs.patch
+Patch10: pam-1.1.1-cve-2010-3853.patch
 
 %define _sbindir /sbin
 %define _moduledir /%{_lib}/security
@@ -93,6 +96,8 @@ mv pam-redhat-%{pam_redhat_version}/* modules
 %patch5 -p1 -b .notally
 %patch7 -p1 -b .console-fixes
 %patch8 -p0 -b .prompt
+%patch9 -p1 -b .drop-privs
+%patch10 -p1 -b .execle
 
 libtoolize -f
 autoreconf
@@ -333,6 +338,12 @@ fi
 %doc doc/adg/*.txt doc/adg/html
 
 %changelog
+* Tue Nov  2 2010 Tomas Mraz <tmraz@redhat.com> 1.1.1-6
+- fix insecure dropping of priviledges in pam_xauth, pam_env,
+  and pam_mail - CVE-2010-3316 (#637898), CVE-2010-3435 (#641335)
+- fix insecure executing of scripts with user supplied environment
+  variables in pam_namespace - CVE-2010-3853 (#643043)
+
 * Thu Jul 15 2010 Tomas Mraz <tmraz@redhat.com> 1.1.1-5
 - do not overwrite tallylog with empty file on upgrade
 
