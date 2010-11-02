@@ -2,8 +2,8 @@
 
 Summary: An extensible library which provides authentication for applications
 Name: pam
-Version: 1.1.0
-Release: 7%{?dist}
+Version: 1.1.1
+Release: 6%{?dist}
 # The library is BSD licensed with option to relicense as GPLv2+ - this option is redundant
 # as the BSD license allows that anyway. pam_timestamp and pam_console modules are GPLv2+,
 License: BSD and GPLv2+
@@ -23,11 +23,13 @@ Source13: config-util.5
 Source14: 90-nproc.conf
 Patch1:  pam-1.0.90-redhat-modules.patch
 Patch2:  pam-1.0.91-std-noclose.patch
-Patch3:  pam-1.1.0-cracklib-authtok.patch
 Patch4:  pam-1.1.0-console-nochmod.patch
 Patch5:  pam-1.1.0-notally.patch
-Patch6:  pam-1.1.0-xauth-context.patch
 Patch7:  pam-1.1.0-console-fixes.patch
+Patch8:  pam-1.1.1-authtok-prompt.patch
+# Fixes CVE-2010-3435 and CVE-2010-3316
+Patch9:  pam-1.1.1-drop-privs.patch
+Patch10: pam-1.1.1-cve-2010-3853.patch
 
 %define _sbindir /sbin
 %define _moduledir /%{_lib}/security
@@ -90,11 +92,12 @@ mv pam-redhat-%{pam_redhat_version}/* modules
 
 %patch1 -p1 -b .redhat-modules
 %patch2 -p1 -b .std-noclose
-%patch3 -p1 -b .authtok
 %patch4 -p1 -b .nochmod
 %patch5 -p1 -b .notally
-%patch6 -p1 -b .xauth-context
 %patch7 -p1 -b .console-fixes
+%patch8 -p0 -b .prompt
+%patch9 -p1 -b .drop-privs
+%patch10 -p1 -b .execle
 
 libtoolize -f
 autoreconf
@@ -180,7 +183,11 @@ install -m755 -d $RPM_BUILD_ROOT/lib/security
 for dir in modules/pam_* ; do
 if [ -d ${dir} ] ; then
 %if ! %{WITH_SELINUX}
-        [ ${dir} = "modules/pam_selinux" ] && continue
+	[ ${dir} = "modules/pam_selinux" ] && continue
+	[ ${dir} = "modules/pam_sepermit" ] && continue
+%endif
+%if ! %{WITH_AUDIT}
+	[ ${dir} = "modules/pam_tty_audit" ] && continue
 %endif
 	[ ${dir} = "modules/pam_tally" ] && continue
 	if ! ls -1 $RPM_BUILD_ROOT%{_moduledir}/`basename ${dir}`*.so ; then
@@ -206,7 +213,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %post
 /sbin/ldconfig
-if [ ! -a /var/log/tallylog ] ; then
+if [ ! -e /var/log/tallylog ] ; then
 	install -m 600 /dev/null /var/log/tallylog
 fi
 
@@ -280,7 +287,9 @@ fi
 %{_moduledir}/pam_tally2.so
 %{_moduledir}/pam_time.so
 %{_moduledir}/pam_timestamp.so
+%if %{WITH_AUDIT}
 %{_moduledir}/pam_tty_audit.so
+%endif
 %{_moduledir}/pam_umask.so
 %{_moduledir}/pam_unix.so
 %{_moduledir}/pam_unix_acct.so
@@ -305,13 +314,15 @@ fi
 %dir %{_secconfdir}/namespace.d
 %attr(755,root,root) %config(noreplace) %{_secconfdir}/namespace.init
 %config(noreplace) %{_secconfdir}/pam_env.conf
-%config(noreplace) %{_secconfdir}/sepermit.conf
 %config(noreplace) %{_secconfdir}/time.conf
 %config(noreplace) %{_secconfdir}/opasswd
 %dir %{_secconfdir}/console.apps
 %dir %{_secconfdir}/console.perms.d
 %dir /var/run/console
+%if %{WITH_SELINUX}
+%config(noreplace) %{_secconfdir}/sepermit.conf
 %dir /var/run/sepermit
+%endif
 %ghost %verify(not md5 size mtime) /var/log/tallylog
 %{_mandir}/man5/*
 %{_mandir}/man8/*
@@ -327,6 +338,27 @@ fi
 %doc doc/adg/*.txt doc/adg/html
 
 %changelog
+* Tue Nov  2 2010 Tomas Mraz <tmraz@redhat.com> 1.1.1-6
+- fix insecure dropping of priviledges in pam_xauth, pam_env,
+  and pam_mail - CVE-2010-3316 (#637898), CVE-2010-3435 (#641335)
+- fix insecure executing of scripts with user supplied environment
+  variables in pam_namespace - CVE-2010-3853 (#643043)
+
+* Thu Jul 15 2010 Tomas Mraz <tmraz@redhat.com> 1.1.1-5
+- do not overwrite tallylog with empty file on upgrade
+
+* Mon Feb 15 2010 Tomas Mraz <tmraz@redhat.com> 1.1.1-4
+- change the default password hash to sha512
+
+* Fri Jan 22 2010 Tomas Mraz <tmraz@redhat.com> 1.1.1-3
+- fix wrong prompt when pam_get_authtok is used for new password
+
+* Mon Jan 18 2010 Tomas Mraz <tmraz@redhat.com> 1.1.1-2
+- fix build with disabled audit and SELinux (#556211, #556212)
+
+* Thu Dec 17 2009 Tomas Mraz <tmraz@redhat.com> 1.1.1-1
+- new upstream version with minor changes
+
 * Mon Nov  2 2009 Tomas Mraz <tmraz@redhat.com> 1.1.0-7
 - pam_console: fix memory corruption when executing handlers (patch by
   Stas Sergeev) and a few more fixes in the handler execution code (#532302)
