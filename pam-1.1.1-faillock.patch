@@ -596,8 +596,8 @@ diff -up Linux-PAM-1.1.1/modules/pam_faillock/main.c.faillock Linux-PAM-1.1.1/mo
 +				status & TALLY_STATUS_RHOST ? "RHOST" : (status & TALLY_STATUS_TTY ? "TTY" : "SVC"),
 +				tallies.records[i].source, status & TALLY_STATUS_VALID ? "V":"I");
 +		}
++		free(tallies.records);
 +	}
-+	free(tallies.records);
 +	close(fd);
 +	return 0;
 +}
@@ -698,7 +698,7 @@ diff -up Linux-PAM-1.1.1/modules/pam_faillock/Makefile.am.faillock Linux-PAM-1.1
 diff -up Linux-PAM-1.1.1/modules/pam_faillock/pam_faillock.c.faillock Linux-PAM-1.1.1/modules/pam_faillock/pam_faillock.c
 --- Linux-PAM-1.1.1/modules/pam_faillock/pam_faillock.c.faillock	2010-09-17 15:58:41.000000000 +0200
 +++ Linux-PAM-1.1.1/modules/pam_faillock/pam_faillock.c	2010-09-17 15:58:41.000000000 +0200
-@@ -0,0 +1,548 @@
+@@ -0,0 +1,550 @@
 +/*
 + * Copyright (c) 2010 Tomas Mraz <tmraz@redhat.com>
 + *
@@ -887,7 +887,7 @@ diff -up Linux-PAM-1.1.1/modules/pam_faillock/pam_faillock.c.faillock Linux-PAM-
 +	}
 +
 +	if (*user == '\0') {
-+		return PAM_USER_UNKNOWN;
++		return PAM_IGNORE;
 +	}
 +
 +	if ((pwd=pam_modutil_getpwnam(pamh, user)) == NULL) {
@@ -897,7 +897,7 @@ diff -up Linux-PAM-1.1.1/modules/pam_faillock/pam_faillock.c.faillock Linux-PAM-
 +		else {
 +			pam_syslog(pamh, LOG_ERR, "User unknown");
 +		}
-+		return PAM_USER_UNKNOWN;
++		return PAM_IGNORE;
 +	}
 +	opts->user = user;
 +	opts->uid = pwd->pw_uid;
@@ -1148,6 +1148,8 @@ diff -up Linux-PAM-1.1.1/modules/pam_faillock/pam_faillock.c.faillock Linux-PAM-
 +
 +	args_parse(pamh, argc, argv, flags, &opts);
 +
++	pam_fail_delay(pamh, 2000000);	/* 2 sec delay for on failure */
++
 +	if ((rv=get_pam_user(pamh, &opts)) != PAM_SUCCESS) {
 +		return rv;
 +	}
@@ -1250,7 +1252,7 @@ diff -up Linux-PAM-1.1.1/modules/pam_faillock/pam_faillock.c.faillock Linux-PAM-
 diff -up Linux-PAM-1.1.1/modules/pam_faillock/pam_faillock.8.xml.faillock Linux-PAM-1.1.1/modules/pam_faillock/pam_faillock.8.xml
 --- Linux-PAM-1.1.1/modules/pam_faillock/pam_faillock.8.xml.faillock	2010-09-17 15:58:41.000000000 +0200
 +++ Linux-PAM-1.1.1/modules/pam_faillock/pam_faillock.8.xml	2010-09-17 15:58:41.000000000 +0200
-@@ -0,0 +1,385 @@
+@@ -0,0 +1,396 @@
 +<?xml version="1.0" encoding='UTF-8'?>
 +<!DOCTYPE refentry PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
 +	"http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd">
@@ -1513,10 +1515,10 @@ diff -up Linux-PAM-1.1.1/modules/pam_faillock/pam_faillock.8.xml.faillock Linux-
 +        </listitem>
 +      </varlistentry>
 +      <varlistentry>
-+        <term>PAM_USER_UNKNOWN</term>
++        <term>PAM_IGNORE</term>
 +        <listitem>
 +          <para>
-+            User not known.
++            User not present in passwd database.
 +          </para>
 +        </listitem>
 +      </varlistentry>
@@ -1537,6 +1539,16 @@ diff -up Linux-PAM-1.1.1/modules/pam_faillock/pam_faillock.8.xml.faillock Linux-
 +      cannot be opened because of insufficient permissions
 +      (<errorcode>EACCES</errorcode>) the module returns
 +      <errorcode>PAM_SUCCESS</errorcode>.
++    </para>
++    <para>
++      Note that using the module in <option>preauth</option> without the
++      <option>silent</option> option or with <emphasis>requisite</emphasis>
++      control field leaks an information about existence or
++      non-existence of an user account in the system because
++      the failures are not recorded for the unknown users. The message
++      about the user account being locked is never displayed for nonexisting
++      user accounts allowing the adversary to infer that a particular account
++      is not existing on a system.
 +    </para>
 +  </refsect1>
 +
@@ -1560,6 +1572,7 @@ diff -up Linux-PAM-1.1.1/modules/pam_faillock/pam_faillock.8.xml.faillock Linux-
 +auth     required       pam_env.so
 +auth     required       pam_nologin.so
 +# optionally call: auth requisite pam_faillock.so preauth deny=4 even_deny_root unlock_time=1200
++# to display the message about account being locked
 +auth     [success=1 default=bad] pam_unix.so
 +auth     [default=die]  pam_faillock.so authfail deny=4 even_deny_root unlock_time=1200
 +auth     sufficient     pam_faillock.so authsucc deny=4 even_deny_root unlock_time=1200
@@ -1580,9 +1593,9 @@ diff -up Linux-PAM-1.1.1/modules/pam_faillock/pam_faillock.8.xml.faillock Linux-
 +auth     required       pam_securetty.so
 +auth     required       pam_env.so
 +auth     required       pam_nologin.so
-+auth     requisite      pam_faillock.so preauth deny=4 even_deny_root unlock_time=1200
-+# optionally use required above if you still want to prompt for the password
-+# on locked accounts.
++auth     required       pam_faillock.so preauth silent deny=4 even_deny_root unlock_time=1200
++# optionally use requisite above if you do not want to prompt for the password
++# on locked accounts, possibly with removing the silent option as well
 +auth     sufficient     pam_unix.so
 +auth     [default=die]  pam_faillock.so authfail deny=4 even_deny_root unlock_time=1200
 +auth     required       pam_deny.so
