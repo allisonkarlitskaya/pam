@@ -3,7 +3,7 @@
 Summary: An extensible library which provides authentication for applications
 Name: pam
 Version: 1.1.3
-Release: 3%{?dist}
+Release: 4%{?dist}
 # The library is BSD licensed with option to relicense as GPLv2+ - this option is redundant
 # as the BSD license allows that anyway. pam_timestamp and pam_console modules are GPLv2+,
 License: BSD and GPLv2+
@@ -345,6 +345,9 @@ fi
 %doc doc/adg/*.txt doc/adg/html
 
 %changelog
+* Wed Nov 10 2010 Tomas Mraz <tmraz@redhat.com> 1.1.3-4
+- fix memory leak in pam_faillock
+
 * Wed Nov 10 2010 Tomas Mraz <tmraz@redhat.com> 1.1.3-3
 - fix segfault in faillock utility
 - remove some cases where the information of existence of
