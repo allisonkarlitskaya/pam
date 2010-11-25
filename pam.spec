@@ -3,7 +3,7 @@
 Summary: An extensible library which provides authentication for applications
 Name: pam
 Version: 1.1.3
-Release: 4%{?dist}
+Release: 5%{?dist}
 # The library is BSD licensed with option to relicense as GPLv2+ - this option is redundant
 # as the BSD license allows that anyway. pam_timestamp and pam_console modules are GPLv2+,
 License: BSD and GPLv2+
@@ -21,6 +21,7 @@ Source11: dlopen.sh
 Source12: system-auth.5
 Source13: config-util.5
 Source14: 90-nproc.conf
+Source15: pamtmp.conf
 Patch1:  pam-1.0.90-redhat-modules.patch
 Patch2:  pam-1.0.91-std-noclose.patch
 Patch4:  pam-1.1.0-console-nochmod.patch
@@ -31,6 +32,7 @@ Patch9:  pam-1.1.2-noflex.patch
 Patch10: pam-1.1.3-nouserenv.patch
 Patch11: pam-1.1.3-console-abstract.patch
 Patch12: pam-1.1.3-faillock-screensaver.patch
+Patch13: pam-1.1.3-securetty-console.patch
 
 %define _sbindir /sbin
 %define _moduledir /%{_lib}/security
@@ -101,6 +103,7 @@ mv pam-redhat-%{pam_redhat_version}/* modules
 %patch10 -p1 -b .nouserenv
 %patch11 -p1 -b .abstract
 %patch12 -p1 -b .screensaver
+%patch13 -p0 -b .console
 
 libtoolize -f
 autoreconf
@@ -179,6 +182,9 @@ rm -fr $RPM_BUILD_ROOT/usr/share/doc/pam
 
 # Create /lib/security in case it isn't the same as %{_moduledir}.
 install -m755 -d $RPM_BUILD_ROOT/lib/security
+
+# Install the file for autocreation of /var/run subdirectories on boot
+install -m644 -D %{SOURCE15} $RPM_BUILD_ROOT%{_sysconfdir}/tmpfiles.d/pamtmp.conf
 
 %find_lang Linux-PAM
 
@@ -331,6 +337,7 @@ fi
 %endif
 %ghost %verify(not md5 size mtime) /var/log/tallylog
 %dir /var/run/faillock
+%config(noreplace) %{_sysconfdir}/tmpfiles.d/pamtmp.conf
 %{_mandir}/man5/*
 %{_mandir}/man8/*
 
@@ -345,6 +352,10 @@ fi
 %doc doc/adg/*.txt doc/adg/html
 
 %changelog
+* Thu Nov 25 2010 Tomas Mraz <tmraz@redhat.com> 1.1.3-5
+- add config for autocreation of subdirectories in /var/run (#656655)
+- automatically enable kernel console in pam_securetty
+
 * Wed Nov 10 2010 Tomas Mraz <tmraz@redhat.com> 1.1.3-4
 - fix memory leak in pam_faillock
 
