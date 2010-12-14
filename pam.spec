@@ -3,7 +3,7 @@
 Summary: An extensible library which provides authentication for applications
 Name: pam
 Version: 1.1.3
-Release: 5%{?dist}
+Release: 6%{?dist}
 # The library is BSD licensed with option to relicense as GPLv2+ - this option is redundant
 # as the BSD license allows that anyway. pam_timestamp and pam_console modules are GPLv2+,
 License: BSD and GPLv2+
@@ -32,7 +32,11 @@ Patch9:  pam-1.1.2-noflex.patch
 Patch10: pam-1.1.3-nouserenv.patch
 Patch11: pam-1.1.3-console-abstract.patch
 Patch12: pam-1.1.3-faillock-screensaver.patch
-Patch13: pam-1.1.3-securetty-console.patch
+# Upstreamed patches
+Patch30: pam-1.1.3-securetty-console.patch
+Patch31: pam-1.1.3-limits-nosetreuid.patch
+Patch32: pam-1.1.3-limits-range.patch
+Patch33: pam-1.1.3-pwhistory-incomplete.patch
 
 %define _sbindir /sbin
 %define _moduledir /%{_lib}/security
@@ -103,7 +107,10 @@ mv pam-redhat-%{pam_redhat_version}/* modules
 %patch10 -p1 -b .nouserenv
 %patch11 -p1 -b .abstract
 %patch12 -p1 -b .screensaver
-%patch13 -p0 -b .console
+%patch30 -p0 -b .console
+%patch31 -p1 -b .nosetreuid
+%patch32 -p0 -b .range
+%patch33 -p1 -b .incomplete
 
 libtoolize -f
 autoreconf
@@ -352,6 +359,9 @@ fi
 %doc doc/adg/*.txt doc/adg/html
 
 %changelog
+* Tue Dec 14 2010 Tomas Mraz <tmraz@redhat.com> 1.1.3-6
+- include patches recently submitted and applied to upstream CVS
+
 * Thu Nov 25 2010 Tomas Mraz <tmraz@redhat.com> 1.1.3-5
 - add config for autocreation of subdirectories in /var/run (#656655)
 - automatically enable kernel console in pam_securetty

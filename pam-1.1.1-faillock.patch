@@ -67,7 +67,7 @@ diff -up Linux-PAM-1.1.1/modules/Makefile.am.faillock Linux-PAM-1.1.1/modules/Ma
 diff -up Linux-PAM-1.1.1/modules/pam_faillock/faillock.c.faillock Linux-PAM-1.1.1/modules/pam_faillock/faillock.c
 --- Linux-PAM-1.1.1/modules/pam_faillock/faillock.c.faillock	2010-09-17 15:58:41.000000000 +0200
 +++ Linux-PAM-1.1.1/modules/pam_faillock/faillock.c	2010-09-17 15:58:41.000000000 +0200
-@@ -0,0 +1,142 @@
+@@ -0,0 +1,147 @@
 +/*
 + * Copyright (c) 2010 Tomas Mraz <tmraz@redhat.com>
 + *
@@ -123,6 +123,11 @@ diff -up Linux-PAM-1.1.1/modules/pam_faillock/faillock.c.faillock Linux-PAM-1.1.
 +	int flags = O_RDWR;
 +	int fd;
 +
++	if (strstr(user, "../") != NULL)
++	/* just a defensive programming as the user must be a
++	 * valid user on the system anyway
++	 */
++		return -1;
 +	path = malloc(strlen(dir) + strlen(user) + 2);
 +	if (path == NULL)
 +		return -1;
