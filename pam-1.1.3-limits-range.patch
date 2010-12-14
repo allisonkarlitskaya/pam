@@ -1,15 +1,23 @@
 Index: modules/pam_limits/limits.conf.5.xml
 ===================================================================
 RCS file: /cvsroot/pam/Linux-PAM/modules/pam_limits/limits.conf.5.xml,v
-retrieving revision 1.10
+retrieving revision 1.9
 retrieving revision 1.11
-diff -u -p -r1.10 -r1.11
---- modules/pam_limits/limits.conf.5.xml	24 Nov 2010 08:49:30 -0000	1.10
+diff -u -p -r1.9 -r1.11
+--- modules/pam_limits/limits.conf.5.xml	20 Feb 2009 13:27:14 -0000	1.9
 +++ modules/pam_limits/limits.conf.5.xml	14 Dec 2010 08:40:40 -0000	1.11
-@@ -60,6 +60,33 @@
-                 number of logins of all users that are member of the group.
-               </para>
-             </listitem>
+@@ -53,7 +53,38 @@
+             <listitem>
+               <para>
+                 the wildcard <emphasis remap='B'>%</emphasis>, for maxlogins limit only,
+-                can also be used with <emphasis remap='b'>%group</emphasis> syntax.
++                can also be used with <emphasis remap='B'>%group</emphasis> syntax. If the
++                <emphasis remap='B'>%</emphasis> wildcard is used alone it is identical
++                to using <emphasis remap='B'>*</emphasis> with maxsyslogins limit. With
++                a group specified after <emphasis remap='B'>%</emphasis> it limits the total
++                number of logins of all users that are member of the group.
++              </para>
++            </listitem>
 +            <listitem>
 +              <para>
 +                an uid range specified as <replaceable>&lt;min_uid&gt;</replaceable><emphasis
@@ -35,12 +43,19 @@ diff -u -p -r1.10 -r1.11
 +                remap='B'>%:</emphasis><replaceable>&lt;gid&gt;</replaceable> applicable
 +                to maxlogins limit only. It limits the total number of logins of all users
 +                that are member of the group with the specified gid.
-+              </para>
-+            </listitem>
+               </para>
+             </listitem>
            </itemizedlist>
-         </listitem>
-       </varlistentry>
-@@ -276,12 +303,15 @@
+@@ -182,7 +213,7 @@
+             <varlistentry>
+               <term><option>maxsyslogins</option></term>
+               <listitem>
+-                <para>maximum number of logins on system</para>
++                <para>maximum number of all logins on system</para>
+               </listitem>
+             </varlistentry>
+             <varlistentry>
+@@ -272,12 +303,15 @@
      </para>
      <programlisting>
  *               soft    core            0
