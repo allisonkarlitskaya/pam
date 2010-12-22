@@ -1,4 +1,4 @@
-.TH SYSTEM-AUTH 5 "2009 Apr 10" "Red Hat" "Linux-PAM Manual"
+.TH SYSTEM-AUTH 5 "2010 Dec 22" "Red Hat" "Linux-PAM Manual"
 .SH NAME
 
 system-auth \- Common configuration file for PAMified services
@@ -20,7 +20,7 @@ The
 .BR system-auth
 configuration file is included from nearly all individual service configuration
 files with the help of the
-.BR include
+.BR substack
 directive.
 
 .sp
@@ -33,36 +33,21 @@ different types of devices via simultaneously running individual conversations
 instead of one aggregate conversation.
 
 .SH NOTES
-There should be no
-.BR sufficient
-modules in the
-.BR session
-part of
-.BR system-auth
-file because individual services may add session modules after
-.BR include
+Previously these common configuration files were included with the help
 of the
-.BR system-auth
-file. Execution of these modules would be skipped if there were sufficient
-modules in
-.BR system-auth
-file.
-
-.sp
-Conversely there should not be any modules after
 .BR include
-directive in the individual service files in
-.BR auth account
-and
-.BR password
-sections otherwise they could be bypassed.
+directive. This limited the use of the different action types of modules.
+With the use of
+.BR substack
+directive to include these common configuration files this limitation
+no longer applies.
 
 .SH BUGS
 .sp 2
 None known.
 
 .SH "SEE ALSO"
-pam(8), config-util(5)
+pam(8), config-util(5), postlogin(5)
 
 The three
 .BR Linux-PAM

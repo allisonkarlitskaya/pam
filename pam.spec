@@ -3,7 +3,7 @@
 Summary: An extensible library which provides authentication for applications
 Name: pam
 Version: 1.1.3
-Release: 6%{?dist}
+Release: 7%{?dist}
 # The library is BSD licensed with option to relicense as GPLv2+ - this option is redundant
 # as the BSD license allows that anyway. pam_timestamp and pam_console modules are GPLv2+,
 License: BSD and GPLv2+
@@ -22,6 +22,8 @@ Source12: system-auth.5
 Source13: config-util.5
 Source14: 90-nproc.conf
 Source15: pamtmp.conf
+Source16: postlogin.pamd
+Source17: postlogin.5
 Patch1:  pam-1.0.90-redhat-modules.patch
 Patch2:  pam-1.0.91-std-noclose.patch
 Patch4:  pam-1.1.0-console-nochmod.patch
@@ -159,6 +161,7 @@ install -m 644 %{SOURCE7} $RPM_BUILD_ROOT%{_pamconfdir}/password-auth
 install -m 644 %{SOURCE8} $RPM_BUILD_ROOT%{_pamconfdir}/fingerprint-auth
 install -m 644 %{SOURCE9} $RPM_BUILD_ROOT%{_pamconfdir}/smartcard-auth
 install -m 644 %{SOURCE10} $RPM_BUILD_ROOT%{_pamconfdir}/config-util
+install -m 644 %{SOURCE16} $RPM_BUILD_ROOT%{_pamconfdir}/postlogin
 install -m 644 %{SOURCE14} $RPM_BUILD_ROOT%{_secconfdir}/limits.d/90-nproc.conf
 install -m 600 /dev/null $RPM_BUILD_ROOT%{_secconfdir}/opasswd
 install -d -m 755 $RPM_BUILD_ROOT/var/log
@@ -166,7 +169,11 @@ install -m 600 /dev/null $RPM_BUILD_ROOT/var/log/tallylog
 install -d -m 755 $RPM_BUILD_ROOT/var/run/faillock
 
 # Install man pages.
-install -m 644 %{SOURCE12} %{SOURCE13} $RPM_BUILD_ROOT%{_mandir}/man5/
+install -m 644 %{SOURCE12} %{SOURCE13} %{SOURCE17} $RPM_BUILD_ROOT%{_mandir}/man5/
+ln -sf system-auth.5 $RPM_BUILD_ROOT%{_mandir}/man5/password-auth.5
+ln -sf system-auth.5 $RPM_BUILD_ROOT%{_mandir}/man5/fingerprint-auth.5
+ln -sf system-auth.5 $RPM_BUILD_ROOT%{_mandir}/man5/smartcard-auth.5
+
 
 for phase in auth acct passwd session ; do
 	ln -sf pam_unix.so $RPM_BUILD_ROOT%{_moduledir}/pam_unix_${phase}.so 
@@ -245,6 +252,7 @@ fi
 %config(noreplace) %{_pamconfdir}/fingerprint-auth
 %config(noreplace) %{_pamconfdir}/smartcard-auth
 %config(noreplace) %{_pamconfdir}/config-util
+%config(noreplace) %{_pamconfdir}/postlogin
 %doc Copyright
 %doc doc/txts
 %doc doc/sag/*.txt doc/sag/html
@@ -359,6 +367,9 @@ fi
 %doc doc/adg/*.txt doc/adg/html
 
 %changelog
+* Wed Dec 22 2010 Tomas Mraz <tmraz@redhat.com> 1.1.3-7
+- add postlogin common PAM configuration file (#665059)
+
 * Tue Dec 14 2010 Tomas Mraz <tmraz@redhat.com> 1.1.3-6
 - include patches recently submitted and applied to upstream CVS
 
