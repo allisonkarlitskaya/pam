@@ -3,7 +3,7 @@
 Summary: An extensible library which provides authentication for applications
 Name: pam
 Version: 1.1.3
-Release: 8%{?dist}
+Release: 9%{?dist}
 # The library is BSD licensed with option to relicense as GPLv2+ - this option is redundant
 # as the BSD license allows that anyway. pam_timestamp and pam_console modules are GPLv2+,
 License: BSD and GPLv2+
@@ -39,6 +39,7 @@ Patch30: pam-1.1.3-securetty-console.patch
 Patch31: pam-1.1.3-limits-nosetreuid.patch
 Patch32: pam-1.1.3-limits-range.patch
 Patch33: pam-1.1.3-pwhistory-incomplete.patch
+Patch34: pam-1.1.3-namespace-private.patch
 
 %define _sbindir /sbin
 %define _moduledir /%{_lib}/security
@@ -113,6 +114,7 @@ mv pam-redhat-%{pam_redhat_version}/* modules
 %patch31 -p1 -b .nosetreuid
 %patch32 -p0 -b .range
 %patch33 -p1 -b .incomplete
+%patch34 -p1 -b .private
 
 libtoolize -f
 autoreconf
@@ -367,6 +369,9 @@ fi
 %doc doc/adg/*.txt doc/adg/html
 
 %changelog
+* Thu Jun  2 2011 Tomas Mraz <tmraz@redhat.com> 1.1.3-9
+- add support for explicit marking of the polydir mount private (#623522)
+
 * Tue Feb 08 2011 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.1.3-8
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_15_Mass_Rebuild
 
