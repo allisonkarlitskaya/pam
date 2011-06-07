@@ -3,7 +3,7 @@
 Summary: An extensible library which provides authentication for applications
 Name: pam
 Version: 1.1.3
-Release: 9%{?dist}
+Release: 10%{?dist}
 # The library is BSD licensed with option to relicense as GPLv2+ - this option is redundant
 # as the BSD license allows that anyway. pam_timestamp and pam_console modules are GPLv2+,
 License: BSD and GPLv2+
@@ -369,6 +369,10 @@ fi
 %doc doc/adg/*.txt doc/adg/html
 
 %changelog
+* Tue Jun  7 2011 Tomas Mraz <tmraz@redhat.com> 1.1.3-10
+- detect the shared / and make the polydir mounts private based on that
+- fix memory leak and other small errors in pam_namespace
+
 * Thu Jun  2 2011 Tomas Mraz <tmraz@redhat.com> 1.1.3-9
 - add support for explicit marking of the polydir mount private (#623522)
 
