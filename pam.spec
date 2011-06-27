@@ -2,8 +2,8 @@
 
 Summary: An extensible library which provides authentication for applications
 Name: pam
-Version: 1.1.3
-Release: 10%{?dist}
+Version: 1.1.4
+Release: 1%{?dist}
 # The library is BSD licensed with option to relicense as GPLv2+ - this option is redundant
 # as the BSD license allows that anyway. pam_timestamp and pam_console modules are GPLv2+,
 License: BSD and GPLv2+
@@ -35,11 +35,6 @@ Patch10: pam-1.1.3-nouserenv.patch
 Patch11: pam-1.1.3-console-abstract.patch
 Patch12: pam-1.1.3-faillock-screensaver.patch
 # Upstreamed patches
-Patch30: pam-1.1.3-securetty-console.patch
-Patch31: pam-1.1.3-limits-nosetreuid.patch
-Patch32: pam-1.1.3-limits-range.patch
-Patch33: pam-1.1.3-pwhistory-incomplete.patch
-Patch34: pam-1.1.3-namespace-private.patch
 
 %define _sbindir /sbin
 %define _moduledir /%{_lib}/security
@@ -110,11 +105,6 @@ mv pam-redhat-%{pam_redhat_version}/* modules
 %patch10 -p1 -b .nouserenv
 %patch11 -p1 -b .abstract
 %patch12 -p1 -b .screensaver
-%patch30 -p0 -b .console
-%patch31 -p1 -b .nosetreuid
-%patch32 -p0 -b .range
-%patch33 -p1 -b .incomplete
-%patch34 -p1 -b .private
 
 libtoolize -f
 autoreconf
@@ -369,6 +359,9 @@ fi
 %doc doc/adg/*.txt doc/adg/html
 
 %changelog
+* Mon Jun 27 2011 Tomas Mraz <tmraz@redhat.com> 1.1.4-1
+- upgrade to new upstream release
+
 * Tue Jun  7 2011 Tomas Mraz <tmraz@redhat.com> 1.1.3-10
 - detect the shared / and make the polydir mounts private based on that
 - fix memory leak and other small errors in pam_namespace
