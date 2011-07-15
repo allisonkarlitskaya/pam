@@ -28,7 +28,7 @@ diff -up Linux-PAM-1.1.0/modules/pam_console/handlers.c.consolefix Linux-PAM-1.1
          child = fork();
          switch (child) {
          case -1:
-@@ -246,30 +246,31 @@ execute_handler(pam_handle_t *pamh, stru
+@@ -246,30 +246,32 @@ execute_handler(pam_handle_t *pamh, stru
                  if (!wait_exit) {
  			switch(fork()) {
  			case 0:
@@ -54,6 +54,7 @@ diff -up Linux-PAM-1.1.0/modules/pam_console/handlers.c.consolefix Linux-PAM-1.1
 -                                exit(255);
 +                                _exit(255);
                          if (setgid(pw->pw_gid) == -1 ||
++                            setgroups(0, NULL) == -1 ||
                              setuid(pw->pw_uid) == -1)
 -                                exit(255);
 +                                _exit(255);
