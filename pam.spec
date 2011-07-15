@@ -350,7 +350,7 @@ fi
 
 %files devel
 %defattr(-,root,root)
-%{_includedir}/security/
+%{_includedir}/security
 %{_mandir}/man3/*
 %{_libdir}/libpam.so
 %{_libdir}/libpamc.so
