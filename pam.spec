@@ -4,8 +4,9 @@ Summary: An extensible library which provides authentication for applications
 Name: pam
 Version: 1.1.4
 Release: 2%{?dist}
-# The library is BSD licensed with option to relicense as GPLv2+ - this option is redundant
-# as the BSD license allows that anyway. pam_timestamp and pam_console modules are GPLv2+,
+# The library is BSD licensed with option to relicense as GPLv2+
+# - this option is redundant as the BSD license allows that anyway.
+# pam_timestamp, pam_loginuid, and pam_console modules are GPLv2+.
 License: BSD and GPLv2+
 Group: System Environment/Base
 Source0: http://ftp.us.kernel.org/pub/linux/libs/pam/library/Linux-PAM-%{version}.tar.bz2
@@ -35,6 +36,8 @@ Patch10: pam-1.1.3-nouserenv.patch
 Patch11: pam-1.1.3-console-abstract.patch
 Patch12: pam-1.1.3-faillock-screensaver.patch
 # Upstreamed patches
+Patch30: pam-1.1.4-env-deref.patch
+Patch31: pam-1.1.4-access-split.patch
 
 %define _sbindir /sbin
 %define _moduledir /%{_lib}/security
@@ -49,7 +52,7 @@ Patch12: pam-1.1.3-faillock-screensaver.patch
 %endif
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
-Requires: cracklib, cracklib-dicts >= 2.8
+Requires: cracklib-dicts >= 2.8
 Requires(post): coreutils, /sbin/ldconfig
 BuildRequires: autoconf >= 2.60
 BuildRequires: automake, libtool
@@ -80,7 +83,7 @@ having to recompile programs that handle authentication.
 %package devel
 Group: Development/Libraries
 Summary: Files needed for developing PAM-aware applications and modules for PAM
-Requires: pam = %{version}-%{release}
+Requires: pam%{?_isa} = %{version}-%{release}
 
 %description devel
 PAM (Pluggable Authentication Modules) is a system security tool that
@@ -105,6 +108,9 @@ mv pam-redhat-%{pam_redhat_version}/* modules
 %patch10 -p1 -b .nouserenv
 %patch11 -p1 -b .abstract
 %patch12 -p1 -b .screensaver
+
+%patch30 -p1 -b .deref
+%patch31 -p1 -b .split
 
 libtoolize -f
 autoreconf
@@ -359,6 +365,10 @@ fi
 %doc doc/adg/*.txt doc/adg/html
 
 %changelog
+* Thu Aug 25 2011 Tomas Mraz <tmraz@redhat.com> 1.1.4-3
+- fix dereference in pam_env
+- fix wrong parse of user@host pattern in pam_access (#732081)
+
 * Fri Jul 15 2011 Tomas Mraz <tmraz@redhat.com> 1.1.4-2
 - clear supplementary groups in pam_console handler execution
 
