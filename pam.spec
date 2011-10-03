@@ -89,8 +89,8 @@ Requires: pam%{?_isa} = %{version}-%{release}
 PAM (Pluggable Authentication Modules) is a system security tool that
 allows system administrators to set authentication policy without
 having to recompile programs that handle authentication. This package
-contains header files and static libraries used for building both
-PAM-aware applications and modules for use with PAM.
+contains header files used for building both PAM-aware applications
+and modules for use with the PAM system.
 
 %prep
 %setup -q -n Linux-PAM-%{version} -a 2
