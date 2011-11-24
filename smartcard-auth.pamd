@@ -11,7 +11,6 @@ account     sufficient    pam_succeed_if.so uid < 500 quiet
 account     required      pam_permit.so
 
 password    optional      pam_pkcs11.so
-password    requisite     pam_cracklib.so try_first_pass retry=3 type=
 
 session     optional      pam_keyinit.so revoke
 session     required      pam_limits.so

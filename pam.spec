@@ -3,7 +3,7 @@
 Summary: An extensible library which provides authentication for applications
 Name: pam
 Version: 1.1.5
-Release: 1%{?dist}
+Release: 2%{?dist}
 # The library is BSD licensed with option to relicense as GPLv2+
 # - this option is redundant as the BSD license allows that anyway.
 # pam_timestamp, pam_loginuid, and pam_console modules are GPLv2+.
@@ -52,6 +52,7 @@ Patch12: pam-1.1.3-faillock-screensaver.patch
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 Requires: cracklib-dicts >= 2.8
+Requires: libpwquality >= 0.9.9
 Requires(post): coreutils, /sbin/ldconfig
 BuildRequires: autoconf >= 2.60
 BuildRequires: automake, libtool
@@ -361,6 +362,9 @@ fi
 %doc doc/adg/*.txt doc/adg/html
 
 %changelog
+* Thu Nov 24 2011 Tomas Mraz <tmraz@redhat.com> 1.1.5-2
+- use pam_pwquality instead of pam_cracklib
+
 * Thu Nov 24 2011 Tomas Mraz <tmraz@redhat.com> 1.1.5-1
 - upgrade to new upstream release
 
