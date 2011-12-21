@@ -3,7 +3,7 @@
 Summary: An extensible library which provides authentication for applications
 Name: pam
 Version: 1.1.5
-Release: 2%{?dist}
+Release: 3%{?dist}
 # The library is BSD licensed with option to relicense as GPLv2+
 # - this option is redundant as the BSD license allows that anyway.
 # pam_timestamp, pam_loginuid, and pam_console modules are GPLv2+.
@@ -37,6 +37,7 @@ Patch9:  pam-1.1.2-noflex.patch
 Patch10: pam-1.1.3-nouserenv.patch
 Patch11: pam-1.1.3-console-abstract.patch
 Patch12: pam-1.1.3-faillock-screensaver.patch
+Patch13: pam-1.1.5-limits-user.patch
 
 %define _sbindir /sbin
 %define _moduledir /%{_lib}/security
@@ -108,6 +109,7 @@ mv pam-redhat-%{pam_redhat_version}/* modules
 %patch10 -p1 -b .nouserenv
 %patch11 -p1 -b .abstract
 %patch12 -p1 -b .screensaver
+%patch13 -p1 -b .limits
 
 libtoolize -f
 autoreconf
@@ -362,6 +364,9 @@ fi
 %doc doc/adg/*.txt doc/adg/html
 
 %changelog
+* Wed Dec 21 2011 Tomas Mraz <tmraz@redhat.com> 1.1.5-3
+- add a note to limits.conf (#754285)
+
 * Thu Nov 24 2011 Tomas Mraz <tmraz@redhat.com> 1.1.5-2
 - use pam_pwquality instead of pam_cracklib
 
