@@ -3,7 +3,7 @@
 Summary: An extensible library which provides authentication for applications
 Name: pam
 Version: 1.1.5
-Release: 4%{?dist}
+Release: 5%{?dist}
 # The library is BSD licensed with option to relicense as GPLv2+
 # - this option is redundant as the BSD license allows that anyway.
 # pam_timestamp, pam_loginuid, and pam_console modules are GPLv2+.
@@ -38,6 +38,10 @@ Patch10: pam-1.1.3-nouserenv.patch
 Patch11: pam-1.1.3-console-abstract.patch
 Patch12: pam-1.1.3-faillock-screensaver.patch
 Patch13: pam-1.1.5-limits-user.patch
+# Committed to upstream git
+Patch14: pam-1.1.5-namespace-rslave.patch
+# Committed to upstream git
+Patch15: pam-1.1.5-namespace-no-unmount.patch
 
 %define _sbindir /sbin
 %define _moduledir /%{_lib}/security
@@ -110,6 +114,8 @@ mv pam-redhat-%{pam_redhat_version}/* modules
 %patch11 -p1 -b .abstract
 %patch12 -p1 -b .screensaver
 %patch13 -p1 -b .limits
+%patch14 -p1 -b .rslave
+%patch15 -p1 -b .no-unmount
 
 libtoolize -f
 autoreconf
@@ -364,6 +370,9 @@ fi
 %doc doc/adg/*.txt doc/adg/html
 
 %changelog
+* Tue Jan 31 2012 Tomas Mraz <tmraz@redhat.com> 1.1.5-5
+- fix pam_namespace leaking the protect mounts to parent namespace (#755216)
+
 * Fri Jan 13 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.1.5-4
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_17_Mass_Rebuild
 
