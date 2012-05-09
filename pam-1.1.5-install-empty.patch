@@ -1,0 +1,30 @@
+diff -up Linux-PAM-1.1.5/modules/pam_namespace/Makefile.am.empty Linux-PAM-1.1.5/modules/pam_namespace/Makefile.am
+--- Linux-PAM-1.1.5/modules/pam_namespace/Makefile.am.empty	2011-06-21 11:04:56.000000000 +0200
++++ Linux-PAM-1.1.5/modules/pam_namespace/Makefile.am	2012-05-09 12:23:20.691384345 +0200
+@@ -38,7 +38,9 @@ if HAVE_UNSHARE
+ 
+   secureconf_DATA = namespace.conf
+   secureconf_SCRIPTS = namespace.init
+-  namespaced_DATA =
++
++install-data-local:
++	mkdir -p $(namespaceddir)
+ endif
+ 
+ 
+diff -up Linux-PAM-1.1.5/modules/pam_sepermit/Makefile.am.empty Linux-PAM-1.1.5/modules/pam_sepermit/Makefile.am
+--- Linux-PAM-1.1.5/modules/pam_sepermit/Makefile.am.empty	2011-06-21 11:04:56.000000000 +0200
++++ Linux-PAM-1.1.5/modules/pam_sepermit/Makefile.am	2012-05-09 12:23:14.291243402 +0200
+@@ -32,9 +32,10 @@ endif
+ 
+ if HAVE_LIBSELINUX
+   secureconf_DATA = sepermit.conf
+-  sepermitlock_DATA =
+-
+   securelib_LTLIBRARIES = pam_sepermit.la
++
++install-data-local:
++	mkdir -p $(sepermitlockdir)
+ endif
+ if ENABLE_REGENERATE_MAN
+ noinst_DATA = README pam_sepermit.8 sepermit.conf.5

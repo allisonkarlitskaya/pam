@@ -52,6 +52,8 @@ Patch18: pam-1.1.5-unix-remember.patch
 Patch19: pam-1.1.5-unix-crypt.patch
 # FIPS related - non upstreamable
 Patch20: pam-1.1.5-unix-no-fallback.patch
+# Will be upstreamed
+Patch21: pam-1.1.5-install-empty.patch
 
 %define _sbindir /sbin
 %define _moduledir /%{_lib}/security
@@ -131,6 +133,7 @@ mv pam-redhat-%{pam_redhat_version}/* modules
 %patch18 -p1 -b .remember
 %patch19 -p1 -b .crypt
 %patch20 -p1 -b .no-fallback
+%patch21 -p1 -b .empty
 
 libtoolize -f
 autoreconf
@@ -392,6 +395,7 @@ fi
 - correctly check for crypt() returning NULL in pam_unix
 - pam_unix - do not fallback to MD5 on password change
   if requested algorithm not supported by crypt() (#818741)
+- install empty directories
 
 * Mon May  9 2012 Tomas Mraz <tmraz@redhat.com> 1.1.5-6
 - add pam_systemd to session modules
