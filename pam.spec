@@ -3,7 +3,7 @@
 Summary: An extensible library which provides authentication for applications
 Name: pam
 Version: 1.1.5
-Release: 5%{?dist}
+Release: 6%{?dist}
 # The library is BSD licensed with option to relicense as GPLv2+
 # - this option is redundant as the BSD license allows that anyway.
 # pam_timestamp, pam_loginuid, and pam_console modules are GPLv2+.
@@ -370,6 +370,9 @@ fi
 %doc doc/adg/*.txt doc/adg/html
 
 %changelog
+* Mon May  9 2012 Tomas Mraz <tmraz@redhat.com> 1.1.5-6
+- add pam_systemd to session modules
+
 * Tue Jan 31 2012 Tomas Mraz <tmraz@redhat.com> 1.1.5-5
 - fix pam_namespace leaking the protect mounts to parent namespace (#755216)
 
