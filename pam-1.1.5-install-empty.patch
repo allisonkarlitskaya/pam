@@ -8,7 +8,7 @@ diff -up Linux-PAM-1.1.5/modules/pam_namespace/Makefile.am.empty Linux-PAM-1.1.5
 -  namespaced_DATA =
 +
 +install-data-local:
-+	mkdir -p $(namespaceddir)
++	mkdir -p $(DESTDIR)$(namespaceddir)
  endif
  
  
@@ -24,7 +24,7 @@ diff -up Linux-PAM-1.1.5/modules/pam_sepermit/Makefile.am.empty Linux-PAM-1.1.5/
    securelib_LTLIBRARIES = pam_sepermit.la
 +
 +install-data-local:
-+	mkdir -p $(sepermitlockdir)
++	mkdir -p $(DESTDIR)$(sepermitlockdir)
  endif
  if ENABLE_REGENERATE_MAN
  noinst_DATA = README pam_sepermit.8 sepermit.conf.5
