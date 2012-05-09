@@ -3,7 +3,7 @@
 Summary: An extensible library which provides authentication for applications
 Name: pam
 Version: 1.1.5
-Release: 6%{?dist}
+Release: 7%{?dist}
 # The library is BSD licensed with option to relicense as GPLv2+
 # - this option is redundant as the BSD license allows that anyway.
 # pam_timestamp, pam_loginuid, and pam_console modules are GPLv2+.
@@ -42,6 +42,16 @@ Patch13: pam-1.1.5-limits-user.patch
 Patch14: pam-1.1.5-namespace-rslave.patch
 # Committed to upstream git
 Patch15: pam-1.1.5-namespace-no-unmount.patch
+# Committed to upstream git
+Patch16: pam-1.1.5-lastlog-inactive.patch
+# Committed to upstream git
+Patch17: pam-1.1.5-cracklib-gecoscheck.patch
+# Committed to upstream git
+Patch18: pam-1.1.5-unix-remember.patch
+# Committed to upstream git
+Patch19: pam-1.1.5-unix-crypt.patch
+# FIPS related - non upstreamable
+Patch20: pam-1.1.5-unix-no-fallback.patch
 
 %define _sbindir /sbin
 %define _moduledir /%{_lib}/security
@@ -116,6 +126,11 @@ mv pam-redhat-%{pam_redhat_version}/* modules
 %patch13 -p1 -b .limits
 %patch14 -p1 -b .rslave
 %patch15 -p1 -b .no-unmount
+%patch16 -p1 -b .inactive
+%patch17 -p1 -b .gecoscheck
+%patch18 -p1 -b .remember
+%patch19 -p1 -b .crypt
+%patch20 -p1 -b .no-fallback
 
 libtoolize -f
 autoreconf
@@ -370,6 +385,14 @@ fi
 %doc doc/adg/*.txt doc/adg/html
 
 %changelog
+* Mon May  9 2012 Tomas Mraz <tmraz@redhat.com> 1.1.5-7
+- add inactive account lock out functionality to pam_lastlog
+- fix pam_unix remember user name matching
+- add gecoscheck and maxclassrepeat functionality to pam_cracklib
+- correctly check for crypt() returning NULL in pam_unix
+- pam_unix - do not fallback to MD5 on password change
+  if requested algorithm not supported by crypt() (#818741)
+
 * Mon May  9 2012 Tomas Mraz <tmraz@redhat.com> 1.1.5-6
 - add pam_systemd to session modules
 
