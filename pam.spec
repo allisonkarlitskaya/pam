@@ -3,7 +3,7 @@
 Summary: An extensible library which provides authentication for applications
 Name: pam
 Version: 1.1.5
-Release: 7%{?dist}
+Release: 8%{?dist}
 # The library is BSD licensed with option to relicense as GPLv2+
 # - this option is redundant as the BSD license allows that anyway.
 # pam_timestamp, pam_loginuid, and pam_console modules are GPLv2+.
@@ -388,6 +388,9 @@ fi
 %doc doc/adg/*.txt doc/adg/html
 
 %changelog
+* Fri Jul 20 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.1.5-8
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_18_Mass_Rebuild
+
 * Mon May  9 2012 Tomas Mraz <tmraz@redhat.com> 1.1.5-7
 - add inactive account lock out functionality to pam_lastlog
 - fix pam_unix remember user name matching
