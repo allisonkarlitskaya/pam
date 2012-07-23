@@ -54,6 +54,8 @@ Patch19: pam-1.1.5-unix-crypt.patch
 Patch20: pam-1.1.5-unix-no-fallback.patch
 # Will be upstreamed
 Patch21: pam-1.1.5-install-empty.patch
+#
+Patch22: pam-1.1.5-unix-build.patch
 
 %define _sbindir /sbin
 %define _moduledir /%{_lib}/security
@@ -134,6 +136,7 @@ mv pam-redhat-%{pam_redhat_version}/* modules
 %patch19 -p1 -b .crypt
 %patch20 -p1 -b .no-fallback
 %patch21 -p1 -b .empty
+%patch22 -p1 -b .build
 
 libtoolize -f
 autoreconf
@@ -219,7 +222,7 @@ rm -fr $RPM_BUILD_ROOT/usr/share/doc/pam
 install -m755 -d $RPM_BUILD_ROOT/lib/security
 
 # Install the file for autocreation of /var/run subdirectories on boot
-install -m644 -D %{SOURCE15} $RPM_BUILD_ROOT%{_sysconfdir}/tmpfiles.d/pamtmp.conf
+install -m644 -D %{SOURCE15} $RPM_BUILD_ROOT%{_prefix}/lib/tmpfiles.d/pam.conf
 
 %find_lang Linux-PAM
 
@@ -373,7 +376,7 @@ fi
 %endif
 %ghost %verify(not md5 size mtime) /var/log/tallylog
 %dir /var/run/faillock
-%config(noreplace) %{_sysconfdir}/tmpfiles.d/pamtmp.conf
+%{_prefix}/lib/tmpfiles.d/pam.conf
 %{_mandir}/man5/*
 %{_mandir}/man8/*
 
@@ -388,8 +391,10 @@ fi
 %doc doc/adg/*.txt doc/adg/html
 
 %changelog
-* Fri Jul 20 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.1.5-8
-- Rebuilt for https://fedoraproject.org/wiki/Fedora_18_Mass_Rebuild
+* Mon Jul 23 2012 Tomas Mraz <tmraz@redhat.com> - 1.1.5-8
+- fix build failure in pam_unix
+- add display of previous bad login attempts to postlogin.pamd
+- put the tmpfiles.d config to /usr/lib and rename it to pam.conf
 
 * Mon May  9 2012 Tomas Mraz <tmraz@redhat.com> 1.1.5-7
 - add inactive account lock out functionality to pam_lastlog
