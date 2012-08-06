@@ -87,7 +87,7 @@ BuildRequires: libselinux-devel >= 1.33.2
 Requires: libselinux >= 1.33.2
 %endif
 Requires: glibc >= 2.3.90-37
-BuildRequires: db4-devel
+BuildRequires: libdb-devel
 # Following deps are necessary only to build the pam library documentation.
 BuildRequires: linuxdoc-tools, w3m, libxslt
 BuildRequires: docbook-style-xsl, docbook-dtds
@@ -391,10 +391,11 @@ fi
 %doc doc/adg/*.txt doc/adg/html
 
 %changelog
-* Mon Jul 23 2012 Tomas Mraz <tmraz@redhat.com> - 1.1.5-8
+* Mon Aug  6 2012 Tomas Mraz <tmraz@redhat.com> - 1.1.5-8
 - fix build failure in pam_unix
 - add display of previous bad login attempts to postlogin.pamd
 - put the tmpfiles.d config to /usr/lib and rename it to pam.conf
+- build against libdb-5
 
 * Mon May  9 2012 Tomas Mraz <tmraz@redhat.com> 1.1.5-7
 - add inactive account lock out functionality to pam_lastlog
