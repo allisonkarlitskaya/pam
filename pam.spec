@@ -3,7 +3,7 @@
 Summary: An extensible library which provides authentication for applications
 Name: pam
 Version: 1.1.5
-Release: 8%{?dist}
+Release: 9%{?dist}
 # The library is BSD licensed with option to relicense as GPLv2+
 # - this option is redundant as the BSD license allows that anyway.
 # pam_timestamp, pam_loginuid, and pam_console modules are GPLv2+.
@@ -391,6 +391,9 @@ fi
 %doc doc/adg/*.txt doc/adg/html
 
 %changelog
+* Thu Aug  9 2012 Tomas Mraz <tmraz@redhat.com> - 1.1.5-9
+- make the pam_lastlog module in postlogin 'optional' (#846843)
+
 * Mon Aug  6 2012 Tomas Mraz <tmraz@redhat.com> - 1.1.5-8
 - fix build failure in pam_unix
 - add display of previous bad login attempts to postlogin.pamd
