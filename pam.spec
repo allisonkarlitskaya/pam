@@ -3,7 +3,7 @@
 Summary: An extensible library which provides authentication for applications
 Name: pam
 Version: 1.1.6
-Release: 1%{?dist}
+Release: 2%{?dist}
 # The library is BSD licensed with option to relicense as GPLv2+
 # - this option is redundant as the BSD license allows that anyway.
 # pam_timestamp, pam_loginuid, and pam_console modules are GPLv2+.
@@ -38,6 +38,8 @@ Patch10: pam-1.1.3-nouserenv.patch
 Patch11: pam-1.1.3-console-abstract.patch
 Patch12: pam-1.1.3-faillock-screensaver.patch
 Patch13: pam-1.1.5-limits-user.patch
+Patch14: pam-1.1.6-audit-data.patch
+Patch15: pam-1.1.6-full-relro.patch
 # FIPS related - non upstreamable
 Patch20: pam-1.1.5-unix-no-fallback.patch
 # Upstreamed
@@ -116,6 +118,8 @@ mv pam-redhat-%{pam_redhat_version}/* modules
 %patch11 -p1 -b .abstract
 %patch12 -p1 -b .screensaver
 %patch13 -p1 -b .limits
+%patch14 -p1 -b .audata
+%patch15 -p1 -b .relro
 %patch20 -p1 -b .no-fallback
 %patch21 -p1 -b .empty
 %patch22 -p1 -b .build
@@ -373,6 +377,10 @@ fi
 %doc doc/adg/*.txt doc/adg/html
 
 %changelog
+* Mon Sep  3 2012 Tomas Mraz <tmraz@redhat.com> 1.1.6-2
+- link setuid binaries with full relro (#853158)
+- add rhost and tty to auditing data in modules (#677664)
+
 * Fri Aug 17 2012 Tomas Mraz <tmraz@redhat.com> - 1.1.6-1
 - new upstream release
 
