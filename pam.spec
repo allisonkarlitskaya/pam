@@ -124,10 +124,8 @@ mv pam-redhat-%{pam_redhat_version}/* modules
 %patch21 -p1 -b .empty
 %patch22 -p1 -b .build
 
-libtoolize -f
-autoreconf
-
 %build
+autoreconf
 %configure \
 	--libdir=/%{_lib} \
 	--includedir=%{_includedir}/security \
