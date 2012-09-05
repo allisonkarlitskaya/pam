@@ -46,6 +46,7 @@ Patch20: pam-1.1.5-unix-no-fallback.patch
 Patch21: pam-1.1.6-install-empty.patch
 #
 Patch22: pam-1.1.5-unix-build.patch
+Patch23: pam-1.1.6-autoupdate.patch
 
 %define _sbindir /sbin
 %define _moduledir /%{_lib}/security
@@ -67,7 +68,7 @@ BuildRequires: autoconf >= 2.60
 BuildRequires: automake, libtool
 BuildRequires: bison, flex, sed
 BuildRequires: cracklib-devel, cracklib-dicts >= 2.8
-BuildRequires: perl, pkgconfig, gettext
+BuildRequires: perl, pkgconfig, gettext-devel
 %if %{WITH_AUDIT}
 BuildRequires: audit-libs-devel >= 1.0.8
 Requires: audit-libs >= 1.0.8
@@ -123,12 +124,14 @@ mv pam-redhat-%{pam_redhat_version}/* modules
 %patch20 -p1 -b .no-fallback
 %patch21 -p1 -b .empty
 %patch22 -p1 -b .build
+%patch23 -p1 -b .autoupdate
 
 %build
 autoreconf
 %configure \
 	--libdir=/%{_lib} \
 	--includedir=%{_includedir}/security \
+	--disable-static \
 	--disable-prelude \
 %if ! %{WITH_SELINUX}
 	--disable-selinux \
