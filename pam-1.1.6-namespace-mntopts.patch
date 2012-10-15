@@ -1,0 +1,93 @@
+diff --git a/modules/pam_namespace/namespace.conf.5.xml b/modules/pam_namespace/namespace.conf.5.xml
+index 673099b..f28350d 100644
+--- a/modules/pam_namespace/namespace.conf.5.xml
++++ b/modules/pam_namespace/namespace.conf.5.xml
+@@ -119,6 +119,14 @@
+       contain the user name and will be shared among all users.
+     </para>
+ 
++    <para><emphasis>mntopts</emphasis>=<replaceable>value</replaceable>
++      - this flag value is passed to the mount call when the tmpfs mount is done.
++      It allows for example the specification of the maximum size of the tmpfs
++      instance that is created by the mount call. See <citerefentry>
++      <refentrytitle>mount</refentrytitle><manvolnum>8</manvolnum>
++      </citerefentry> for details.
++    </para>
++
+     <para>
+       The directory where polyinstantiated instances are to be
+       created, must exist and must have, by default, the mode of 0000.  The
+diff --git a/modules/pam_namespace/pam_namespace.c b/modules/pam_namespace/pam_namespace.c
+index a40f05e..e0d5e30 100644
+--- a/modules/pam_namespace/pam_namespace.c
++++ b/modules/pam_namespace/pam_namespace.c
+@@ -64,6 +64,7 @@ static void del_polydir(struct polydir_s *poly)
+ 	if (poly) {
+ 		free(poly->uid);
+ 		free(poly->init_script);
++		free(poly->mount_opts);
+ 		free(poly);
+ 	}
+ }
+@@ -237,9 +238,9 @@ static int parse_method(char *method, struct polydir_s *poly,
+     static const char *method_names[] = { "user", "context", "level", "tmpdir",
+ 	"tmpfs", NULL };
+     static const char *flag_names[] = { "create", "noinit", "iscript",
+-	"shared", NULL };
++	"shared", "mntopts", NULL };
+     static const unsigned int flag_values[] = { POLYDIR_CREATE, POLYDIR_NOINIT,
+-	POLYDIR_ISCRIPT, POLYDIR_SHARED };
++	POLYDIR_ISCRIPT, POLYDIR_SHARED, POLYDIR_MNTOPTS };
+     int i;
+     char *flag;
+ 
+@@ -279,6 +280,20 @@ static int parse_method(char *method, struct polydir_s *poly,
+ 					return -1;
+ 				};
+ 				break;
++
++			    case POLYDIR_MNTOPTS:
++				if (flag[namelen] != '=')
++					break;
++				if (poly->method != TMPFS) {
++					pam_syslog(idata->pamh, LOG_WARNING, "Mount options applicable only to tmpfs method");
++					break;
++				}
++				free(poly->mount_opts); /* if duplicate mntopts specified */
++				if ((poly->mount_opts = strdup(flag+namelen+1)) == NULL) {
++					pam_syslog(idata->pamh, LOG_CRIT, "Memory allocation error");
++					return -1;
++				}
++				break;
+ 			}
+ 		}
+ 	}
+@@ -1464,7 +1479,7 @@ static int ns_setup(struct polydir_s *polyptr,
+     }
+ 
+     if (polyptr->method == TMPFS) {
+-	if (mount("tmpfs", polyptr->dir, "tmpfs", 0, NULL) < 0) {
++	if (mount("tmpfs", polyptr->dir, "tmpfs", 0, polyptr->mount_opts) < 0) {
+ 	    pam_syslog(idata->pamh, LOG_ERR, "Error mounting tmpfs on %s, %m",
+ 		polyptr->dir);
+             return PAM_SESSION_ERR;
+diff --git a/modules/pam_namespace/pam_namespace.h b/modules/pam_namespace/pam_namespace.h
+index 51d2388..47ebcc3 100644
+--- a/modules/pam_namespace/pam_namespace.h
++++ b/modules/pam_namespace/pam_namespace.h
+@@ -116,6 +116,7 @@
+ #define POLYDIR_NOINIT        0x00000004 /* no init script */
+ #define POLYDIR_SHARED        0x00000008 /* share context/level instances among users */
+ #define POLYDIR_ISCRIPT       0x00000010 /* non default init script */
++#define POLYDIR_MNTOPTS       0x00000020 /* mount options for tmpfs mount */
+ 
+ 
+ #define NAMESPACE_MAX_DIR_LEN 80
+@@ -164,6 +165,7 @@ struct polydir_s {
+     uid_t *uid;				/* list of override uids */
+     unsigned int flags;			/* polydir flags */
+     char *init_script;			/* path to init script */
++    char *mount_opts;			/* mount options for tmpfs mount */
+     uid_t owner;			/* user which should own the polydir */
+     gid_t group;			/* group which should own the polydir */
+     mode_t mode;			/* mode of the polydir */

@@ -3,7 +3,7 @@
 Summary: An extensible library which provides authentication for applications
 Name: pam
 Version: 1.1.6
-Release: 2%{?dist}
+Release: 3%{?dist}
 # The library is BSD licensed with option to relicense as GPLv2+
 # - this option is redundant as the BSD license allows that anyway.
 # pam_timestamp, pam_loginuid, and pam_console modules are GPLv2+.
@@ -46,7 +46,10 @@ Patch20: pam-1.1.5-unix-no-fallback.patch
 Patch21: pam-1.1.6-install-empty.patch
 #
 Patch22: pam-1.1.5-unix-build.patch
+# Upstreamed
 Patch23: pam-1.1.6-autoupdate.patch
+# Upstreamed
+Patch24: pam-1.1.6-namespace-mntopts.patch
 
 %define _sbindir /sbin
 %define _moduledir /%{_lib}/security
@@ -125,6 +128,7 @@ mv pam-redhat-%{pam_redhat_version}/* modules
 %patch21 -p1 -b .empty
 %patch22 -p1 -b .build
 %patch23 -p1 -b .autoupdate
+%patch24 -p1 -b .mntopts
 
 %build
 autoreconf
@@ -378,6 +382,9 @@ fi
 %doc doc/adg/*.txt doc/adg/html
 
 %changelog
+* Mon Oct 15 2012 Tomas Mraz <tmraz@redhat.com> 1.1.6-3
+- add support for tmpfs mount options in pam_namespace
+
 * Mon Sep  3 2012 Tomas Mraz <tmraz@redhat.com> 1.1.6-2
 - link setuid binaries with full relro (#853158)
 - add rhost and tty to auditing data in modules (#677664)
