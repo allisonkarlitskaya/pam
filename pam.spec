@@ -3,7 +3,7 @@
 Summary: An extensible library which provides authentication for applications
 Name: pam
 Version: 1.1.6
-Release: 3%{?dist}
+Release: 4%{?dist}
 # The library is BSD licensed with option to relicense as GPLv2+
 # - this option is redundant as the BSD license allows that anyway.
 # pam_timestamp, pam_loginuid, and pam_console modules are GPLv2+.
@@ -131,7 +131,7 @@ mv pam-redhat-%{pam_redhat_version}/* modules
 %patch24 -p1 -b .mntopts
 
 %build
-autoreconf
+autoreconf -i
 %configure \
 	--libdir=/%{_lib} \
 	--includedir=%{_includedir}/security \
@@ -382,6 +382,9 @@ fi
 %doc doc/adg/*.txt doc/adg/html
 
 %changelog
+* Tue Jan 22 2013 Tomas Mraz <tmraz@redhat.com> 1.1.6-4
+- fix build with current autotools
+
 * Mon Oct 15 2012 Tomas Mraz <tmraz@redhat.com> 1.1.6-3
 - add support for tmpfs mount options in pam_namespace
 
@@ -401,7 +404,7 @@ fi
 - put the tmpfiles.d config to /usr/lib and rename it to pam.conf
 - build against libdb-5
 
-* Mon May  9 2012 Tomas Mraz <tmraz@redhat.com> 1.1.5-7
+* Wed May  9 2012 Tomas Mraz <tmraz@redhat.com> 1.1.5-7
 - add inactive account lock out functionality to pam_lastlog
 - fix pam_unix remember user name matching
 - add gecoscheck and maxclassrepeat functionality to pam_cracklib
@@ -410,7 +413,7 @@ fi
   if requested algorithm not supported by crypt() (#818741)
 - install empty directories
 
-* Mon May  9 2012 Tomas Mraz <tmraz@redhat.com> 1.1.5-6
+* Wed May  9 2012 Tomas Mraz <tmraz@redhat.com> 1.1.5-6
 - add pam_systemd to session modules
 
 * Tue Jan 31 2012 Tomas Mraz <tmraz@redhat.com> 1.1.5-5
@@ -539,7 +542,7 @@ fi
 * Thu Mar 26 2009 Tomas Mraz <tmraz@redhat.com> 1.0.91-5
 - replace also other std descriptors (#491471)
 
-* Tue Mar 16 2009 Tomas Mraz <tmraz@redhat.com> 1.0.91-3
+* Tue Mar 17 2009 Tomas Mraz <tmraz@redhat.com> 1.0.91-3
 - we must replace the stdin when execing the helper (#490644)
 
 * Mon Mar 16 2009 Tomas Mraz <tmraz@redhat.com> 1.0.91-2
@@ -635,7 +638,7 @@ fi
 * Mon Jan 14 2008 Tomas Mraz <tmraz@redhat.com> 0.99.8.1-15
 - merge review fixes (#226228)
 
-* Wed Jan  8 2008 Tomas Mraz <tmraz@redhat.com> 0.99.8.1-14
+* Tue Jan  8 2008 Tomas Mraz <tmraz@redhat.com> 0.99.8.1-14
 - support for sha256 and sha512 password hashes
 - account expiry checks moved to unix_chkpwd helper
 
@@ -735,10 +738,10 @@ fi
 - revert to old euid and not ruid when setting euid in pam_keyinit (#219486)
 - rename selinux-namespace patch to namespace-level
 
-* Thu Dec 1 2006 Dan Walsh <dwalsh@redhat.com> 0.99.6.2-7
+* Fri Dec 1 2006 Dan Walsh <dwalsh@redhat.com> 0.99.6.2-7
 - fix selection of role
 
-* Thu Dec 1 2006 Dan Walsh <dwalsh@redhat.com> 0.99.6.2-6
+* Fri Dec 1 2006 Dan Walsh <dwalsh@redhat.com> 0.99.6.2-6
 - add possibility to pam_namespace to only change MLS component
 - Resolves: Bug #216184
 
@@ -1133,10 +1136,10 @@ support)
 * Tue May 18 2004 Phil Knirsch <pknirsch@redhat.com> 0.77-41
 - Fixed 64bit segfault in pam_succeed_if module.
 
-* Thu Apr 14 2004 Dan Walsh <dwalsh@redhat.com> 0.77-40
+* Wed Apr 14 2004 Dan Walsh <dwalsh@redhat.com> 0.77-40
 - Apply changes from audit.
 
-* Tue Apr 12 2004 Dan Walsh <dwalsh@redhat.com> 0.77-39
+* Mon Apr 12 2004 Dan Walsh <dwalsh@redhat.com> 0.77-39
 - Change to only report failure on relabel if debug
 
 * Wed Mar 3 2004 Dan Walsh <dwalsh@redhat.com> 0.77-38
@@ -1154,7 +1157,7 @@ support)
 * Fri Feb 13 2004 Elliot Lee <sopwith@redhat.com>
 - rebuilt
 
-* Tue Feb 12 2004 Nalin Dahyabhai <nalin@redhat.com>
+* Thu Feb 12 2004 Nalin Dahyabhai <nalin@redhat.com>
 - pam_unix: also log successful password changes when using shadowed passwords
 
 * Tue Feb 10 2004 Dan Walsh <dwalsh@redhat.com> 0.77-33
@@ -1406,7 +1409,7 @@ support)
 * Wed Jan 23 2002 Nalin Dahyabhai <nalin@redhat.com> 0.75-21
 - pam_userdb: build with db4 instead of db3
 
-* Wed Nov 22 2001 Nalin Dahyabhai <nalin@redhat.com> 0.75-20
+* Thu Nov 22 2001 Nalin Dahyabhai <nalin@redhat.com> 0.75-20
 - pam_stack: fix some memory leaks (reported by Fernando Trias)
 - pam_chroot: integrate Owl patch to report the more common causes of failures
 
@@ -1693,7 +1696,7 @@ support)
 * Mon Dec 18 2000 Nalin Dahyabhai <nalin@redhat.com>
 - refresh from CVS -- some weird stuff crept into pam_unix
 
-* Wed Dec 12 2000 Nalin Dahyabhai <nalin@redhat.com>
+* Tue Dec 12 2000 Nalin Dahyabhai <nalin@redhat.com>
 - fix handling of "nis" when changing passwords by adding the checks for the
   data source to the password-updating module in pam_unix
 - add the original copyright for pam_access (fix from Michael Gerdts)
@@ -1786,10 +1789,10 @@ support)
 - add a broken_shadow option to pam_unix
 - add all module README files to the documentation list (#16456)
 
-* Wed Jul 25 2000 Nalin Dahyabhai <nalin@redhat.com>
+* Tue Jul 25 2000 Nalin Dahyabhai <nalin@redhat.com>
 - fix pam_stack debug and losing-track-of-the-result bug
 
-* Tue Jul 24 2000 Nalin Dahyabhai <nalin@redhat.com>
+* Mon Jul 24 2000 Nalin Dahyabhai <nalin@redhat.com>
 - rework pam_console's usage of syslog to actually be sane (#14646)
 
 * Sat Jul 22 2000 Nalin Dahyabhai <nalin@redhat.com>
