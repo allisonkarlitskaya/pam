@@ -3,7 +3,7 @@
 Summary: An extensible library which provides authentication for applications
 Name: pam
 Version: 1.1.6
-Release: 5%{?dist}
+Release: 6%{?dist}
 # The library is BSD licensed with option to relicense as GPLv2+
 # - this option is redundant as the BSD license allows that anyway.
 # pam_timestamp, pam_loginuid, and pam_console modules are GPLv2+.
@@ -107,6 +107,7 @@ and modules for use with the PAM system.
 
 %prep
 %setup -q -n Linux-PAM-%{version} -a 2
+perl -pi -e "s/ppc64-\*/ppc64-\* \| ppc64p7-\*/" build-aux/config.sub
 
 # Add custom modules.
 mv pam-redhat-%{pam_redhat_version}/* modules
@@ -382,6 +383,9 @@ fi
 %doc doc/adg/*.txt doc/adg/html
 
 %changelog
+* Thu Feb 21 2013 Karsten Hopp <karsten@redhat.com> 1.1.6-6
+- add support for ppc64p7 arch (Power7 optimized)
+
 * Thu Feb 14 2013 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.1.6-5
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_19_Mass_Rebuild
 
