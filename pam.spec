@@ -3,7 +3,7 @@
 Summary: An extensible library which provides authentication for applications
 Name: pam
 Version: 1.1.6
-Release: 6%{?dist}
+Release: 7%{?dist}
 # The library is BSD licensed with option to relicense as GPLv2+
 # - this option is redundant as the BSD license allows that anyway.
 # pam_timestamp, pam_loginuid, and pam_console modules are GPLv2+.
@@ -37,7 +37,7 @@ Patch9:  pam-1.1.6-noflex.patch
 Patch10: pam-1.1.3-nouserenv.patch
 Patch11: pam-1.1.3-console-abstract.patch
 Patch12: pam-1.1.3-faillock-screensaver.patch
-Patch13: pam-1.1.5-limits-user.patch
+Patch13: pam-1.1.6-limits-user.patch
 Patch14: pam-1.1.6-audit-data.patch
 Patch15: pam-1.1.6-full-relro.patch
 # FIPS related - non upstreamable
@@ -383,6 +383,9 @@ fi
 %doc doc/adg/*.txt doc/adg/html
 
 %changelog
+* Thu Mar 14 2013 Tomáš Mráz <tmraz@redhat.com> 1.1.6-7
+- add workaround for low nproc limit for confined root user (#432903)
+
 * Thu Feb 21 2013 Karsten Hopp <karsten@redhat.com> 1.1.6-6
 - add support for ppc64p7 arch (Power7 optimized)
 
