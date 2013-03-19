@@ -3,7 +3,7 @@
 Summary: An extensible library which provides authentication for applications
 Name: pam
 Version: 1.1.6
-Release: 7%{?dist}
+Release: 8%{?dist}
 # The library is BSD licensed with option to relicense as GPLv2+
 # - this option is redundant as the BSD license allows that anyway.
 # pam_timestamp, pam_loginuid, and pam_console modules are GPLv2+.
@@ -50,6 +50,8 @@ Patch22: pam-1.1.5-unix-build.patch
 Patch23: pam-1.1.6-autoupdate.patch
 # Upstreamed
 Patch24: pam-1.1.6-namespace-mntopts.patch
+# Upstreamed
+Patch25: pam-1.1.6-crypt-null-check.patch
 
 %define _sbindir /sbin
 %define _moduledir /%{_lib}/security
@@ -130,6 +132,7 @@ mv pam-redhat-%{pam_redhat_version}/* modules
 %patch22 -p1 -b .build
 %patch23 -p1 -b .autoupdate
 %patch24 -p1 -b .mntopts
+%patch25 -p1 -b .null-check
 
 %build
 autoreconf -i
@@ -383,6 +386,9 @@ fi
 %doc doc/adg/*.txt doc/adg/html
 
 %changelog
+* Tue Mar 19 2013 Tomáš Mráz <tmraz@redhat.com> 1.1.6-8
+- check NULL return from crypt() calls (#915316)
+
 * Thu Mar 14 2013 Tomáš Mráz <tmraz@redhat.com> 1.1.6-7
 - add workaround for low nproc limit for confined root user (#432903)
 
