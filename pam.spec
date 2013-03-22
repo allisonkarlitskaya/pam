@@ -3,7 +3,7 @@
 Summary: An extensible library which provides authentication for applications
 Name: pam
 Version: 1.1.6
-Release: 8%{?dist}
+Release: 9%{?dist}
 # The library is BSD licensed with option to relicense as GPLv2+
 # - this option is redundant as the BSD license allows that anyway.
 # pam_timestamp, pam_loginuid, and pam_console modules are GPLv2+.
@@ -52,9 +52,15 @@ Patch23: pam-1.1.6-autoupdate.patch
 Patch24: pam-1.1.6-namespace-mntopts.patch
 # Upstreamed
 Patch25: pam-1.1.6-crypt-null-check.patch
+# Upstreamed
+Patch26: pam-1.1.6-lastlog-retval.patch
+# Sent to upstream for review
+Patch27: pam-1.1.6-strict-aliasing.patch
+# Upstreamed
+Patch28: pam-1.1.6-selinux-manualctx.patch
 
-%define _sbindir /sbin
-%define _moduledir /%{_lib}/security
+%define _pamlibdir %{_libdir}
+%define _moduledir %{_libdir}/security
 %define _secconfdir %{_sysconfdir}/security
 %define _pamconfdir %{_sysconfdir}/pam.d
 
@@ -65,7 +71,6 @@ Patch25: pam-1.1.6-crypt-null-check.patch
 %define WITH_AUDIT 1
 %endif
 
-BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 Requires: cracklib-dicts >= 2.8
 Requires: libpwquality >= 0.9.9
 Requires(post): coreutils, /sbin/ldconfig
@@ -88,7 +93,7 @@ BuildRequires: libdb-devel
 BuildRequires: linuxdoc-tools, w3m, libxslt
 BuildRequires: docbook-style-xsl, docbook-dtds
 
-URL: http://www.us.kernel.org/pub/linux/libs/pam/index.html
+URL: http://www.linux-pam.org/
 
 %description
 PAM (Pluggable Authentication Modules) is a system security tool that
@@ -133,11 +138,15 @@ mv pam-redhat-%{pam_redhat_version}/* modules
 %patch23 -p1 -b .autoupdate
 %patch24 -p1 -b .mntopts
 %patch25 -p1 -b .null-check
+%patch26 -p1 -b .retval
+%patch27 -p1 -b .strict-aliasing
+%patch28 -p1 -b .manualctx
+
 
 %build
 autoreconf -i
 %configure \
-	--libdir=/%{_lib} \
+	--libdir=%{_pamlibdir} \
 	--includedir=%{_includedir}/security \
 	--disable-static \
 	--disable-prelude \
@@ -152,8 +161,6 @@ make
 # we do not use _smp_mflags because the build of sources in yacc/flex fails
 
 %install
-rm -rf $RPM_BUILD_ROOT
-
 mkdir -p doc/txts
 for readme in modules/pam_*/README ; do
 	cp -f ${readme} doc/txts/README.`dirname ${readme} | sed -e 's|^modules/||'`
@@ -200,21 +207,23 @@ done
 
 # Remove .la files and make new .so links -- this depends on the value
 # of _libdir not changing, and *not* being /usr/lib.
-install -d -m 755 $RPM_BUILD_ROOT%{_libdir}
 for lib in libpam libpamc libpam_misc ; do
-pushd $RPM_BUILD_ROOT%{_libdir}
-ln -sf ../../%{_lib}/${lib}.so.*.* ${lib}.so
-popd
-rm -f $RPM_BUILD_ROOT/%{_lib}/${lib}.so
-rm -f $RPM_BUILD_ROOT/%{_lib}/${lib}.la
+rm -f $RPM_BUILD_ROOT%{_pamlibdir}/${lib}.la
 done
 rm -f $RPM_BUILD_ROOT%{_moduledir}/*.la
 
+%if "%{_pamlibdir}" != "%{_libdir}"
+install -d -m 755 $RPM_BUILD_ROOT%{_libdir}
+for lib in libpam libpamc libpam_misc ; do
+pushd $RPM_BUILD_ROOT%{_libdir}
+ln -sf %{_pamlibdir}/${lib}.so.*.* ${lib}.so
+popd
+rm -f $RPM_BUILD_ROOT%{_pamlibdir}/${lib}.so
+done
+%endif
+
 # Duplicate doc file sets.
 rm -fr $RPM_BUILD_ROOT/usr/share/doc/pam
-
-# Create /lib/security in case it isn't the same as %{_moduledir}.
-install -m755 -d $RPM_BUILD_ROOT/lib/security
 
 # Install the file for autocreation of /var/run subdirectories on boot
 install -m644 -D %{SOURCE15} $RPM_BUILD_ROOT%{_prefix}/lib/tmpfiles.d/pam.conf
@@ -242,17 +251,14 @@ done
 
 # Check for module problems.  Specifically, check that every module we just
 # installed can actually be loaded by a minimal PAM-aware application.
-/sbin/ldconfig -n $RPM_BUILD_ROOT/%{_lib}
+/sbin/ldconfig -n $RPM_BUILD_ROOT%{_pamlibdir}
 for module in $RPM_BUILD_ROOT%{_moduledir}/pam*.so ; do
-	if ! env LD_LIBRARY_PATH=$RPM_BUILD_ROOT/%{_lib} \
-		 %{SOURCE11} -ldl -lpam -L$RPM_BUILD_ROOT/%{_libdir} ${module} ; then
+	if ! env LD_LIBRARY_PATH=$RPM_BUILD_ROOT%{_pamlibdir} \
+		 %{SOURCE11} -ldl -lpam -L$RPM_BUILD_ROOT%{_libdir} ${module} ; then
 		echo ERROR module: ${module} cannot be loaded.
 		exit 1
 	fi
 done
-
-%clean
-rm -rf $RPM_BUILD_ROOT
 
 %post
 /sbin/ldconfig
@@ -276,9 +282,9 @@ fi
 %doc doc/txts
 %doc doc/sag/*.txt doc/sag/html
 %doc doc/specs/rfc86.0.txt
-/%{_lib}/libpam.so.*
-/%{_lib}/libpamc.so.*
-/%{_lib}/libpam_misc.so.*
+%{_pamlibdir}/libpam.so.*
+%{_pamlibdir}/libpamc.so.*
+%{_pamlibdir}/libpam_misc.so.*
 %{_sbindir}/pam_console_apply
 %{_sbindir}/pam_tally2
 %{_sbindir}/faillock
@@ -286,9 +292,6 @@ fi
 %attr(4755,root,root) %{_sbindir}/unix_chkpwd
 %attr(0700,root,root) %{_sbindir}/unix_update
 %attr(0755,root,root) %{_sbindir}/mkhomedir_helper
-%if %{_lib} != lib
-%dir /lib/security
-%endif
 %dir %{_moduledir}
 %{_moduledir}/pam_access.so
 %{_moduledir}/pam_chroot.so
@@ -386,6 +389,14 @@ fi
 %doc doc/adg/*.txt doc/adg/html
 
 %changelog
+* Fri Mar 22 2013 Tomáš Mráz <tmraz@redhat.com> 1.1.6-9
+- do not fail if btmp file is corrupted (#906852)
+- fix strict aliasing warnings in build
+- UsrMove
+- use authtok_type with pam_pwquality in system-auth
+- remove manual_context handling from pam_selinux (#876976)
+- other minor specfile cleanups
+
 * Tue Mar 19 2013 Tomáš Mráz <tmraz@redhat.com> 1.1.6-8
 - check NULL return from crypt() calls (#915316)
 
