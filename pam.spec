@@ -3,7 +3,7 @@
 Summary: An extensible library which provides authentication for applications
 Name: pam
 Version: 1.1.6
-Release: 9%{?dist}
+Release: 10%{?dist}
 # The library is BSD licensed with option to relicense as GPLv2+
 # - this option is redundant as the BSD license allows that anyway.
 # pam_timestamp, pam_loginuid, and pam_console modules are GPLv2+.
@@ -389,6 +389,9 @@ fi
 %doc doc/adg/*.txt doc/adg/html
 
 %changelog
+* Tue Apr 23 2013 Tomáš Mráz <tmraz@redhat.com> 1.1.6-10
+- pam_unix: do not fail with bad ld.so.preload
+
 * Fri Mar 22 2013 Tomáš Mráz <tmraz@redhat.com> 1.1.6-9
 - do not fail if btmp file is corrupted (#906852)
 - fix strict aliasing warnings in build
