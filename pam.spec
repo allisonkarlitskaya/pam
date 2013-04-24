@@ -389,7 +389,7 @@ fi
 %doc doc/adg/*.txt doc/adg/html
 
 %changelog
-* Tue Apr 23 2013 Tomáš Mráz <tmraz@redhat.com> 1.1.6-10
+* Wed Apr 24 2013 Tomáš Mráz <tmraz@redhat.com> 1.1.6-10
 - pam_unix: do not fail with bad ld.so.preload
 
 * Fri Mar 22 2013 Tomáš Mráz <tmraz@redhat.com> 1.1.6-9
