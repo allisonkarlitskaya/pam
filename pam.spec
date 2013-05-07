@@ -3,7 +3,7 @@
 Summary: An extensible library which provides authentication for applications
 Name: pam
 Version: 1.1.6
-Release: 10%{?dist}
+Release: 11%{?dist}
 # The library is BSD licensed with option to relicense as GPLv2+
 # - this option is redundant as the BSD license allows that anyway.
 # pam_timestamp, pam_loginuid, and pam_console modules are GPLv2+.
@@ -156,7 +156,6 @@ autoreconf -i
 %if ! %{WITH_AUDIT}
 	--disable-audit \
 %endif
-	--enable-isadir=../..%{_moduledir}
 make
 # we do not use _smp_mflags because the build of sources in yacc/flex fails
 
@@ -389,6 +388,9 @@ fi
 %doc doc/adg/*.txt doc/adg/html
 
 %changelog
+* Tue May  7 2013 Tomáš Mráz <tmraz@redhat.com> 1.1.6-11
+- the default isadir is more correct
+
 * Wed Apr 24 2013 Tomáš Mráz <tmraz@redhat.com> 1.1.6-10
 - pam_unix: do not fail with bad ld.so.preload
 
