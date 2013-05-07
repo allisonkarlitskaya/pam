@@ -148,14 +148,14 @@ autoreconf -i
 %configure \
 	--libdir=%{_pamlibdir} \
 	--includedir=%{_includedir}/security \
-	--disable-static \
-	--disable-prelude \
 %if ! %{WITH_SELINUX}
 	--disable-selinux \
 %endif
 %if ! %{WITH_AUDIT}
 	--disable-audit \
 %endif
+	--disable-static \
+	--disable-prelude
 make
 # we do not use _smp_mflags because the build of sources in yacc/flex fails
 
