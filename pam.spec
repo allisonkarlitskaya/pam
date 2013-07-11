@@ -295,6 +295,7 @@ fi
 %attr(4755,root,root) %{_sbindir}/unix_chkpwd
 %attr(0700,root,root) %{_sbindir}/unix_update
 %attr(0755,root,root) %{_sbindir}/mkhomedir_helper
+%attr(0755,root,root) %{_sbindir}/pwhistory_helper
 %dir %{_moduledir}
 %{_moduledir}/pam_access.so
 %{_moduledir}/pam_chroot.so
