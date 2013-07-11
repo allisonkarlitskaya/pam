@@ -1,0 +1,99 @@
+diff -up Linux-PAM-1.1.6/modules/pam_rootok/Makefile.am.audit Linux-PAM-1.1.6/modules/pam_rootok/Makefile.am
+--- Linux-PAM-1.1.6/modules/pam_rootok/Makefile.am.audit	2012-08-15 13:08:43.000000000 +0200
++++ Linux-PAM-1.1.6/modules/pam_rootok/Makefile.am	2013-07-04 10:30:21.000000000 +0200
+@@ -25,7 +25,7 @@ if HAVE_VERSIONING
+ endif
+ 
+ securelib_LTLIBRARIES = pam_rootok.la
+-pam_rootok_la_LIBADD = $(top_builddir)/libpam/libpam.la @LIBSELINUX@
++pam_rootok_la_LIBADD = $(top_builddir)/libpam/libpam.la @LIBSELINUX@ @LIBAUDIT@
+ 
+ if ENABLE_REGENERATE_MAN
+ noinst_DATA = README
+diff -up Linux-PAM-1.1.6/modules/pam_rootok/pam_rootok.c.audit Linux-PAM-1.1.6/modules/pam_rootok/pam_rootok.c
+--- Linux-PAM-1.1.6/modules/pam_rootok/pam_rootok.c.audit	2012-08-15 13:08:43.000000000 +0200
++++ Linux-PAM-1.1.6/modules/pam_rootok/pam_rootok.c	2013-03-22 09:41:48.000000000 +0100
+@@ -28,7 +28,11 @@
+ 
+ #ifdef WITH_SELINUX
+ #include <selinux/selinux.h>
+-#include <selinux/av_permissions.h>
++#include <selinux/avc.h>
++#endif
++
++#ifdef HAVE_LIBAUDIT
++#include <libaudit.h>
+ #endif
+ 
+ /* argument parsing */
+@@ -55,6 +59,61 @@ _pam_parse (const pam_handle_t *pamh, in
+     return ctrl;
+ }
+ 
++#ifdef WITH_SELINUX
++static int
++log_callback (int type, const char *fmt, ...)
++{
++    int audit_fd;
++    va_list ap;
++
++    va_start(ap, fmt);
++#ifdef HAVE_LIBAUDIT
++    audit_fd = audit_open();
++
++    if (audit_fd >= 0) {
++	char *buf;
++
++	if (vasprintf (&buf, fmt, ap) < 0)
++		return 0;
++	audit_log_user_avc_message(audit_fd, AUDIT_USER_AVC, buf, NULL, NULL,
++				   NULL, 0);
++	audit_close(audit_fd);
++	free(buf);
++	return 0;
++    }
++
++#endif
++    vsyslog (LOG_USER | LOG_INFO, fmt, ap);
++    va_end(ap);
++    return 0;
++}
++
++static int
++selinux_check_root (void)
++{
++    int status = -1;
++    security_context_t user_context;
++    union selinux_callback old_callback;
++
++    if (is_selinux_enabled() < 1)
++	return 0;
++
++    old_callback = selinux_get_callback(SELINUX_CB_LOG);
++    /* setup callbacks */
++    selinux_set_callback(SELINUX_CB_LOG, (union selinux_callback) &log_callback);
++    if ((status = getprevcon(&user_context)) < 0) {
++	selinux_set_callback(SELINUX_CB_LOG, old_callback);
++	return status;
++    }
++
++    status = selinux_check_access(user_context, user_context, "passwd", "passwd", NULL);
++
++    selinux_set_callback(SELINUX_CB_LOG, old_callback);
++    freecon(user_context);
++    return status;
++}
++#endif
++
+ static int
+ check_for_root (pam_handle_t *pamh, int ctrl)
+ {
+@@ -62,7 +121,7 @@ check_for_root (pam_handle_t *pamh, int
+ 
+     if (getuid() == 0)
+ #ifdef WITH_SELINUX
+-      if (is_selinux_enabled()<1 || checkPasswdAccess(PASSWD__ROOTOK)==0)
++      if (selinux_check_root() == 0 || security_getenforce() == 0)
+ #endif
+ 	retval = PAM_SUCCESS;
+ 

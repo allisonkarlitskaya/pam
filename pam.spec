@@ -3,7 +3,7 @@
 Summary: An extensible library which provides authentication for applications
 Name: pam
 Version: 1.1.6
-Release: 11%{?dist}
+Release: 12%{?dist}
 # The library is BSD licensed with option to relicense as GPLv2+
 # - this option is redundant as the BSD license allows that anyway.
 # pam_timestamp, pam_loginuid, and pam_console modules are GPLv2+.
@@ -58,6 +58,8 @@ Patch26: pam-1.1.6-lastlog-retval.patch
 Patch27: pam-1.1.6-strict-aliasing.patch
 # Upstreamed
 Patch28: pam-1.1.6-selinux-manualctx.patch
+Patch29: pam-1.1.6-pwhistory-helper.patch
+Patch30: pam-1.1.6-rootok-audit.patch
 
 %define _pamlibdir %{_libdir}
 %define _moduledir %{_libdir}/security
@@ -141,6 +143,8 @@ mv pam-redhat-%{pam_redhat_version}/* modules
 %patch26 -p1 -b .retval
 %patch27 -p1 -b .strict-aliasing
 %patch28 -p1 -b .manualctx
+%patch29 -p1 -b .pwhhelper
+%patch30 -p1 -b .audit
 
 
 %build
@@ -388,6 +392,10 @@ fi
 %doc doc/adg/*.txt doc/adg/html
 
 %changelog
+* Thu Jul 11 2013 Tomáš Mráz <tmraz@redhat.com> 1.1.6-12
+- add auditing of SELinux policy violation in pam_rootok (#965723)
+- add SELinux helper to pam_pwhistory
+
 * Tue May  7 2013 Tomáš Mráz <tmraz@redhat.com> 1.1.6-11
 - the default isadir is more correct
 
