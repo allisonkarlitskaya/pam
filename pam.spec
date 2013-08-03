@@ -3,7 +3,7 @@
 Summary: An extensible library which provides authentication for applications
 Name: pam
 Version: 1.1.6
-Release: 12%{?dist}
+Release: 13%{?dist}
 # The library is BSD licensed with option to relicense as GPLv2+
 # - this option is redundant as the BSD license allows that anyway.
 # pam_timestamp, pam_loginuid, and pam_console modules are GPLv2+.
@@ -393,6 +393,9 @@ fi
 %doc doc/adg/*.txt doc/adg/html
 
 %changelog
+* Sat Aug 03 2013 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.1.6-13
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_20_Mass_Rebuild
+
 * Thu Jul 11 2013 Tomáš Mráz <tmraz@redhat.com> 1.1.6-12
 - add auditing of SELinux policy violation in pam_rootok (#965723)
 - add SELinux helper to pam_pwhistory
