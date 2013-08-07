@@ -3,7 +3,7 @@
 Summary: An extensible library which provides authentication for applications
 Name: pam
 Version: 1.1.6
-Release: 13%{?dist}
+Release: 14%{?dist}
 # The library is BSD licensed with option to relicense as GPLv2+
 # - this option is redundant as the BSD license allows that anyway.
 # pam_timestamp, pam_loginuid, and pam_console modules are GPLv2+.
@@ -60,6 +60,9 @@ Patch27: pam-1.1.6-strict-aliasing.patch
 Patch28: pam-1.1.6-selinux-manualctx.patch
 Patch29: pam-1.1.6-pwhistory-helper.patch
 Patch30: pam-1.1.6-rootok-audit.patch
+Patch31: pam-1.1.6-use-links.patch
+Patch32: pam-1.1.6-sepermit-user.patch
+Patch33: pam-1.1.6-tty-audit-echo.patch
 
 %define _pamlibdir %{_libdir}
 %define _moduledir %{_libdir}/security
@@ -91,8 +94,9 @@ Requires: libselinux >= 1.33.2
 %endif
 Requires: glibc >= 2.3.90-37
 BuildRequires: libdb-devel
+BuildRequires: systemd-devel
 # Following deps are necessary only to build the pam library documentation.
-BuildRequires: linuxdoc-tools, w3m, libxslt
+BuildRequires: linuxdoc-tools, elinks, libxslt
 BuildRequires: docbook-style-xsl, docbook-dtds
 
 URL: http://www.linux-pam.org/
@@ -145,6 +149,9 @@ mv pam-redhat-%{pam_redhat_version}/* modules
 %patch28 -p1 -b .manualctx
 %patch29 -p1 -b .pwhhelper
 %patch30 -p1 -b .audit
+%patch31 -p1 -b .links
+%patch32 -p1 -b .sepermit-user
+%patch33 -p1 -b .tty-audit-echo
 
 
 %build
@@ -393,6 +400,11 @@ fi
 %doc doc/adg/*.txt doc/adg/html
 
 %changelog
+* Wed Aug  7 2013 Tomáš Mráz <tmraz@redhat.com> 1.1.6-14
+- use links instead of w3m to create txt documentation
+- recognize login session in pam_sepermit to prevent gdm from locking (#969174)
+- add support for disabling password logging in pam_tty_audit
+
 * Sat Aug 03 2013 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.1.6-13
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_20_Mass_Rebuild
 

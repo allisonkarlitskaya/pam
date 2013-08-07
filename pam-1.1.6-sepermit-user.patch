@@ -1,0 +1,58 @@
+diff -up Linux-PAM-1.1.6/modules/pam_sepermit/Makefile.am.sepermit Linux-PAM-1.1.6/modules/pam_sepermit/Makefile.am
+--- Linux-PAM-1.1.6/modules/pam_sepermit/Makefile.am.sepermit	2013-07-24 12:55:08.822987098 -0400
++++ Linux-PAM-1.1.6/modules/pam_sepermit/Makefile.am	2013-07-24 12:55:11.653004214 -0400
+@@ -24,7 +24,7 @@ AM_CFLAGS = -I$(top_srcdir)/libpam/inclu
+ 	-D SEPERMIT_CONF_FILE=\"$(SCONFIGDIR)/sepermit.conf\" \
+ 	-D SEPERMIT_LOCKDIR=\"$(sepermitlockdir)\"
+ 
+-pam_sepermit_la_LIBADD = $(top_builddir)/libpam/libpam.la @LIBSELINUX@
++pam_sepermit_la_LIBADD = $(top_builddir)/libpam/libpam.la @LIBSELINUX@ -lsystemd-login
+ pam_sepermit_la_LDFLAGS = -no-undefined -avoid-version -module
+ if HAVE_VERSIONING
+   pam_sepermit_la_LDFLAGS += -Wl,--version-script=$(srcdir)/../modules.map
+diff -up Linux-PAM-1.1.6/modules/pam_sepermit/pam_sepermit.c.sepermit Linux-PAM-1.1.6/modules/pam_sepermit/pam_sepermit.c
+--- Linux-PAM-1.1.6/modules/pam_sepermit/pam_sepermit.c.sepermit	2012-08-15 07:08:43.000000000 -0400
++++ Linux-PAM-1.1.6/modules/pam_sepermit/pam_sepermit.c	2013-07-24 13:17:24.088061506 -0400
+@@ -65,6 +65,7 @@
+ #include <security/pam_ext.h>
+ 
+ #include <selinux/selinux.h>
++#include <systemd/sd-login.h>
+ 
+ #define MODULE "pam_sepermit"
+ #define OPT_DELIM ":"
+@@ -187,6 +188,25 @@ sepermit_unlock(pam_handle_t *pamh, void
+ }
+ 
+ static int
++check_user_session(pam_handle_t *pamh) {
++	char *session = NULL;
++	char *class = NULL;
++	int rc;
++
++	if (sd_pid_get_session(0, &session)) 
++		return -1;
++	rc = sd_session_get_class(session, &class);
++	pam_syslog(pamh, LOG_ERR, "Session %s", session);
++	if (rc == 0) {
++		rc = strcmp(class, "user");
++		pam_syslog(pamh, LOG_ERR, "Class %s", class);
++	}
++	free(session);
++	free(class);
++	return rc;
++}
++
++static int
+ sepermit_lock(pam_handle_t *pamh, const char *user, int debug)
+ {
+ 	char buf[PATH_MAX];
+@@ -319,7 +339,7 @@ sepermit_match(pam_handle_t *pamh, const
+ 		if (*sense == PAM_SUCCESS) {
+ 			if (ignore)
+ 				*sense = PAM_IGNORE;
+-			if (geteuid() == 0 && exclusive)
++			if (geteuid() == 0 && exclusive && check_user_session(pamh) != 0)
+ 				if (sepermit_lock(pamh, user, debug) < 0)
+ 					*sense = PAM_AUTH_ERR;
+ 		}
