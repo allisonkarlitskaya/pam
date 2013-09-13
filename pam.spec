@@ -2,8 +2,8 @@
 
 Summary: An extensible library which provides authentication for applications
 Name: pam
-Version: 1.1.6
-Release: 14%{?dist}
+Version: 1.1.7
+Release: 1%{?dist}
 # The library is BSD licensed with option to relicense as GPLv2+
 # - this option is redundant as the BSD license allows that anyway.
 # pam_timestamp, pam_loginuid, and pam_console modules are GPLv2+.
@@ -38,31 +38,13 @@ Patch10: pam-1.1.3-nouserenv.patch
 Patch11: pam-1.1.3-console-abstract.patch
 Patch12: pam-1.1.3-faillock-screensaver.patch
 Patch13: pam-1.1.6-limits-user.patch
-Patch14: pam-1.1.6-audit-data.patch
 Patch15: pam-1.1.6-full-relro.patch
 # FIPS related - non upstreamable
 Patch20: pam-1.1.5-unix-no-fallback.patch
-# Upstreamed
-Patch21: pam-1.1.6-install-empty.patch
-#
-Patch22: pam-1.1.5-unix-build.patch
-# Upstreamed
-Patch23: pam-1.1.6-autoupdate.patch
-# Upstreamed
-Patch24: pam-1.1.6-namespace-mntopts.patch
-# Upstreamed
-Patch25: pam-1.1.6-crypt-null-check.patch
-# Upstreamed
-Patch26: pam-1.1.6-lastlog-retval.patch
-# Sent to upstream for review
-Patch27: pam-1.1.6-strict-aliasing.patch
-# Upstreamed
-Patch28: pam-1.1.6-selinux-manualctx.patch
+# Upstreamed partially
+Patch22: pam-1.1.7-unix-build.patch
 Patch29: pam-1.1.6-pwhistory-helper.patch
-Patch30: pam-1.1.6-rootok-audit.patch
 Patch31: pam-1.1.6-use-links.patch
-Patch32: pam-1.1.6-sepermit-user.patch
-Patch33: pam-1.1.6-tty-audit-echo.patch
 
 %define _pamlibdir %{_libdir}
 %define _moduledir %{_libdir}/security
@@ -94,7 +76,6 @@ Requires: libselinux >= 1.33.2
 %endif
 Requires: glibc >= 2.3.90-37
 BuildRequires: libdb-devel
-BuildRequires: systemd-devel
 # Following deps are necessary only to build the pam library documentation.
 BuildRequires: linuxdoc-tools, elinks, libxslt
 BuildRequires: docbook-style-xsl, docbook-dtds
@@ -136,22 +117,11 @@ mv pam-redhat-%{pam_redhat_version}/* modules
 %patch11 -p1 -b .abstract
 %patch12 -p1 -b .screensaver
 %patch13 -p1 -b .limits
-%patch14 -p1 -b .audata
 %patch15 -p1 -b .relro
 %patch20 -p1 -b .no-fallback
-%patch21 -p1 -b .empty
 %patch22 -p1 -b .build
-%patch23 -p1 -b .autoupdate
-%patch24 -p1 -b .mntopts
-%patch25 -p1 -b .null-check
-%patch26 -p1 -b .retval
-%patch27 -p1 -b .strict-aliasing
-%patch28 -p1 -b .manualctx
 %patch29 -p1 -b .pwhhelper
-%patch30 -p1 -b .audit
 %patch31 -p1 -b .links
-%patch32 -p1 -b .sepermit-user
-%patch33 -p1 -b .tty-audit-echo
 
 
 %build
@@ -400,6 +370,9 @@ fi
 %doc doc/adg/*.txt doc/adg/html
 
 %changelog
+* Fri Sep 13 2013 Tomáš Mráz <tmraz@redhat.com> 1.1.7-1
+- new upstream release
+
 * Wed Aug  7 2013 Tomáš Mráz <tmraz@redhat.com> 1.1.6-14
 - use links instead of w3m to create txt documentation
 - recognize login session in pam_sepermit to prevent gdm from locking (#969174)
