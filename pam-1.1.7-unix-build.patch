@@ -32,7 +32,7 @@ diff -up Linux-PAM-1.1.7/modules/pam_unix/pam_unix_passwd.c.build Linux-PAM-1.1.
  	  retval = PAM_AUTHTOK_ERR;
 diff -up Linux-PAM-1.1.7/modules/pam_unix/support.c.build Linux-PAM-1.1.7/modules/pam_unix/support.c
 --- Linux-PAM-1.1.7/modules/pam_unix/support.c.build	2013-09-13 13:22:12.716064196 +0200
-+++ Linux-PAM-1.1.7/modules/pam_unix/support.c	2013-09-13 13:22:12.755065042 +0200
++++ Linux-PAM-1.1.7/modules/pam_unix/support.c	2013-09-13 14:44:02.452924470 +0200
 @@ -19,6 +19,7 @@
  #include <signal.h>
  #include <ctype.h>
@@ -41,3 +41,12 @@ diff -up Linux-PAM-1.1.7/modules/pam_unix/support.c.build Linux-PAM-1.1.7/module
  #include <sys/resource.h>
  #ifdef HAVE_RPCSVC_YPCLNT_H
  #include <rpcsvc/ypclnt.h>
+@@ -177,7 +178,7 @@ int _set_ctrl(pam_handle_t *pamh, int fl
+ 	  free (val);
+ 
+ 	  /* read number of rounds for crypt algo */
+-	  if (on(UNIX_SHA256_PASS, ctrl) || on(UNIX_SHA512_PASS, ctrl)) {
++	  if (rounds && (on(UNIX_SHA256_PASS, ctrl) || on(UNIX_SHA512_PASS, ctrl))) {
+ 	    val=search_key ("SHA_CRYPT_MAX_ROUNDS", LOGIN_DEFS);
+ 
+ 	    if (val) {
