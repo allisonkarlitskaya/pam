@@ -3,7 +3,7 @@
 Summary: An extensible library which provides authentication for applications
 Name: pam
 Version: 1.1.7
-Release: 2%{?dist}
+Release: 3%{?dist}
 # The library is BSD licensed with option to relicense as GPLv2+
 # - this option is redundant as the BSD license allows that anyway.
 # pam_timestamp, pam_loginuid, and pam_console modules are GPLv2+.
@@ -45,6 +45,7 @@ Patch20: pam-1.1.5-unix-no-fallback.patch
 Patch22: pam-1.1.7-unix-build.patch
 Patch29: pam-1.1.6-pwhistory-helper.patch
 Patch31: pam-1.1.6-use-links.patch
+Patch32: pam-1.1.7-tty-audit-init.patch
 
 %define _pamlibdir %{_libdir}
 %define _moduledir %{_libdir}/security
@@ -122,7 +123,7 @@ mv pam-redhat-%{pam_redhat_version}/* modules
 %patch22 -p1 -b .build
 %patch29 -p1 -b .pwhhelper
 %patch31 -p1 -b .links
-
+%patch32 -p1 -b .tty-audit-init
 
 %build
 autoreconf -i
@@ -370,6 +371,9 @@ fi
 %doc doc/adg/*.txt doc/adg/html
 
 %changelog
+* Fri Oct  4 2013 Tomáš Mráz <tmraz@redhat.com> 1.1.7-3
+- pam_tty_audit: proper initialization of the tty_audit_status struct
+
 * Mon Sep 30 2013 Tomáš Mráz <tmraz@redhat.com> 1.1.7-2
 - add "local_users_only" to pam_pwquality in default configuration
 
