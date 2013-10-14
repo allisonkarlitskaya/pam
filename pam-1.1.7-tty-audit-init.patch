@@ -32,7 +32,7 @@ diff -up Linux-PAM-1.1.7/modules/pam_tty_audit/pam_tty_audit.c.tty-audit-init Li
      }
 +  else if (resdiff > 0)
 +    {
-+      memset((char *)buf + res, 0, resdiff);
++      memset((char *)buf + size - resdiff, 0, resdiff);
 +    }
    return 0;
  }
