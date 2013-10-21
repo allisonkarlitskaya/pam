@@ -3,7 +3,7 @@
 Summary: An extensible library which provides authentication for applications
 Name: pam
 Version: 1.1.8
-Release: 1%{?dist}
+Release: 2%{?dist}
 # The library is BSD licensed with option to relicense as GPLv2+
 # - this option is redundant as the BSD license allows that anyway.
 # pam_timestamp, pam_loginuid, and pam_console modules are GPLv2+.
@@ -369,6 +369,9 @@ fi
 %doc doc/adg/*.txt doc/adg/html
 
 %changelog
+* Mon Oct 21 2013 Tomáš Mráz <tmraz@redhat.com> 1.1.8-2
+- update lastlog with pam_lastlog also for su (#1021108)
+
 * Mon Oct 14 2013 Tomáš Mráz <tmraz@redhat.com> 1.1.8-1
 - new upstream release
 - pam_tty_audit: allow the module to work with old kernels
