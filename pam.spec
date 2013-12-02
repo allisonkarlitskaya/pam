@@ -123,7 +123,7 @@ mv pam-redhat-%{pam_redhat_version}/* modules
 %patch29 -p1 -b .pwhhelper
 %patch31 -p1 -b .links
 %patch32 -p1 -b .tty-audit-init
-%patch33 -p1 -b .translations
+%patch33 -p2 -b .translations
 
 %build
 autoreconf -i
@@ -138,6 +138,7 @@ autoreconf -i
 %endif
 	--disable-static \
 	--disable-prelude
+make -C po update-gmo
 make
 # we do not use _smp_mflags because the build of sources in yacc/flex fails
 
