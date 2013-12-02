@@ -3,7 +3,7 @@
 Summary: An extensible library which provides authentication for applications
 Name: pam
 Version: 1.1.8
-Release: 2%{?dist}
+Release: 3%{?dist}
 # The library is BSD licensed with option to relicense as GPLv2+
 # - this option is redundant as the BSD license allows that anyway.
 # pam_timestamp, pam_loginuid, and pam_console modules are GPLv2+.
@@ -45,6 +45,7 @@ Patch20: pam-1.1.5-unix-no-fallback.patch
 Patch29: pam-1.1.6-pwhistory-helper.patch
 Patch31: pam-1.1.6-use-links.patch
 Patch32: pam-1.1.7-tty-audit-init.patch
+Patch33: pam-1.1.8-translation-updates.patch
 
 %define _pamlibdir %{_libdir}
 %define _moduledir %{_libdir}/security
@@ -122,6 +123,7 @@ mv pam-redhat-%{pam_redhat_version}/* modules
 %patch29 -p1 -b .pwhhelper
 %patch31 -p1 -b .links
 %patch32 -p1 -b .tty-audit-init
+%patch33 -p1 -b .translations
 
 %build
 autoreconf -i
@@ -369,6 +371,9 @@ fi
 %doc doc/adg/*.txt doc/adg/html
 
 %changelog
+* Mon Dec  2 2013 Tomáš Mráz <tmraz@redhat.com> 1.1.8-3
+- updated translations
+
 * Mon Oct 21 2013 Tomáš Mráz <tmraz@redhat.com> 1.1.8-2
 - update lastlog with pam_lastlog also for su (#1021108)
 
