@@ -3,7 +3,7 @@
 Summary: An extensible library which provides authentication for applications
 Name: pam
 Version: 1.1.8
-Release: 3%{?dist}
+Release: 4%{?dist}
 # The library is BSD licensed with option to relicense as GPLv2+
 # - this option is redundant as the BSD license allows that anyway.
 # pam_timestamp, pam_loginuid, and pam_console modules are GPLv2+.
@@ -372,6 +372,9 @@ fi
 %doc doc/adg/*.txt doc/adg/html
 
 %changelog
+* Mon Dec 16 2013 Tomáš Mráz <tmraz@redhat.com> 1.1.8-4
+- raise the default soft nproc limit to 4096
+
 * Mon Dec  2 2013 Tomáš Mráz <tmraz@redhat.com> 1.1.8-3
 - updated translations
 
