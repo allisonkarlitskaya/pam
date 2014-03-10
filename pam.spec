@@ -1,9 +1,9 @@
-%define pam_redhat_version 0.99.10-1
+%define pam_redhat_version 0.99.11
 
 Summary: An extensible library which provides authentication for applications
 Name: pam
 Version: 1.1.8
-Release: 4%{?dist}
+Release: 7%{?dist}
 # The library is BSD licensed with option to relicense as GPLv2+
 # - this option is redundant as the BSD license allows that anyway.
 # pam_timestamp, pam_loginuid, and pam_console modules are GPLv2+.
@@ -23,7 +23,7 @@ Source10: config-util.pamd
 Source11: dlopen.sh
 Source12: system-auth.5
 Source13: config-util.5
-Source14: 90-nproc.conf
+Source14: 20-nproc.conf
 Source15: pamtmp.conf
 Source16: postlogin.pamd
 Source17: postlogin.5
@@ -31,11 +31,9 @@ Patch1:  pam-1.0.90-redhat-modules.patch
 Patch2:  pam-1.1.6-std-noclose.patch
 Patch4:  pam-1.1.0-console-nochmod.patch
 Patch5:  pam-1.1.0-notally.patch
-Patch7:  pam-1.1.0-console-fixes.patch
 Patch8:  pam-1.1.1-faillock.patch
 Patch9:  pam-1.1.6-noflex.patch
 Patch10: pam-1.1.3-nouserenv.patch
-Patch11: pam-1.1.3-console-abstract.patch
 Patch12: pam-1.1.3-faillock-screensaver.patch
 Patch13: pam-1.1.6-limits-user.patch
 Patch15: pam-1.1.6-full-relro.patch
@@ -46,6 +44,7 @@ Patch29: pam-1.1.6-pwhistory-helper.patch
 Patch31: pam-1.1.6-use-links.patch
 Patch32: pam-1.1.7-tty-audit-init.patch
 Patch33: pam-1.1.8-translation-updates.patch
+Patch34: pam-1.1.8-canonicalize-username.patch
 
 %define _pamlibdir %{_libdir}
 %define _moduledir %{_libdir}/security
@@ -58,6 +57,7 @@ Patch33: pam-1.1.8-translation-updates.patch
 %if %{?WITH_AUDIT:0}%{!?WITH_AUDIT:1}
 %define WITH_AUDIT 1
 %endif
+%global _performance_build 1
 
 Requires: cracklib-dicts >= 2.8
 Requires: libpwquality >= 0.9.9
@@ -111,11 +111,9 @@ mv pam-redhat-%{pam_redhat_version}/* modules
 %patch2 -p1 -b .std-noclose
 %patch4 -p1 -b .nochmod
 %patch5 -p1 -b .notally
-%patch7 -p1 -b .console-fixes
 %patch8 -p1 -b .faillock
 %patch9 -p1 -b .noflex
 %patch10 -p1 -b .nouserenv
-%patch11 -p1 -b .abstract
 %patch12 -p1 -b .screensaver
 %patch13 -p1 -b .limits
 %patch15 -p1 -b .relro
@@ -124,6 +122,7 @@ mv pam-redhat-%{pam_redhat_version}/* modules
 %patch31 -p1 -b .links
 %patch32 -p1 -b .tty-audit-init
 %patch33 -p2 -b .translations
+%patch34 -p1 -b .canonicalize
 
 %build
 autoreconf -i
@@ -341,7 +340,7 @@ fi
 %config(noreplace) %{_secconfdir}/group.conf
 %config(noreplace) %{_secconfdir}/limits.conf
 %dir %{_secconfdir}/limits.d
-%config(noreplace) %{_secconfdir}/limits.d/90-nproc.conf
+%config(noreplace) %{_secconfdir}/limits.d/20-nproc.conf
 %config(noreplace) %{_secconfdir}/namespace.conf
 %dir %{_secconfdir}/namespace.d
 %attr(755,root,root) %config(noreplace) %{_secconfdir}/namespace.init
@@ -372,6 +371,11 @@ fi
 %doc doc/adg/*.txt doc/adg/html
 
 %changelog
+* Mon Mar 10 2014 Tomáš Mráz <tmraz@redhat.com> 1.1.8-5
+- rename the 90-nproc.conf to 20-nproc.conf (#1071618)
+- canonicalize user name in pam_selinux (#1071010)
+- refresh the pam-redhat tarball
+
 * Mon Dec 16 2013 Tomáš Mráz <tmraz@redhat.com> 1.1.8-4
 - raise the default soft nproc limit to 4096
 
