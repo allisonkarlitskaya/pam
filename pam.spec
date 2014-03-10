@@ -169,7 +169,7 @@ install -m 644 %{SOURCE8} $RPM_BUILD_ROOT%{_pamconfdir}/fingerprint-auth
 install -m 644 %{SOURCE9} $RPM_BUILD_ROOT%{_pamconfdir}/smartcard-auth
 install -m 644 %{SOURCE10} $RPM_BUILD_ROOT%{_pamconfdir}/config-util
 install -m 644 %{SOURCE16} $RPM_BUILD_ROOT%{_pamconfdir}/postlogin
-install -m 644 %{SOURCE14} $RPM_BUILD_ROOT%{_secconfdir}/limits.d/90-nproc.conf
+install -m 644 %{SOURCE14} $RPM_BUILD_ROOT%{_secconfdir}/limits.d/20-nproc.conf
 install -m 600 /dev/null $RPM_BUILD_ROOT%{_secconfdir}/opasswd
 install -d -m 755 $RPM_BUILD_ROOT/var/log
 install -m 600 /dev/null $RPM_BUILD_ROOT/var/log/tallylog
