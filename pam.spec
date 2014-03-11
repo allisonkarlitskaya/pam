@@ -3,7 +3,7 @@
 Summary: An extensible library which provides authentication for applications
 Name: pam
 Version: 1.1.8
-Release: 7%{?dist}
+Release: 8%{?dist}
 # The library is BSD licensed with option to relicense as GPLv2+
 # - this option is redundant as the BSD license allows that anyway.
 # pam_timestamp, pam_loginuid, and pam_console modules are GPLv2+.
@@ -45,6 +45,7 @@ Patch31: pam-1.1.6-use-links.patch
 Patch32: pam-1.1.7-tty-audit-init.patch
 Patch33: pam-1.1.8-translation-updates.patch
 Patch34: pam-1.1.8-canonicalize-username.patch
+Patch35: pam-1.1.8-cve-2013-7041.patch
 
 %define _pamlibdir %{_libdir}
 %define _moduledir %{_libdir}/security
@@ -123,6 +124,7 @@ mv pam-redhat-%{pam_redhat_version}/* modules
 %patch32 -p1 -b .tty-audit-init
 %patch33 -p2 -b .translations
 %patch34 -p1 -b .canonicalize
+%patch35 -p1 -b .case
 
 %build
 autoreconf -i
@@ -371,6 +373,9 @@ fi
 %doc doc/adg/*.txt doc/adg/html
 
 %changelog
+* Tue Mar 11 2014 Tomáš Mráz <tmraz@redhat.com> 1.1.8-8
+- fix CVE-2013-7041: use case sensitive comparison in pam_userdb
+
 * Mon Mar 10 2014 Tomáš Mráz <tmraz@redhat.com> 1.1.8-7
 - rename the 90-nproc.conf to 20-nproc.conf (#1071618)
 - canonicalize user name in pam_selinux (#1071010)
