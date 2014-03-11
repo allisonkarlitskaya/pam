@@ -371,7 +371,7 @@ fi
 %doc doc/adg/*.txt doc/adg/html
 
 %changelog
-* Mon Mar 10 2014 Tomáš Mráz <tmraz@redhat.com> 1.1.8-5
+* Mon Mar 10 2014 Tomáš Mráz <tmraz@redhat.com> 1.1.8-7
 - rename the 90-nproc.conf to 20-nproc.conf (#1071618)
 - canonicalize user name in pam_selinux (#1071010)
 - refresh the pam-redhat tarball
