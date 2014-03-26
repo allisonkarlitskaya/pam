@@ -3,7 +3,7 @@
 Summary: An extensible library which provides authentication for applications
 Name: pam
 Version: 1.1.8
-Release: 8%{?dist}
+Release: 9%{?dist}
 # The library is BSD licensed with option to relicense as GPLv2+
 # - this option is redundant as the BSD license allows that anyway.
 # pam_timestamp, pam_loginuid, and pam_console modules are GPLv2+.
@@ -40,7 +40,7 @@ Patch15: pam-1.1.6-full-relro.patch
 # FIPS related - non upstreamable
 Patch20: pam-1.1.5-unix-no-fallback.patch
 # Upstreamed partially
-Patch29: pam-1.1.6-pwhistory-helper.patch
+Patch29: pam-1.1.8-pwhistory-helper.patch
 Patch31: pam-1.1.6-use-links.patch
 Patch32: pam-1.1.7-tty-audit-init.patch
 Patch33: pam-1.1.8-translation-updates.patch
@@ -373,6 +373,9 @@ fi
 %doc doc/adg/*.txt doc/adg/html
 
 %changelog
+* Wed Mar 26 2014 Tomáš Mráz <tmraz@redhat.com> 1.1.8-9
+- pam_pwhistory: call the helper if SELinux enabled
+
 * Tue Mar 11 2014 Tomáš Mráz <tmraz@redhat.com> 1.1.8-8
 - fix CVE-2013-7041: use case sensitive comparison in pam_userdb
 
