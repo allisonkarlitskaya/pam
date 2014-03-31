@@ -3,7 +3,7 @@
 Summary: An extensible library which provides authentication for applications
 Name: pam
 Version: 1.1.8
-Release: 9%{?dist}
+Release: 10%{?dist}
 # The library is BSD licensed with option to relicense as GPLv2+
 # - this option is redundant as the BSD license allows that anyway.
 # pam_timestamp, pam_loginuid, and pam_console modules are GPLv2+.
@@ -46,6 +46,7 @@ Patch32: pam-1.1.7-tty-audit-init.patch
 Patch33: pam-1.1.8-translation-updates.patch
 Patch34: pam-1.1.8-canonicalize-username.patch
 Patch35: pam-1.1.8-cve-2013-7041.patch
+Patch36: pam-1.1.8-cve-2014-2583.patch
 
 %define _pamlibdir %{_libdir}
 %define _moduledir %{_libdir}/security
@@ -125,6 +126,7 @@ mv pam-redhat-%{pam_redhat_version}/* modules
 %patch33 -p2 -b .translations
 %patch34 -p1 -b .canonicalize
 %patch35 -p1 -b .case
+%patch36 -p1 -b .timestamp-ruser
 
 %build
 autoreconf -i
@@ -373,6 +375,9 @@ fi
 %doc doc/adg/*.txt doc/adg/html
 
 %changelog
+* Mon Mar 31 2014 Tomáš Mráz <tmraz@redhat.com> 1.1.8-10
+- fix CVE-2014-2583: potential path traversal issue in pam_timestamp
+
 * Wed Mar 26 2014 Tomáš Mráz <tmraz@redhat.com> 1.1.8-9
 - pam_pwhistory: call the helper if SELinux enabled
 
