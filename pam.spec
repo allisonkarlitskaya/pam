@@ -3,7 +3,7 @@
 Summary: An extensible library which provides authentication for applications
 Name: pam
 Version: 1.1.8
-Release: 10%{?dist}
+Release: 11%{?dist}
 # The library is BSD licensed with option to relicense as GPLv2+
 # - this option is redundant as the BSD license allows that anyway.
 # pam_timestamp, pam_loginuid, and pam_console modules are GPLv2+.
@@ -47,6 +47,7 @@ Patch33: pam-1.1.8-translation-updates.patch
 Patch34: pam-1.1.8-canonicalize-username.patch
 Patch35: pam-1.1.8-cve-2013-7041.patch
 Patch36: pam-1.1.8-cve-2014-2583.patch
+Patch37: pam-1.1.8-loginuid-container.patch
 
 %define _pamlibdir %{_libdir}
 %define _moduledir %{_libdir}/security
@@ -127,6 +128,7 @@ mv pam-redhat-%{pam_redhat_version}/* modules
 %patch34 -p1 -b .canonicalize
 %patch35 -p1 -b .case
 %patch36 -p1 -b .timestamp-ruser
+%patch37 -p1 -b .container
 
 %build
 autoreconf -i
@@ -375,6 +377,9 @@ fi
 %doc doc/adg/*.txt doc/adg/html
 
 %changelog
+* Thu May 22 2014 Tomáš Mráz <tmraz@redhat.com> 1.1.8-11
+- pam_loginuid: make it return PAM_IGNORE in containers
+
 * Mon Mar 31 2014 Tomáš Mráz <tmraz@redhat.com> 1.1.8-10
 - fix CVE-2014-2583: potential path traversal issue in pam_timestamp
 
