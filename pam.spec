@@ -3,7 +3,7 @@
 Summary: An extensible library which provides authentication for applications
 Name: pam
 Version: 1.1.8
-Release: 11%{?dist}
+Release: 12%{?dist}
 # The library is BSD licensed with option to relicense as GPLv2+
 # - this option is redundant as the BSD license allows that anyway.
 # pam_timestamp, pam_loginuid, and pam_console modules are GPLv2+.
@@ -377,6 +377,9 @@ fi
 %doc doc/adg/*.txt doc/adg/html
 
 %changelog
+* Fri Jun 06 2014 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.1.8-12
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_21_Mass_Rebuild
+
 * Thu May 22 2014 Tomáš Mráz <tmraz@redhat.com> 1.1.8-11
 - pam_loginuid: make it return PAM_IGNORE in containers
 
