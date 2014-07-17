@@ -3,7 +3,7 @@
 Summary: An extensible library which provides authentication for applications
 Name: pam
 Version: 1.1.8
-Release: 12%{?dist}
+Release: 13%{?dist}
 # The library is BSD licensed with option to relicense as GPLv2+
 # - this option is redundant as the BSD license allows that anyway.
 # pam_timestamp, pam_loginuid, and pam_console modules are GPLv2+.
@@ -48,6 +48,7 @@ Patch34: pam-1.1.8-canonicalize-username.patch
 Patch35: pam-1.1.8-cve-2013-7041.patch
 Patch36: pam-1.1.8-cve-2014-2583.patch
 Patch37: pam-1.1.8-loginuid-container.patch
+Patch38: pam-1.1.8-opasswd-tolerant.patch
 
 %define _pamlibdir %{_libdir}
 %define _moduledir %{_libdir}/security
@@ -129,6 +130,7 @@ mv pam-redhat-%{pam_redhat_version}/* modules
 %patch35 -p1 -b .case
 %patch36 -p1 -b .timestamp-ruser
 %patch37 -p1 -b .container
+%patch38 -p1 -b .opasswd-tolerant
 
 %build
 autoreconf -i
@@ -377,6 +379,9 @@ fi
 %doc doc/adg/*.txt doc/adg/html
 
 %changelog
+* Thu Jul 16 2014 Tomáš Mráz <tmraz@redhat.com> 1.1.8-13
+- be tolerant to corrupted opasswd file
+
 * Fri Jun 06 2014 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.1.8-12
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_21_Mass_Rebuild
 
