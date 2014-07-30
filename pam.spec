@@ -3,7 +3,7 @@
 Summary: An extensible library which provides authentication for applications
 Name: pam
 Version: 1.1.8
-Release: 12%{?dist}
+Release: 14%{?dist}
 # The library is BSD licensed with option to relicense as GPLv2+
 # - this option is redundant as the BSD license allows that anyway.
 # pam_timestamp, pam_loginuid, and pam_console modules are GPLv2+.
@@ -27,6 +27,7 @@ Source14: 20-nproc.conf
 Source15: pamtmp.conf
 Source16: postlogin.pamd
 Source17: postlogin.5
+Source18: https://www.gnu.org/licenses/old-licenses/gpl-2.0.txt
 Patch1:  pam-1.0.90-redhat-modules.patch
 Patch2:  pam-1.1.6-std-noclose.patch
 Patch4:  pam-1.1.0-console-nochmod.patch
@@ -48,6 +49,7 @@ Patch34: pam-1.1.8-canonicalize-username.patch
 Patch35: pam-1.1.8-cve-2013-7041.patch
 Patch36: pam-1.1.8-cve-2014-2583.patch
 Patch37: pam-1.1.8-loginuid-container.patch
+Patch38: pam-1.1.8-opasswd-tolerant.patch
 
 %define _pamlibdir %{_libdir}
 %define _moduledir %{_libdir}/security
@@ -110,6 +112,8 @@ perl -pi -e "s/ppc64-\*/ppc64-\* \| ppc64p7-\*/" build-aux/config.sub
 # Add custom modules.
 mv pam-redhat-%{pam_redhat_version}/* modules
 
+cp %{SOURCE18} .
+
 %patch1 -p1 -b .redhat-modules
 %patch2 -p1 -b .std-noclose
 %patch4 -p1 -b .nochmod
@@ -129,6 +133,7 @@ mv pam-redhat-%{pam_redhat_version}/* modules
 %patch35 -p1 -b .case
 %patch36 -p1 -b .timestamp-ruser
 %patch37 -p1 -b .container
+%patch38 -p1 -b .opasswd-tolerant
 
 %build
 autoreconf -i
@@ -265,7 +270,9 @@ fi
 %config(noreplace) %{_pamconfdir}/smartcard-auth
 %config(noreplace) %{_pamconfdir}/config-util
 %config(noreplace) %{_pamconfdir}/postlogin
-%doc Copyright
+%{!?_licensedir:%global license %%doc}
+%license Copyright
+%license gpl-2.0.txt
 %doc doc/txts
 %doc doc/sag/*.txt doc/sag/html
 %doc doc/specs/rfc86.0.txt
@@ -377,6 +384,12 @@ fi
 %doc doc/adg/*.txt doc/adg/html
 
 %changelog
+* Wed Jul 30 2014 Tom Callaway <spot@fedoraproject.org> - 1.1.8-14
+- fix license handling
+
+* Wed Jul 16 2014 Tomáš Mráz <tmraz@redhat.com> 1.1.8-13
+- be tolerant to corrupted opasswd file
+
 * Fri Jun 06 2014 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.1.8-12
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_21_Mass_Rebuild
 
