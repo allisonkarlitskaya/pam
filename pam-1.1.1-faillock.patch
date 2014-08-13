@@ -433,7 +433,7 @@ diff -up Linux-PAM-1.1.1/modules/pam_faillock/faillock.8.xml.faillock Linux-PAM-
 diff -up Linux-PAM-1.1.1/modules/pam_faillock/main.c.faillock Linux-PAM-1.1.1/modules/pam_faillock/main.c
 --- Linux-PAM-1.1.1/modules/pam_faillock/main.c.faillock	2011-01-25 18:24:43.000000000 +0100
 +++ Linux-PAM-1.1.1/modules/pam_faillock/main.c	2011-01-25 18:24:56.000000000 +0100
-@@ -0,0 +1,233 @@
+@@ -0,0 +1,235 @@
 +/*
 + * Copyright (c) 2010 Tomas Mraz <tmraz@redhat.com>
 + *
@@ -478,6 +478,8 @@ diff -up Linux-PAM-1.1.1/modules/pam_faillock/main.c.faillock Linux-PAM-1.1.1/mo
 +#include <errno.h>
 +#include <pwd.h>
 +#include <time.h>
++#include <sys/types.h>
++#include <unistd.h>
 +#ifdef HAVE_LIBAUDIT
 +#include <libaudit.h>
 +#endif
@@ -717,7 +719,7 @@ diff -up Linux-PAM-1.1.1/modules/pam_faillock/Makefile.am.faillock Linux-PAM-1.1
 diff -up Linux-PAM-1.1.1/modules/pam_faillock/pam_faillock.c.faillock Linux-PAM-1.1.1/modules/pam_faillock/pam_faillock.c
 --- Linux-PAM-1.1.1/modules/pam_faillock/pam_faillock.c.faillock	2011-01-25 18:24:43.000000000 +0100
 +++ Linux-PAM-1.1.1/modules/pam_faillock/pam_faillock.c	2011-01-25 18:24:56.000000000 +0100
-@@ -0,0 +1,553 @@
+@@ -0,0 +1,556 @@
 +/*
 + * Copyright (c) 2010 Tomas Mraz <tmraz@redhat.com>
 + *
@@ -984,6 +986,7 @@ diff -up Linux-PAM-1.1.1/modules/pam_faillock/pam_faillock.c.faillock Linux-PAM-
 +			if (opts->action != FAILLOCK_ACTION_PREAUTH) { /* do not audit in preauth */
 +				char buf[64];
 +				int audit_fd;
++				const void *rhost = NULL, *tty = NULL;
 +
 +				audit_fd = audit_open();
 +				/* If there is an error & audit support is in the kernel report error */
@@ -991,9 +994,11 @@ diff -up Linux-PAM-1.1.1/modules/pam_faillock/pam_faillock.c.faillock Linux-PAM-
 +					errno == EAFNOSUPPORT))
 +					return PAM_SYSTEM_ERR;
 +
++				(void)pam_get_item(pamh, PAM_TTY, &tty);
++				(void)pam_get_item(pamh, PAM_RHOST, &rhost);
 +				snprintf(buf, sizeof(buf), "pam_faillock uid=%u ", opts->uid);
 +				audit_log_user_message(audit_fd, AUDIT_RESP_ACCT_UNLOCK_TIMED, buf,
-+					NULL, NULL, NULL, 1);
++					rhost, NULL, tty, 1);
 +			}
 +#endif
 +			opts->flags |= FAILLOCK_FLAG_UNLOCKED;

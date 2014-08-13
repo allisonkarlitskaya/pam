@@ -35,7 +35,6 @@ Patch5:  pam-1.1.0-notally.patch
 Patch8:  pam-1.1.1-faillock.patch
 Patch9:  pam-1.1.6-noflex.patch
 Patch10: pam-1.1.3-nouserenv.patch
-Patch12: pam-1.1.3-faillock-screensaver.patch
 Patch13: pam-1.1.6-limits-user.patch
 Patch15: pam-1.1.6-full-relro.patch
 # FIPS related - non upstreamable
@@ -122,7 +121,6 @@ cp %{SOURCE18} .
 %patch8 -p1 -b .faillock
 %patch9 -p1 -b .noflex
 %patch10 -p1 -b .nouserenv
-%patch12 -p1 -b .screensaver
 %patch13 -p1 -b .limits
 %patch15 -p1 -b .relro
 %patch20 -p1 -b .no-fallback
