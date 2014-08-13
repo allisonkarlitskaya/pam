@@ -3,7 +3,7 @@
 Summary: An extensible library which provides authentication for applications
 Name: pam
 Version: 1.1.8
-Release: 14%{?dist}
+Release: 15%{?dist}
 # The library is BSD licensed with option to relicense as GPLv2+
 # - this option is redundant as the BSD license allows that anyway.
 # pam_timestamp, pam_loginuid, and pam_console modules are GPLv2+.
@@ -50,6 +50,7 @@ Patch35: pam-1.1.8-cve-2013-7041.patch
 Patch36: pam-1.1.8-cve-2014-2583.patch
 Patch37: pam-1.1.8-loginuid-container.patch
 Patch38: pam-1.1.8-opasswd-tolerant.patch
+Patch39: pam-1.1.8-audit-grantor.patch
 
 %define _pamlibdir %{_libdir}
 %define _moduledir %{_libdir}/security
@@ -134,6 +135,7 @@ cp %{SOURCE18} .
 %patch36 -p1 -b .timestamp-ruser
 %patch37 -p1 -b .container
 %patch38 -p1 -b .opasswd-tolerant
+%patch39 -p1 -b .grantor
 
 %build
 autoreconf -i
@@ -384,6 +386,10 @@ fi
 %doc doc/adg/*.txt doc/adg/html
 
 %changelog
+* Wed Aug 13 2014 Tomáš Mráz <tmraz@redhat.com> 1.1.8-15
+- audit the module names that granted access
+- pam_faillock: update to latest version
+
 * Wed Jul 30 2014 Tom Callaway <spot@fedoraproject.org> - 1.1.8-14
 - fix license handling
 
