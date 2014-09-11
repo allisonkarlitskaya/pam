@@ -9,7 +9,7 @@ index 4bb4d6d..9157b91 100644
  #
  
  CLEANFILES = *~
-@@ -9,25 +10,33 @@ EXTRA_DIST = README $(MANS) $(XMLS) tst-pam_pwhistory
+@@ -9,25 +10,34 @@ EXTRA_DIST = README $(MANS) $(XMLS) tst-pam_pwhistory
  
  TESTS = tst-pam_pwhistory
  
@@ -42,8 +42,9 @@ index 4bb4d6d..9157b91 100644
  pam_pwhistory_la_SOURCES = pam_pwhistory.c opasswd.c
  
 +sbin_PROGRAMS = pwhistory_helper
-+pwhistory_helper_CFLAGS = $(AM_CFLAGS) -DHELPER_COMPILE=\"pwhistory_helper\"
++pwhistory_helper_CFLAGS = $(AM_CFLAGS) -DHELPER_COMPILE=\"pwhistory_helper\" @PIE_CFLAGS@
 +pwhistory_helper_SOURCES = pwhistory_helper.c opasswd.c
++pwhistory_helper_LDFLAGS = -Wl,-z,now @PIE_LDFLAGS@
 +pwhistory_helper_LDADD = $(top_builddir)/libpam/libpam.la @LIBCRYPT@
 +
  if ENABLE_REGENERATE_MAN

@@ -3,7 +3,7 @@
 Summary: An extensible library which provides authentication for applications
 Name: pam
 Version: 1.1.8
-Release: 16%{?dist}
+Release: 17%{?dist}
 # The library is BSD licensed with option to relicense as GPLv2+
 # - this option is redundant as the BSD license allows that anyway.
 # pam_timestamp, pam_loginuid, and pam_console modules are GPLv2+.
@@ -36,9 +36,11 @@ Patch8:  pam-1.1.1-faillock.patch
 Patch9:  pam-1.1.6-noflex.patch
 Patch10: pam-1.1.3-nouserenv.patch
 Patch13: pam-1.1.6-limits-user.patch
-Patch15: pam-1.1.6-full-relro.patch
+Patch15: pam-1.1.8-full-relro.patch
 # FIPS related - non upstreamable
 Patch20: pam-1.1.5-unix-no-fallback.patch
+Patch27: pam-1.1.8-lastlog-uninitialized.patch
+Patch28: pam-1.1.1-console-errmsg.patch
 # Upstreamed partially
 Patch29: pam-1.1.8-pwhistory-helper.patch
 Patch31: pam-1.1.6-use-links.patch
@@ -50,6 +52,9 @@ Patch36: pam-1.1.8-cve-2014-2583.patch
 Patch37: pam-1.1.8-loginuid-container.patch
 Patch38: pam-1.1.8-opasswd-tolerant.patch
 Patch39: pam-1.1.8-audit-grantor.patch
+Patch40: pam-1.1.8-man-dbsuffix.patch
+Patch41: pam-1.1.8-limits-check-process.patch
+Patch42: pam-1.1.8-limits-docfix.patch
 
 %define _pamlibdir %{_libdir}
 %define _moduledir %{_libdir}/security
@@ -124,6 +129,8 @@ cp %{SOURCE18} .
 %patch13 -p1 -b .limits
 %patch15 -p1 -b .relro
 %patch20 -p1 -b .no-fallback
+%patch27 -p1 -b .uninitialized
+%patch28 -p1 -b .errmsg
 %patch29 -p1 -b .pwhhelper
 %patch31 -p1 -b .links
 %patch32 -p1 -b .tty-audit-init
@@ -134,6 +141,9 @@ cp %{SOURCE18} .
 %patch37 -p1 -b .container
 %patch38 -p1 -b .opasswd-tolerant
 %patch39 -p1 -b .grantor
+%patch40 -p1 -b .dbsuffix
+%patch41 -p1 -b .check-process
+%patch42 -p1 -b .docfix
 
 %build
 autoreconf -i
@@ -255,7 +265,7 @@ done
 %post
 /sbin/ldconfig
 if [ ! -e /var/log/tallylog ] ; then
-	install -m 600 /dev/null /var/log/tallylog
+	/usr/bin/install -m 600 /dev/null /var/log/tallylog
 fi
 
 %postun -p /sbin/ldconfig
@@ -384,6 +394,14 @@ fi
 %doc doc/adg/*.txt doc/adg/html
 
 %changelog
+* Thu Sep 11 2014 Tomáš Mráz <tmraz@redhat.com> 1.1.8-17
+- update the audit-grantor patch with the upstream changes
+- pam_userdb: correct the example in man page (#1078784)
+- pam_limits: check whether the utmp login entry is valid (#1080023)
+- pam_console_apply: do not print error if console.perms.d is empty
+- pam_limits: nofile refers to open file descriptors (#1111220)
+- apply PIE and full RELRO to all binaries built
+
 * Sun Aug 17 2014 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.1.8-16
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_21_22_Mass_Rebuild
 
