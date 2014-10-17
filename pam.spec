@@ -3,7 +3,7 @@
 Summary: An extensible library which provides authentication for applications
 Name: pam
 Version: 1.1.8
-Release: 17%{?dist}
+Release: 18%{?dist}
 # The library is BSD licensed with option to relicense as GPLv2+
 # - this option is redundant as the BSD license allows that anyway.
 # pam_timestamp, pam_loginuid, and pam_console modules are GPLv2+.
@@ -55,6 +55,7 @@ Patch39: pam-1.1.8-audit-grantor.patch
 Patch40: pam-1.1.8-man-dbsuffix.patch
 Patch41: pam-1.1.8-limits-check-process.patch
 Patch42: pam-1.1.8-limits-docfix.patch
+Patch43: pam-1.1.8-audit-user-mgmt.patch
 
 %define _pamlibdir %{_libdir}
 %define _moduledir %{_libdir}/security
@@ -144,6 +145,7 @@ cp %{SOURCE18} .
 %patch40 -p1 -b .dbsuffix
 %patch41 -p1 -b .check-process
 %patch42 -p1 -b .docfix
+%patch43 -p1 -b .audit-user-mgmt
 
 %build
 autoreconf -i
@@ -394,6 +396,10 @@ fi
 %doc doc/adg/*.txt doc/adg/html
 
 %changelog
+* Fri Oct 17 2014 Tomáš Mráz <tmraz@redhat.com> 1.1.8-18
+- use USER_MGMT type for auditing in the pam_tally2 and faillock
+  apps (#1151576)
+
 * Thu Sep 11 2014 Tomáš Mráz <tmraz@redhat.com> 1.1.8-17
 - update the audit-grantor patch with the upstream changes
 - pam_userdb: correct the example in man page (#1078784)
