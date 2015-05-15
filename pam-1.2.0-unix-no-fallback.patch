@@ -1,7 +1,7 @@
-diff -up Linux-PAM-1.1.5/modules/pam_unix/pam_unix.8.xml.no-fallback Linux-PAM-1.1.5/modules/pam_unix/pam_unix.8.xml
---- Linux-PAM-1.1.5/modules/pam_unix/pam_unix.8.xml.no-fallback	2011-06-21 11:04:56.000000000 +0200
-+++ Linux-PAM-1.1.5/modules/pam_unix/pam_unix.8.xml	2012-05-09 11:54:34.442036404 +0200
-@@ -265,11 +265,10 @@
+diff -up Linux-PAM-1.2.0/modules/pam_unix/pam_unix.8.xml.no-fallback Linux-PAM-1.2.0/modules/pam_unix/pam_unix.8.xml
+--- Linux-PAM-1.2.0/modules/pam_unix/pam_unix.8.xml.no-fallback	2015-04-27 16:38:03.000000000 +0200
++++ Linux-PAM-1.2.0/modules/pam_unix/pam_unix.8.xml	2015-05-15 15:54:21.524440864 +0200
+@@ -284,11 +284,10 @@
          <listitem>
            <para>
              When a user changes their password next,
@@ -16,7 +16,7 @@ diff -up Linux-PAM-1.1.5/modules/pam_unix/pam_unix.8.xml.no-fallback Linux-PAM-1
            </para>
          </listitem>
        </varlistentry>
-@@ -280,11 +279,10 @@
+@@ -299,11 +298,10 @@
          <listitem>
            <para>
              When a user changes their password next,
@@ -31,7 +31,7 @@ diff -up Linux-PAM-1.1.5/modules/pam_unix/pam_unix.8.xml.no-fallback Linux-PAM-1
            </para>
          </listitem>
        </varlistentry>
-@@ -295,11 +293,10 @@
+@@ -314,11 +312,10 @@
          <listitem>
            <para>
              When a user changes their password next,
@@ -46,12 +46,15 @@ diff -up Linux-PAM-1.1.5/modules/pam_unix/pam_unix.8.xml.no-fallback Linux-PAM-1
            </para>
          </listitem>
        </varlistentry>
-diff -up Linux-PAM-1.1.5/modules/pam_unix/passverify.c.no-fallback Linux-PAM-1.1.5/modules/pam_unix/passverify.c
---- Linux-PAM-1.1.5/modules/pam_unix/passverify.c.no-fallback	2012-05-09 11:48:12.409632377 +0200
-+++ Linux-PAM-1.1.5/modules/pam_unix/passverify.c	2012-05-09 11:48:36.953172291 +0200
-@@ -427,15 +427,14 @@ PAMH_ARG_DECL(char * create_password_has
+diff -up Linux-PAM-1.2.0/modules/pam_unix/passverify.c.no-fallback Linux-PAM-1.2.0/modules/pam_unix/passverify.c
+--- Linux-PAM-1.2.0/modules/pam_unix/passverify.c.no-fallback	2015-05-15 15:54:21.525440887 +0200
++++ Linux-PAM-1.2.0/modules/pam_unix/passverify.c	2015-05-15 15:57:23.138613273 +0200
+@@ -437,10 +437,9 @@ PAMH_ARG_DECL(char * create_password_has
+ 	sp = crypt(password, salt);
+ #endif
  	if (!sp || strncmp(algoid, sp, strlen(algoid)) != 0) {
- 		/* libxcrypt/libc doesn't know the algorithm, use MD5 */
+-		/* libxcrypt/libc doesn't know the algorithm, use MD5 */
++		/* libxcrypt/libc doesn't know the algorithm, error out */
  		pam_syslog(pamh, LOG_ERR,
 -			   "Algo %s not supported by the crypto backend, "
 -			   "falling back to MD5\n",
@@ -59,11 +62,12 @@ diff -up Linux-PAM-1.1.5/modules/pam_unix/passverify.c.no-fallback Linux-PAM-1.1
  			   on(UNIX_BLOWFISH_PASS, ctrl) ? "blowfish" :
  			   on(UNIX_SHA256_PASS, ctrl) ? "sha256" :
  			   on(UNIX_SHA512_PASS, ctrl) ? "sha512" : algoid);
- 		if(sp) {
- 		   memset(sp, '\0', strlen(sp));
- 		}
+@@ -450,7 +449,7 @@ PAMH_ARG_DECL(char * create_password_has
+ #ifdef HAVE_CRYPT_R
+ 		free(cdata);
+ #endif
 -		return crypt_md5_wrapper(password);
 +		return NULL;
  	}
- 
- 	return x_strdup(sp);
+ 	sp = x_strdup(sp);
+ #ifdef HAVE_CRYPT_R
