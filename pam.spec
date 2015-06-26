@@ -372,7 +372,7 @@ fi
 %doc doc/adg/*.txt doc/adg/html
 
 %changelog
-* Fri Jun 12 2015 Tomáš Mráz <tmraz@redhat.com> 1.2.1-1
+* Fri Jun 26 2015 Tomáš Mráz <tmraz@redhat.com> 1.2.1-1
 - new upstream release fixing security issue with unlimited password length
 
 * Thu Jun 18 2015 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.2.0-2
