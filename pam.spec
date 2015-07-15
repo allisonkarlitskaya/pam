@@ -121,9 +121,9 @@ cp %{SOURCE18} .
 %patch29 -p1 -b .pwhhelper
 %patch30 -p1 -b .links
 %patch31 -p1 -b .audit-user-mgmt
+autoreconf -i
 
 %build
-autoreconf -i
 %configure \
 	--disable-rpath \
 	--libdir=%{_pamlibdir} \
