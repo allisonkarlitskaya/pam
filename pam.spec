@@ -3,7 +3,7 @@
 Summary: An extensible library which provides authentication for applications
 Name: pam
 Version: 1.2.1
-Release: 1%{?dist}
+Release: 2%{?dist}
 # The library is BSD licensed with option to relicense as GPLv2+
 # - this option is redundant as the BSD license allows that anyway.
 # pam_timestamp, pam_loginuid, and pam_console modules are GPLv2+.
@@ -23,7 +23,6 @@ Source10: config-util.pamd
 Source11: dlopen.sh
 Source12: system-auth.5
 Source13: config-util.5
-Source14: 20-nproc.conf
 Source15: pamtmp.conf
 Source16: postlogin.pamd
 Source17: postlogin.5
@@ -168,7 +167,6 @@ install -m 644 %{SOURCE8} $RPM_BUILD_ROOT%{_pamconfdir}/fingerprint-auth
 install -m 644 %{SOURCE9} $RPM_BUILD_ROOT%{_pamconfdir}/smartcard-auth
 install -m 644 %{SOURCE10} $RPM_BUILD_ROOT%{_pamconfdir}/config-util
 install -m 644 %{SOURCE16} $RPM_BUILD_ROOT%{_pamconfdir}/postlogin
-install -m 644 %{SOURCE14} $RPM_BUILD_ROOT%{_secconfdir}/limits.d/20-nproc.conf
 install -m 600 /dev/null $RPM_BUILD_ROOT%{_secconfdir}/opasswd
 install -d -m 755 $RPM_BUILD_ROOT/var/log
 install -m 600 /dev/null $RPM_BUILD_ROOT/var/log/tallylog
@@ -341,7 +339,6 @@ fi
 %config(noreplace) %{_secconfdir}/group.conf
 %config(noreplace) %{_secconfdir}/limits.conf
 %dir %{_secconfdir}/limits.d
-%config(noreplace) %{_secconfdir}/limits.d/20-nproc.conf
 %config(noreplace) %{_secconfdir}/namespace.conf
 %dir %{_secconfdir}/namespace.d
 %attr(755,root,root) %config(noreplace) %{_secconfdir}/namespace.init
@@ -372,6 +369,9 @@ fi
 %doc doc/adg/*.txt doc/adg/html
 
 %changelog
+* Wed Aug 12 2015 Tomáš Mráz <tmraz@redhat.com> 1.2.1-2
+- drop the nproc limit setting, it is causing more harm than it solves
+
 * Fri Jun 26 2015 Tomáš Mráz <tmraz@redhat.com> 1.2.1-1
 - new upstream release fixing security issue with unlimited password length
 
