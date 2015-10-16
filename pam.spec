@@ -3,7 +3,7 @@
 Summary: An extensible library which provides authentication for applications
 Name: pam
 Version: 1.2.1
-Release: 2%{?dist}
+Release: 3%{?dist}
 # The library is BSD licensed with option to relicense as GPLv2+
 # - this option is redundant as the BSD license allows that anyway.
 # pam_timestamp, pam_loginuid, and pam_console modules are GPLv2+.
@@ -30,7 +30,7 @@ Source18: https://www.gnu.org/licenses/old-licenses/gpl-2.0.txt
 Patch1:  pam-1.2.0-redhat-modules.patch
 Patch4:  pam-1.1.0-console-nochmod.patch
 Patch5:  pam-1.1.0-notally.patch
-Patch8:  pam-1.2.0-faillock.patch
+Patch8:  pam-1.2.1-faillock.patch
 Patch9:  pam-1.1.6-noflex.patch
 Patch10: pam-1.1.3-nouserenv.patch
 Patch13: pam-1.1.6-limits-user.patch
@@ -369,6 +369,9 @@ fi
 %doc doc/adg/*.txt doc/adg/html
 
 %changelog
+* Fri Oct 16 2015 Tomáš Mráz <tmraz@redhat.com> 1.2.1-3
+- pam_faillock: add possibility to set unlock_time to never
+
 * Wed Aug 12 2015 Tomáš Mráz <tmraz@redhat.com> 1.2.1-2
 - drop the nproc limit setting, it is causing more harm than it solves
 
