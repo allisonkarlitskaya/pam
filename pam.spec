@@ -3,7 +3,7 @@
 Summary: An extensible library which provides authentication for applications
 Name: pam
 Version: 1.2.1
-Release: 3%{?dist}
+Release: 4%{?dist}
 # The library is BSD licensed with option to relicense as GPLv2+
 # - this option is redundant as the BSD license allows that anyway.
 # pam_timestamp, pam_loginuid, and pam_console modules are GPLv2+.
@@ -369,6 +369,9 @@ fi
 %doc doc/adg/*.txt doc/adg/html
 
 %changelog
+* Thu Feb 04 2016 Fedora Release Engineering <releng@fedoraproject.org> - 1.2.1-4
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_24_Mass_Rebuild
+
 * Fri Oct 16 2015 Tomáš Mráz <tmraz@redhat.com> 1.2.1-3
 - pam_faillock: add possibility to set unlock_time to never
 
