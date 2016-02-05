@@ -3,7 +3,7 @@
 Summary: An extensible library which provides authentication for applications
 Name: pam
 Version: 1.2.1
-Release: 4%{?dist}
+Release: 5%{?dist}
 # The library is BSD licensed with option to relicense as GPLv2+
 # - this option is redundant as the BSD license allows that anyway.
 # pam_timestamp, pam_loginuid, and pam_console modules are GPLv2+.
@@ -42,6 +42,7 @@ Patch28: pam-1.1.1-console-errmsg.patch
 Patch29: pam-1.1.8-pwhistory-helper.patch
 Patch30: pam-1.2.0-use-links.patch
 Patch31: pam-1.1.8-audit-user-mgmt.patch
+Patch32: pam-1.2.1-console-devname.patch
 
 %define _pamlibdir %{_libdir}
 %define _moduledir %{_libdir}/security
@@ -120,6 +121,7 @@ cp %{SOURCE18} .
 %patch29 -p1 -b .pwhhelper
 %patch30 -p1 -b .links
 %patch31 -p1 -b .audit-user-mgmt
+%patch32 -p1 -b .devname
 autoreconf -i
 
 %build
@@ -369,6 +371,9 @@ fi
 %doc doc/adg/*.txt doc/adg/html
 
 %changelog
+* Fri Feb  5 2016 Tomáš Mráz <tmraz@redhat.com> 1.2.1-5
+- fix console device name in console.handlers (#1270224)
+
 * Thu Feb 04 2016 Fedora Release Engineering <releng@fedoraproject.org> - 1.2.1-4
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_24_Mass_Rebuild
 
