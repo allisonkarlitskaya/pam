@@ -1,0 +1,448 @@
+diff --git a/libpam/pam_get_authtok.c b/libpam/pam_get_authtok.c
+index 663f1f3..9bfbdf0 100644
+--- a/libpam/pam_get_authtok.c
++++ b/libpam/pam_get_authtok.c
+@@ -38,6 +38,8 @@
+ 
+ #define PROMPT _("Password: ")
+ /* For Translators: "%s%s" could be replaced with "<service> " or "". */
++#define PROMPTCURRENT _("Current %s%spassword: ")
++/* For Translators: "%s%s" could be replaced with "<service> " or "". */
+ #define PROMPT1 _("New %s%spassword: ")
+ /* For Translators: "%s%s" could be replaced with "<service> " or "". */
+ #define PROMPT2 _("Retype new %s%spassword: ")
+@@ -89,12 +91,14 @@ pam_get_authtok_internal (pam_handle_t *pamh, int item,
+ 
+   /* PAM_AUTHTOK in password stack returns new password,
+      which needs to be verified. */
+-  if (item == PAM_AUTHTOK && pamh->choice == PAM_CHAUTHTOK)
++  if (pamh->choice == PAM_CHAUTHTOK)
+     {
+-      chpass = 1;
+-      if (!(flags & PAM_GETAUTHTOK_NOVERIFY))
+-	++chpass;
+-
++      if (item == PAM_AUTHTOK)
++	{
++	  chpass = 1;
++	  if (!(flags & PAM_GETAUTHTOK_NOVERIFY))
++	    ++chpass;
++	}
+       authtok_type = get_option (pamh, "authtok_type");
+       if (authtok_type == NULL)
+ 	{
+@@ -144,6 +148,10 @@ pam_get_authtok_internal (pam_handle_t *pamh, int item,
+ 			     PROMPT2, authtok_type,
+ 			     strlen (authtok_type) > 0?" ":"");
+     }
++  else if (item == PAM_OLDAUTHTOK)
++    retval = pam_prompt (pamh, PAM_PROMPT_ECHO_OFF, &resp[0],
++			 PROMPTCURRENT, authtok_type,
++			 strlen (authtok_type) > 0?" ":"");
+   else
+     retval = pam_prompt (pamh, PAM_PROMPT_ECHO_OFF, &resp[0], "%s",
+ 			 PROMPT);
+diff --git a/modules/pam_unix/pam_unix.8.xml b/modules/pam_unix/pam_unix.8.xml
+index 6d8e4ba..60d9097 100644
+--- a/modules/pam_unix/pam_unix.8.xml
++++ b/modules/pam_unix/pam_unix.8.xml
+@@ -217,13 +217,13 @@
+       </varlistentry>
+       <varlistentry>
+         <term>
+-          <option>not_set_pass</option>
++          <option>authtok_type=<replaceable>type</replaceable></option>
+         </term>
+         <listitem>
+           <para>
+-            This argument is used to inform the module that it is not to
+-            pay attention to/make available the old or new passwords from/to
+-            other (stacked) password modules.
++            This argument can be used to modify the password prompt
++            when changing passwords to include the type of the password.
++            Empty by default.
+           </para>
+         </listitem>
+       </varlistentry>
+diff --git a/modules/pam_unix/pam_unix_auth.c b/modules/pam_unix/pam_unix_auth.c
+index 9f66c5d..673861e 100644
+--- a/modules/pam_unix/pam_unix_auth.c
++++ b/modules/pam_unix/pam_unix_auth.c
+@@ -103,7 +103,7 @@ pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, const char **argv)
+ 	unsigned int ctrl;
+ 	int retval, *ret_data = NULL;
+ 	const char *name;
+-	const void *p;
++	const char *p;
+ 
+ 	D(("called."));
+ 
+@@ -151,8 +151,7 @@ pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, const char **argv)
+ 	}
+ 	/* get this user's authentication token */
+ 
+-	retval = _unix_read_password(pamh, ctrl, NULL, _("Password: "), NULL
+-				     ,_UNIX_AUTHTOK, &p);
++	retval = pam_get_authtok(pamh, PAM_AUTHTOK, &p , NULL);
+ 	if (retval != PAM_SUCCESS) {
+ 		if (retval != PAM_CONV_AGAIN) {
+ 			pam_syslog(pamh, LOG_CRIT,
+diff --git a/modules/pam_unix/pam_unix_passwd.c b/modules/pam_unix/pam_unix_passwd.c
+index fa29327..49dd831 100644
+--- a/modules/pam_unix/pam_unix_passwd.c
++++ b/modules/pam_unix/pam_unix_passwd.c
+@@ -612,7 +612,8 @@ pam_sm_chauthtok(pam_handle_t *pamh, int flags, int argc, const char **argv)
+ 
+ 	/* <DO NOT free() THESE> */
+ 	const char *user;
+-	const void *pass_old, *pass_new;
++	const void *item;
++	const char *pass_old, *pass_new;
+ 	/* </DO NOT free() THESE> */
+ 
+ 	D(("called."));
+@@ -680,8 +681,6 @@ pam_sm_chauthtok(pam_handle_t *pamh, int flags, int argc, const char **argv)
+ 		 * obtain and verify the current password (OLDAUTHTOK) for
+ 		 * the user.
+ 		 */
+-		char *Announce;
+-
+ 		D(("prelim check"));
+ 
+ 		if (_unix_blankpasswd(pamh, ctrl, user)) {
+@@ -689,22 +688,12 @@ pam_sm_chauthtok(pam_handle_t *pamh, int flags, int argc, const char **argv)
+ 		} else if (off(UNIX__IAMROOT, ctrl) ||
+ 			   (on(UNIX_NIS, ctrl) && _unix_comesfromsource(pamh, user, 0, 1))) {
+ 			/* instruct user what is happening */
+-			if (asprintf(&Announce, _("Changing password for %s."),
+-				user) < 0) {
+-				pam_syslog(pamh, LOG_CRIT,
+-				         "password - out of memory");
+-				return PAM_BUF_ERR;
++			if (off(UNIX__QUIET, ctrl)) {
++				retval = pam_info(pamh, _("Changing password for %s."), user);
++				if (retval != PAM_SUCCESS)
++					return retval;
+ 			}
+-
+-			lctrl = ctrl;
+-			set(UNIX__OLD_PASSWD, lctrl);
+-			retval = _unix_read_password(pamh, lctrl
+-						     ,Announce
+-					     ,_("(current) UNIX password: ")
+-						     ,NULL
+-						     ,_UNIX_OLD_AUTHTOK
+-					     ,&pass_old);
+-			free(Announce);
++			retval = pam_get_authtok(pamh, PAM_OLDAUTHTOK, &pass_old, NULL);
+ 
+ 			if (retval != PAM_SUCCESS) {
+ 				pam_syslog(pamh, LOG_NOTICE,
+@@ -723,14 +712,10 @@ pam_sm_chauthtok(pam_handle_t *pamh, int flags, int argc, const char **argv)
+ 		if (retval != PAM_SUCCESS) {
+ 			D(("Authentication failed"));
+ 			pass_old = NULL;
++			pam_set_item(pamh, PAM_OLDAUTHTOK, NULL);
+ 			return retval;
+ 		}
+-		retval = pam_set_item(pamh, PAM_OLDAUTHTOK, (const void *) pass_old);
+ 		pass_old = NULL;
+-		if (retval != PAM_SUCCESS) {
+-			pam_syslog(pamh, LOG_CRIT,
+-			         "failed to set PAM_OLDAUTHTOK");
+-		}
+ 		retval = _unix_verify_shadow(pamh,user, ctrl);
+ 		if (retval == PAM_AUTHTOK_ERR) {
+ 			if (off(UNIX__IAMROOT, ctrl))
+@@ -760,23 +745,14 @@ pam_sm_chauthtok(pam_handle_t *pamh, int flags, int argc, const char **argv)
+ 		 * previous call to this function].
+ 		 */
+ 
+-		if (off(UNIX_NOT_SET_PASS, ctrl)) {
+-			retval = pam_get_item(pamh, PAM_OLDAUTHTOK
+-					      ,&pass_old);
+-		} else {
+-			retval = pam_get_data(pamh, _UNIX_OLD_AUTHTOK
+-					      ,&pass_old);
+-			if (retval == PAM_NO_MODULE_DATA) {
+-				retval = PAM_SUCCESS;
+-				pass_old = NULL;
+-			}
+-		}
+-		D(("pass_old [%s]", pass_old));
++		retval = pam_get_item(pamh, PAM_OLDAUTHTOK, &item);
+ 
+ 		if (retval != PAM_SUCCESS) {
+ 			pam_syslog(pamh, LOG_NOTICE, "user not authenticated");
+ 			return retval;
+ 		}
++		pass_old = item;
++		D(("pass_old [%s]", pass_old));
+ 
+ 		D(("get new password now"));
+ 
+@@ -785,7 +761,9 @@ pam_sm_chauthtok(pam_handle_t *pamh, int flags, int argc, const char **argv)
+ 		if (on(UNIX_USE_AUTHTOK, lctrl)) {
+ 			set(UNIX_USE_FIRST_PASS, lctrl);
+ 		}
+-		retry = 0;
++		if (on(UNIX_USE_FIRST_PASS, lctrl)) {
++			retry = MAX_PASSWD_TRIES-1;
++		}
+ 		retval = PAM_AUTHTOK_ERR;
+ 		while ((retval != PAM_SUCCESS) && (retry++ < MAX_PASSWD_TRIES)) {
+ 			/*
+@@ -793,12 +771,7 @@ pam_sm_chauthtok(pam_handle_t *pamh, int flags, int argc, const char **argv)
+ 			 * password -- needed for pluggable password strength checking
+ 			 */
+ 
+-			retval = _unix_read_password(pamh, lctrl
+-						     ,NULL
+-					     ,_("Enter new UNIX password: ")
+-					    ,_("Retype new UNIX password: ")
+-						     ,_UNIX_NEW_AUTHTOK
+-					     ,&pass_new);
++			retval = pam_get_authtok(pamh, PAM_AUTHTOK, &pass_new, NULL);
+ 
+ 			if (retval != PAM_SUCCESS) {
+ 				if (on(UNIX_DEBUG, ctrl)) {
+@@ -822,7 +795,7 @@ pam_sm_chauthtok(pam_handle_t *pamh, int flags, int argc, const char **argv)
+ 			retval = _pam_unix_approve_pass(pamh, ctrl, pass_old,
+ 			                                pass_new, pass_min_len);
+ 
+-			if (retval != PAM_SUCCESS && off(UNIX_NOT_SET_PASS, ctrl)) {
++			if (retval != PAM_SUCCESS) {
+ 				pam_set_item(pamh, PAM_AUTHTOK, NULL);
+ 			}
+ 		}
+diff --git a/modules/pam_unix/support.c b/modules/pam_unix/support.c
+index 0fd1dba..fc8595e 100644
+--- a/modules/pam_unix/support.c
++++ b/modules/pam_unix/support.c
+@@ -853,160 +853,6 @@ cleanup:
+ 	return retval;
+ }
+ 
+-/*
+- * obtain a password from the user
+- */
+-
+-int _unix_read_password(pam_handle_t * pamh
+-			,unsigned int ctrl
+-			,const char *comment
+-			,const char *prompt1
+-			,const char *prompt2
+-			,const char *data_name
+-			,const void **pass)
+-{
+-	int authtok_flag;
+-	int retval = PAM_SUCCESS;
+-	char *token;
+-
+-	D(("called"));
+-
+-	/*
+-	 * make sure nothing inappropriate gets returned
+-	 */
+-
+-	*pass = token = NULL;
+-
+-	/*
+-	 * which authentication token are we getting?
+-	 */
+-
+-	authtok_flag = on(UNIX__OLD_PASSWD, ctrl) ? PAM_OLDAUTHTOK : PAM_AUTHTOK;
+-
+-	/*
+-	 * should we obtain the password from a PAM item ?
+-	 */
+-
+-	if (on(UNIX_TRY_FIRST_PASS, ctrl) || on(UNIX_USE_FIRST_PASS, ctrl)) {
+-		retval = pam_get_item(pamh, authtok_flag, pass);
+-		if (retval != PAM_SUCCESS) {
+-			/* very strange. */
+-			pam_syslog(pamh, LOG_ALERT,
+-				 "pam_get_item returned error to unix-read-password"
+-			    );
+-			return retval;
+-		} else if (*pass != NULL) {	/* we have a password! */
+-			return PAM_SUCCESS;
+-		} else if (on(UNIX_USE_AUTHTOK, ctrl)
+-			   && off(UNIX__OLD_PASSWD, ctrl)) {
+-			return PAM_AUTHTOK_ERR;
+-		} else if (on(UNIX_USE_FIRST_PASS, ctrl)) {
+-			return PAM_AUTHTOK_RECOVERY_ERR;	  /* didn't work */
+-		}
+-	}
+-	/*
+-	 * getting here implies we will have to get the password from the
+-	 * user directly.
+-	 */
+-
+-	{
+-		int replies=1;
+-		char *resp[2] = { NULL, NULL };
+-
+-		if (comment != NULL && off(UNIX__QUIET, ctrl)) {
+-			retval = pam_info(pamh, "%s", comment);
+-		}
+-
+-		if (retval == PAM_SUCCESS) {
+-			retval = pam_prompt(pamh, PAM_PROMPT_ECHO_OFF,
+-			    &resp[0], "%s", prompt1);
+-
+-			if (retval == PAM_SUCCESS && prompt2 != NULL) {
+-				retval = pam_prompt(pamh, PAM_PROMPT_ECHO_OFF,
+-				    &resp[1], "%s", prompt2);
+-				++replies;
+-			}
+-		}
+-
+-		if (resp[0] != NULL && resp[replies-1] != NULL) {
+-			/* interpret the response */
+-
+-			if (retval == PAM_SUCCESS) {	/* a good conversation */
+-
+-				token = resp[0];
+-				if (token != NULL) {
+-					if (replies == 2) {
+-						/* verify that password entered correctly */
+-						if (strcmp(token, resp[replies - 1])) {
+-							/* mistyped */
+-							retval = PAM_AUTHTOK_RECOVERY_ERR;
+-							_make_remark(pamh, ctrl,
+-							    PAM_ERROR_MSG, MISTYPED_PASS);
+-						}
+-					}
+-				} else {
+-					pam_syslog(pamh, LOG_NOTICE,
+-						    "could not recover authentication token");
+-				}
+-
+-			}
+-
+-		} else {
+-			retval = (retval == PAM_SUCCESS)
+-			    ? PAM_AUTHTOK_RECOVERY_ERR : retval;
+-		}
+-
+-		resp[0] = NULL;
+-		if (replies > 1)
+-			_pam_delete(resp[1]);
+-	}
+-
+-	if (retval != PAM_SUCCESS) {
+-		_pam_delete(token);
+-
+-		if (on(UNIX_DEBUG, ctrl))
+-			pam_syslog(pamh, LOG_DEBUG,
+-			         "unable to obtain a password");
+-		return retval;
+-	}
+-	/* 'token' is the entered password */
+-
+-	if (off(UNIX_NOT_SET_PASS, ctrl)) {
+-
+-		/* we store this password as an item */
+-
+-		retval = pam_set_item(pamh, authtok_flag, token);
+-		_pam_delete(token);	/* clean it up */
+-		if (retval != PAM_SUCCESS
+-		    || (retval = pam_get_item(pamh, authtok_flag, pass))
+-		    != PAM_SUCCESS) {
+-
+-			*pass = NULL;
+-			pam_syslog(pamh, LOG_CRIT, "error manipulating password");
+-			return retval;
+-
+-		}
+-	} else {
+-		/*
+-		 * then store it as data specific to this module. pam_end()
+-		 * will arrange to clean it up.
+-		 */
+-
+-		retval = pam_set_data(pamh, data_name, (void *) token, _cleanup);
+-		if (retval != PAM_SUCCESS) {
+-			pam_syslog(pamh, LOG_CRIT,
+-			         "error manipulating password data [%s]",
+-				 pam_strerror(pamh, retval));
+-			_pam_delete(token);
+-			return retval;
+-		}
+-		*pass = token;
+-		token = NULL;	/* break link to password */
+-	}
+-
+-	return PAM_SUCCESS;
+-}
+-
+ /* ****************************************************************** *
+  * Copyright (c) Jan Rêkorajski 1999.
+  * Copyright (c) Andrew G. Morgan 1996-8.
+diff --git a/modules/pam_unix/support.h b/modules/pam_unix/support.h
+index b767c26..b4c279c 100644
+--- a/modules/pam_unix/support.h
++++ b/modules/pam_unix/support.h
+@@ -18,8 +18,6 @@
+  * typed were not the same.
+  */
+ 
+-#define MISTYPED_PASS "Sorry, passwords do not match"
+-
+ /* type definition for the control options */
+ 
+ typedef struct {
+@@ -72,7 +70,7 @@ typedef struct {
+ 					   some information may be sensitive */
+ #define UNIX_USE_FIRST_PASS       4
+ #define UNIX_TRY_FIRST_PASS       5
+-#define UNIX_NOT_SET_PASS         6	/* don't set the AUTHTOK items */
++#define UNIX_AUTHTOK_TYPE         6	/* TYPE for pam_get_authtok() */
+ 
+ #define UNIX__PRELIM              7	/* internal */
+ #define UNIX__UPDATE              8	/* internal */
+@@ -116,7 +114,7 @@ static const UNIX_Ctrls unix_args[UNIX_CTRLS_] =
+ /* UNIX_AUDIT */           {"audit",           _ALL_ON_,                 010, 0},
+ /* UNIX_USE_FIRST_PASS */  {"use_first_pass",  _ALL_ON_^(060),           020, 0},
+ /* UNIX_TRY_FIRST_PASS */  {"try_first_pass",  _ALL_ON_^(060),           040, 0},
+-/* UNIX_NOT_SET_PASS */    {"not_set_pass",    _ALL_ON_,                0100, 0},
++/* UNIX_AUTHTOK_TYPE */    {"authtok_type=",   _ALL_ON_,                0100, 0},
+ /* UNIX__PRELIM */         {NULL,              _ALL_ON_^(0600),         0200, 0},
+ /* UNIX__UPDATE */         {NULL,              _ALL_ON_^(0600),         0400, 0},
+ /* UNIX__NONULL */         {NULL,              _ALL_ON_,               01000, 0},
+From a1765a0bc62fff8c22091c661aafa10167ec7da8 Mon Sep 17 00:00:00 2001
+From: Tomas Mraz <tmraz@fedoraproject.org>
+Date: Mon, 4 Apr 2016 14:23:22 +0200
+Subject: [PATCH] pam_unix: Make password expiration messages more
+ user-friendly.
+
+* modules/pam_unix/pam_unix_acct.c (pam_sm_acct_mgmt): Make password
+expiration messages more user-friendly.
+---
+ modules/pam_unix/pam_unix_acct.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/modules/pam_unix/pam_unix_acct.c b/modules/pam_unix/pam_unix_acct.c
+index 17a0890..782d84a 100644
+--- a/modules/pam_unix/pam_unix_acct.c
++++ b/modules/pam_unix/pam_unix_acct.c
+@@ -258,13 +258,13 @@ pam_sm_acct_mgmt(pam_handle_t *pamh, int flags, int argc, const char **argv)
+ 				"expired password for user %s (root enforced)",
+ 				uname);
+ 			_make_remark(pamh, ctrl, PAM_ERROR_MSG,
+-				_("You are required to change your password immediately (root enforced)"));
++				_("You are required to change your password immediately (administrator enforced)"));
+ 		} else {
+ 			pam_syslog(pamh, LOG_DEBUG,
+ 				"expired password for user %s (password aged)",
+ 				uname);
+ 			_make_remark(pamh, ctrl, PAM_ERROR_MSG,
+-				_("You are required to change your password immediately (password aged)"));
++				_("You are required to change your password immediately (password expired)"));
+ 		}
+ 		break;
+ 	case PAM_AUTHTOK_EXPIRED:
+-- 
+2.5.5
+
