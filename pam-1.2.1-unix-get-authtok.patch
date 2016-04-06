@@ -138,11 +138,8 @@ index fa29327..49dd831 100644
  
  			if (retval != PAM_SUCCESS) {
  				pam_syslog(pamh, LOG_NOTICE,
-@@ -723,14 +712,10 @@ pam_sm_chauthtok(pam_handle_t *pamh, int flags, int argc, const char **argv)
- 		if (retval != PAM_SUCCESS) {
- 			D(("Authentication failed"));
+@@ -725,12 +714,7 @@ pam_sm_chauthtok(pam_handle_t *pamh, int flags, int argc, const char **argv)
  			pass_old = NULL;
-+			pam_set_item(pamh, PAM_OLDAUTHTOK, NULL);
  			return retval;
  		}
 -		retval = pam_set_item(pamh, PAM_OLDAUTHTOK, (const void *) pass_old);
@@ -154,7 +151,7 @@ index fa29327..49dd831 100644
  		retval = _unix_verify_shadow(pamh,user, ctrl);
  		if (retval == PAM_AUTHTOK_ERR) {
  			if (off(UNIX__IAMROOT, ctrl))
-@@ -760,23 +745,14 @@ pam_sm_chauthtok(pam_handle_t *pamh, int flags, int argc, const char **argv)
+@@ -760,23 +744,14 @@ pam_sm_chauthtok(pam_handle_t *pamh, int flags, int argc, const char **argv)
  		 * previous call to this function].
  		 */
  
@@ -181,7 +178,7 @@ index fa29327..49dd831 100644
  
  		D(("get new password now"));
  
-@@ -785,7 +761,9 @@ pam_sm_chauthtok(pam_handle_t *pamh, int flags, int argc, const char **argv)
+@@ -785,7 +760,9 @@ pam_sm_chauthtok(pam_handle_t *pamh, int flags, int argc, const char **argv)
  		if (on(UNIX_USE_AUTHTOK, lctrl)) {
  			set(UNIX_USE_FIRST_PASS, lctrl);
  		}
@@ -192,7 +189,7 @@ index fa29327..49dd831 100644
  		retval = PAM_AUTHTOK_ERR;
  		while ((retval != PAM_SUCCESS) && (retry++ < MAX_PASSWD_TRIES)) {
  			/*
-@@ -793,12 +771,7 @@ pam_sm_chauthtok(pam_handle_t *pamh, int flags, int argc, const char **argv)
+@@ -793,12 +770,7 @@ pam_sm_chauthtok(pam_handle_t *pamh, int flags, int argc, const char **argv)
  			 * password -- needed for pluggable password strength checking
  			 */
  
@@ -206,7 +203,7 @@ index fa29327..49dd831 100644
  
  			if (retval != PAM_SUCCESS) {
  				if (on(UNIX_DEBUG, ctrl)) {
-@@ -822,7 +795,7 @@ pam_sm_chauthtok(pam_handle_t *pamh, int flags, int argc, const char **argv)
+@@ -822,7 +794,7 @@ pam_sm_chauthtok(pam_handle_t *pamh, int flags, int argc, const char **argv)
  			retval = _pam_unix_approve_pass(pamh, ctrl, pass_old,
  			                                pass_new, pass_min_len);
  
