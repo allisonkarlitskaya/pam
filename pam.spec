@@ -3,7 +3,7 @@
 Summary: An extensible library which provides authentication for applications
 Name: pam
 Version: 1.2.1
-Release: 7%{?dist}
+Release: 8%{?dist}
 # The library is BSD licensed with option to relicense as GPLv2+
 # - this option is redundant as the BSD license allows that anyway.
 # pam_timestamp, pam_loginuid, and pam_console modules are GPLv2+.
@@ -58,13 +58,13 @@ Patch33: pam-1.2.1-unix-get-authtok.patch
 %endif
 %global _performance_build 1
 
-Requires: cracklib-dicts >= 2.8
+Recommends: cracklib-dicts >= 2.8
 Requires: libpwquality >= 0.9.9
 Requires(post): coreutils, /sbin/ldconfig
 BuildRequires: autoconf >= 2.60
 BuildRequires: automake, libtool
 BuildRequires: bison, flex, sed
-BuildRequires: cracklib-devel, cracklib-dicts >= 2.8
+BuildRequires: cracklib-devel
 BuildRequires: perl, pkgconfig, gettext-devel
 %if %{WITH_AUDIT}
 BuildRequires: audit-libs-devel >= 1.0.8
@@ -373,6 +373,9 @@ fi
 %doc doc/adg/*.txt doc/adg/html
 
 %changelog
+* Mon Apr 11 2016 Tomáš Mráz <tmraz@redhat.com> 1.2.1-8
+- make cracklib-dicts dependency weak (#1323172)
+
 * Wed Apr  6 2016 Tomáš Mráz <tmraz@redhat.com> 1.2.1-7
 - do not drop PAM_OLDAUTHTOK if mismatched - can be used by further modules
 
