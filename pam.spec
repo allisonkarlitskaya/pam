@@ -2,8 +2,8 @@
 
 Summary: An extensible library which provides authentication for applications
 Name: pam
-Version: 1.2.1
-Release: 8%{?dist}
+Version: 1.3.0
+Release: 1%{?dist}
 # The library is BSD licensed with option to relicense as GPLv2+
 # - this option is redundant as the BSD license allows that anyway.
 # pam_timestamp, pam_loginuid, and pam_console modules are GPLv2+.
@@ -39,11 +39,9 @@ Patch15: pam-1.1.8-full-relro.patch
 Patch20: pam-1.2.0-unix-no-fallback.patch
 Patch28: pam-1.1.1-console-errmsg.patch
 # Upstreamed partially
-Patch29: pam-1.1.8-pwhistory-helper.patch
-Patch30: pam-1.2.0-use-links.patch
+Patch29: pam-1.3.0-pwhistory-helper.patch
 Patch31: pam-1.1.8-audit-user-mgmt.patch
 Patch32: pam-1.2.1-console-devname.patch
-Patch33: pam-1.2.1-unix-get-authtok.patch
 
 %define _pamlibdir %{_libdir}
 %define _moduledir %{_libdir}/security
@@ -120,10 +118,8 @@ cp %{SOURCE18} .
 %patch20 -p1 -b .no-fallback
 %patch28 -p1 -b .errmsg
 %patch29 -p1 -b .pwhhelper
-%patch30 -p1 -b .links
 %patch31 -p1 -b .audit-user-mgmt
 %patch32 -p1 -b .devname
-%patch33 -p1 -b .get-authtok
 autoreconf -i
 
 %build
@@ -373,6 +369,9 @@ fi
 %doc doc/adg/*.txt doc/adg/html
 
 %changelog
+* Fri May  6 2016 Tomáš Mráz <tmraz@redhat.com> 1.3.0-1
+- new upstream release with multiple improvements
+
 * Mon Apr 11 2016 Tomáš Mráz <tmraz@redhat.com> 1.2.1-8
 - make cracklib-dicts dependency weak (#1323172)
 
