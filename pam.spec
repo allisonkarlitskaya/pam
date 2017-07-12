@@ -64,7 +64,7 @@ BuildRequires: autoconf >= 2.60
 BuildRequires: automake, libtool
 BuildRequires: bison, flex, sed
 BuildRequires: cracklib-devel
-BuildRequires: perl, pkgconfig, gettext-devel
+BuildRequires: perl-interpreter, pkgconfig, gettext-devel
 %if %{WITH_AUDIT}
 BuildRequires: audit-libs-devel >= 1.0.8
 Requires: audit-libs >= 1.0.8
