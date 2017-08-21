@@ -3,7 +3,7 @@
 Summary: An extensible library which provides authentication for applications
 Name: pam
 Version: 1.3.0
-Release: 5%{?dist}
+Release: 6%{?dist}
 # The library is BSD licensed with option to relicense as GPLv2+
 # - this option is redundant as the BSD license allows that anyway.
 # pam_timestamp, pam_loginuid, and pam_console modules are GPLv2+.
@@ -30,7 +30,8 @@ Source18: https://www.gnu.org/licenses/old-licenses/gpl-2.0.txt
 Patch1:  pam-1.2.0-redhat-modules.patch
 Patch4:  pam-1.1.0-console-nochmod.patch
 Patch5:  pam-1.1.0-notally.patch
-Patch8:  pam-1.2.1-faillock.patch
+Patch7:  pam-1.2.1-faillock.patch
+Patch8:  pam-1.2.1-faillock-admin-group.patch
 Patch9:  pam-1.1.6-noflex.patch
 Patch10: pam-1.1.3-nouserenv.patch
 Patch13: pam-1.1.6-limits-user.patch
@@ -111,7 +112,8 @@ cp %{SOURCE18} .
 %patch1 -p1 -b .redhat-modules
 %patch4 -p1 -b .nochmod
 %patch5 -p1 -b .notally
-%patch8 -p1 -b .faillock
+%patch7 -p1 -b .faillock
+%patch8 -p1 -b .admin-group
 %patch9 -p1 -b .noflex
 %patch10 -p1 -b .nouserenv
 %patch13 -p1 -b .limits
@@ -371,6 +373,9 @@ fi
 %doc doc/adg/*.txt doc/adg/html
 
 %changelog
+* Mon Aug 21 2017 Tomáš Mráz <tmraz@redhat.com> 1.3.0-6
+- add admin_group option to pam_faillock (#1285550)
+
 * Thu Aug 03 2017 Fedora Release Engineering <releng@fedoraproject.org> - 1.3.0-5
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_27_Binutils_Mass_Rebuild
 
