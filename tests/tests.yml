@@ -1,0 +1,33 @@
+---
+# Tests that run in classic context
+- hosts: localhost
+  roles:
+  - role: standard-test-beakerlib
+    tags:
+    - classic
+    tests:
+    - pam_unix
+    - Test-coverage-for-TTY-auditing
+    required_packages:
+    - bc
+    - expect
+    - findutils         # beakerlib needs find command
+    - openssh-clients
+    - openssh-server
+    - pam
+    - pcre-tools
+
+# Tests that run in container context
+- hosts: localhost
+  roles:
+  - role: standard-test-beakerlib
+    tags:
+    - container
+    tests:
+    - Test-coverage-for-TTY-auditing
+    required_packages:
+    - bc
+    - expect
+    - findutils         # beakerlib needs find command
+    - pam
+    - pcre-tools

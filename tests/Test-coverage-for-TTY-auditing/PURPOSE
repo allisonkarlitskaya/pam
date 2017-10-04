@@ -1,0 +1,4 @@
+PURPOSE of /CoreOS/pam/Sanity/Test-coverage-for-TTY-auditing
+Description: Test for Test coverage for TTY auditing
+Author: Dalibor Pospisil <dapospis@redhat.com>
+Bug summary: Test coverage for TTY auditing

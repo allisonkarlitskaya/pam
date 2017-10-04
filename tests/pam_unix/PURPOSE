@@ -1,0 +1,3 @@
+PURPOSE of /CoreOS/pam/Sanity/pam_unix
+Description: Test for module pam_unix
+Author: David Spurek <dspurek@redhat.com>
