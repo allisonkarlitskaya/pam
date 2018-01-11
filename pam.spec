@@ -3,7 +3,7 @@
 Summary: An extensible library which provides authentication for applications
 Name: pam
 Version: 1.3.0
-Release: 6%{?dist}
+Release: 7%{?dist}
 # The library is BSD licensed with option to relicense as GPLv2+
 # - this option is redundant as the BSD license allows that anyway.
 # pam_timestamp, pam_loginuid, and pam_console modules are GPLv2+.
@@ -66,6 +66,7 @@ BuildRequires: automake, libtool
 BuildRequires: bison, flex, sed
 BuildRequires: cracklib-devel
 BuildRequires: perl-interpreter, pkgconfig, gettext-devel
+BuildRequires: libtirpc-devel
 %if %{WITH_AUDIT}
 BuildRequires: audit-libs-devel >= 1.0.8
 Requires: audit-libs >= 1.0.8
@@ -373,6 +374,9 @@ fi
 %doc doc/adg/*.txt doc/adg/html
 
 %changelog
+* Thu Jan 11 2018 Tomáš Mráz <tmraz@redhat.com> 1.3.0-7
+- the NIS support now requires libtirpc
+
 * Mon Aug 21 2017 Tomáš Mráz <tmraz@redhat.com> 1.3.0-6
 - add admin_group option to pam_faillock (#1285550)
 
