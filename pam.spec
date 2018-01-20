@@ -3,7 +3,7 @@
 Summary: An extensible library which provides authentication for applications
 Name: pam
 Version: 1.3.0
-Release: 7%{?dist}
+Release: 8%{?dist}
 # The library is BSD licensed with option to relicense as GPLv2+
 # - this option is redundant as the BSD license allows that anyway.
 # pam_timestamp, pam_loginuid, and pam_console modules are GPLv2+.
@@ -374,6 +374,9 @@ fi
 %doc doc/adg/*.txt doc/adg/html
 
 %changelog
+* Sat Jan 20 2018 Björn Esser <besser82@fedoraproject.org> - 1.3.0-8
+- Rebuilt for switch to libxcrypt
+
 * Thu Jan 11 2018 Tomáš Mráz <tmraz@redhat.com> 1.3.0-7
 - the NIS support now requires libtirpc
 
