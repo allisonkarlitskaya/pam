@@ -2,18 +2,16 @@
 
 Summary: An extensible library which provides authentication for applications
 Name: pam
-Version: 1.3.0
-Release: 10%{?dist}
+Version: 1.3.1
+Release: 1%{?dist}
 # The library is BSD licensed with option to relicense as GPLv2+
 # - this option is redundant as the BSD license allows that anyway.
 # pam_timestamp, pam_loginuid, and pam_console modules are GPLv2+.
 License: BSD and GPLv2+
 Group: System Environment/Base
-Source0: http://www.linux-pam.org/library/Linux-PAM-%{version}.tar.bz2
-# This is the old location that might be revived in future:
-#Source0: http://ftp.us.kernel.org/pub/linux/libs/pam/library/Linux-PAM-%{version}.tar.bz2
-#Source1: http://ftp.us.kernel.org/pub/linux/libs/pam/library/Linux-PAM-%{version}.tar.bz2.sign
-Source2: https://fedorahosted.org/releases/p/a/pam-redhat/pam-redhat-%{pam_redhat_version}.tar.bz2
+Source0: https://github.com/linux-pam/linux-pam/releases/download/v%{version}/Linux-PAM-%{version}.tar.xz
+Source1: https://github.com/linux-pam/linux-pam/releases/download/v%{version}/Linux-PAM-%{version}.tar.xz.asc
+Source2: https://releases.pagure.org/pam-redhat/pam-redhat-%{pam_redhat_version}.tar.bz2
 Source5: other.pamd
 Source6: system-auth.pamd
 Source7: password-auth.pamd
@@ -32,7 +30,7 @@ Patch4:  pam-1.1.0-console-nochmod.patch
 Patch5:  pam-1.1.0-notally.patch
 Patch7:  pam-1.2.1-faillock.patch
 Patch8:  pam-1.2.1-faillock-admin-group.patch
-Patch9:  pam-1.1.6-noflex.patch
+Patch9:  pam-1.3.1-noflex.patch
 Patch10: pam-1.1.3-nouserenv.patch
 Patch13: pam-1.1.6-limits-user.patch
 Patch15: pam-1.1.8-full-relro.patch
@@ -266,7 +264,6 @@ fi
 %license gpl-2.0.txt
 %doc doc/txts
 %doc doc/sag/*.txt doc/sag/html
-%doc doc/specs/rfc86.0.txt
 %{_pamlibdir}/libpam.so.*
 %{_pamlibdir}/libpamc.so.*
 %{_pamlibdir}/libpam_misc.so.*
@@ -372,12 +369,16 @@ fi
 %{_libdir}/libpam_misc.so
 %doc doc/mwg/*.txt doc/mwg/html
 %doc doc/adg/*.txt doc/adg/html
+%doc doc/specs/rfc86.0.txt
 
 %changelog
+* Fri May 18 2018 Tomáš Mráz <tmraz@redhat.com> 1.3.1-1
+- new upstream release 1.3.1 with multiple improvements
+
 * Thu Feb 08 2018 Fedora Release Engineering <releng@fedoraproject.org> - 1.3.0-10
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_28_Mass_Rebuild
 
-* Thu Jan 30 2018 Tomáš Mráz <tmraz@redhat.com> 1.3.0-9
+* Tue Jan 30 2018 Tomáš Mráz <tmraz@redhat.com> 1.3.0-9
 - and the NIS support now also requires libnsl2
 
 * Sat Jan 20 2018 Björn Esser <besser82@fedoraproject.org> - 1.3.0-8
