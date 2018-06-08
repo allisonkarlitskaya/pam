@@ -3,7 +3,7 @@
 Summary: An extensible library which provides authentication for applications
 Name: pam
 Version: 1.3.1
-Release: 1%{?dist}
+Release: 2%{?dist}
 # The library is BSD licensed with option to relicense as GPLv2+
 # - this option is redundant as the BSD license allows that anyway.
 # pam_timestamp, pam_loginuid, and pam_console modules are GPLv2+.
@@ -372,6 +372,9 @@ fi
 %doc doc/specs/rfc86.0.txt
 
 %changelog
+* Fri Jun  8 2018 Tomáš Mráz <tmraz@redhat.com> 1.3.1-1
+- use /run instead of /var/run in pamtmp.conf (#1588612)
+
 * Fri May 18 2018 Tomáš Mráz <tmraz@redhat.com> 1.3.1-1
 - new upstream release 1.3.1 with multiple improvements
 
