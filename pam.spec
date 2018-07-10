@@ -250,7 +250,6 @@ fi
 %postun -p /sbin/ldconfig
 
 %files -f Linux-PAM.lang
-%defattr(-,root,root)
 %dir %{_pamconfdir}
 %config(noreplace) %{_pamconfdir}/other
 %config(noreplace) %{_pamconfdir}/system-auth
@@ -361,7 +360,6 @@ fi
 %{_mandir}/man8/*
 
 %files devel
-%defattr(-,root,root)
 %{_includedir}/security
 %{_mandir}/man3/*
 %{_libdir}/libpam.so
