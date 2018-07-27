@@ -241,11 +241,7 @@ for module in $RPM_BUILD_ROOT%{_moduledir}/pam*.so ; do
 	fi
 done
 
-%post
-/sbin/ldconfig
-if [ ! -e /var/log/tallylog ] ; then
-	/usr/bin/install -m 600 /dev/null /var/log/tallylog || :
-fi
+%post -p /sbin/ldconfig
 
 %postun -p /sbin/ldconfig
 
