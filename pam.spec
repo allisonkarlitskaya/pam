@@ -3,7 +3,7 @@
 Summary: An extensible library which provides authentication for applications
 Name: pam
 Version: 1.3.1
-Release: 3%{?dist}
+Release: 4%{?dist}
 # The library is BSD licensed with option to relicense as GPLv2+
 # - this option is redundant as the BSD license allows that anyway.
 # pam_timestamp, pam_loginuid, and pam_console modules are GPLv2+.
@@ -42,6 +42,7 @@ Patch29: pam-1.3.0-pwhistory-helper.patch
 Patch31: pam-1.1.8-audit-user-mgmt.patch
 Patch32: pam-1.2.1-console-devname.patch
 Patch33: pam-1.3.0-unix-nomsg.patch
+Patch34: pam-1.3.1-coverity.patch
 
 %define _pamlibdir %{_libdir}
 %define _moduledir %{_libdir}/security
@@ -123,6 +124,7 @@ cp %{SOURCE18} .
 %patch31 -p1 -b .audit-user-mgmt
 %patch32 -p1 -b .devname
 %patch33 -p1 -b .nomsg
+%patch34 -p1 -b .coverity
 autoreconf -i
 
 %build
@@ -366,6 +368,10 @@ done
 %doc doc/specs/rfc86.0.txt
 
 %changelog
+* Mon Sep 10 2018 Tomáš Mráz <tmraz@redhat.com> 1.3.1-4
+- add pam_umask to postlogin PAM configuration file
+- fix some issues found by Coverity scan
+
 * Fri Jul 13 2018 Fedora Release Engineering <releng@fedoraproject.org> - 1.3.1-3
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_29_Mass_Rebuild
 
