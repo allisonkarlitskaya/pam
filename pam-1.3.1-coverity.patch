@@ -156,7 +156,7 @@ index 17baabe..a9d9140 100644
  
 -	if (vasprintf (&buf, fmt, ap) < 0)
 +	va_start(ap, fmt);
-+	ret = vasprintf (&buf, fmt, ap)
++	ret = vasprintf (&buf, fmt, ap);
 +	va_end(ap);
 +	if (ret < 0)
  		return 0;

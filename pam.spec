@@ -43,6 +43,7 @@ Patch31: pam-1.1.8-audit-user-mgmt.patch
 Patch32: pam-1.2.1-console-devname.patch
 Patch33: pam-1.3.0-unix-nomsg.patch
 Patch34: pam-1.3.1-coverity.patch
+Patch35: pam-1.3.1-console-build.patch
 
 %define _pamlibdir %{_libdir}
 %define _moduledir %{_libdir}/security
@@ -125,6 +126,7 @@ cp %{SOURCE18} .
 %patch32 -p1 -b .devname
 %patch33 -p1 -b .nomsg
 %patch34 -p1 -b .coverity
+%patch35 -p1 -b .console-build
 autoreconf -i
 
 %build
