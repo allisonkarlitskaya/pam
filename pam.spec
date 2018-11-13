@@ -3,7 +3,7 @@
 Summary: An extensible library which provides authentication for applications
 Name: pam
 Version: 1.3.1
-Release: 6%{?dist}
+Release: 7%{?dist}
 # The library is BSD licensed with option to relicense as GPLv2+
 # - this option is redundant as the BSD license allows that anyway.
 # pam_timestamp, pam_loginuid, and pam_console modules are GPLv2+.
@@ -76,8 +76,7 @@ BuildRequires: libselinux-devel >= 1.33.2
 Requires: libselinux >= 1.33.2
 %endif
 Requires: glibc >= 2.3.90-37
-Requires: libxcrypt >= 4.3.3-1
-BuildRequires: libxcrypt-devel >= 4.3.3-1
+BuildRequires: libxcrypt-devel >= 4.3.3-2
 BuildRequires: libdb-devel
 # Following deps are necessary only to build the pam library documentation.
 BuildRequires: linuxdoc-tools, elinks, libxslt
@@ -372,6 +371,10 @@ done
 %doc doc/specs/rfc86.0.txt
 
 %changelog
+* Tue Nov 13 2018 Björn Esser <besser82@fedoraproject.org> - 1.3.1-7
+- when building against libxcrypt >= 4.3.3-2, we can avoid the explicit
+  dependency on libxcrypt >= 4.3.3-1
+
 * Mon Nov 12 2018 Björn Esser <besser82@fedoraproject.org> - 1.3.1-6
 - add explicit (Build)Requires for libxcrypt >= 4.3.3-1
 
