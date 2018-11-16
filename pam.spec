@@ -60,7 +60,6 @@ Patch35: pam-1.3.1-console-build.patch
 
 Recommends: cracklib-dicts >= 2.8
 Requires: libpwquality >= 0.9.9
-Requires(post): coreutils, /sbin/ldconfig
 BuildRequires: autoconf >= 2.60
 BuildRequires: automake, libtool
 BuildRequires: bison, flex, sed
@@ -371,6 +370,7 @@ done
 %changelog
 * Fri Nov 16 2018 Björn Esser <besser82@fedoraproject.org> - 1.3.1-8
 - Use %%ldconfig_scriptlets
+- Drop Requires(post), not needed anymore
 
 * Tue Nov 13 2018 Björn Esser <besser82@fedoraproject.org> - 1.3.1-7
 - when building against libxcrypt >= 4.3.3-2, we can avoid the explicit
