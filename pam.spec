@@ -1,4 +1,4 @@
-%define pam_redhat_version 0.99.11
+%global pam_redhat_version 0.99.11
 
 Summary: An extensible library which provides authentication for applications
 Name: pam
@@ -45,16 +45,16 @@ Patch33: pam-1.3.0-unix-nomsg.patch
 Patch34: pam-1.3.1-coverity.patch
 Patch35: pam-1.3.1-console-build.patch
 
-%define _pamlibdir %{_libdir}
-%define _moduledir %{_libdir}/security
-%define _secconfdir %{_sysconfdir}/security
-%define _pamconfdir %{_sysconfdir}/pam.d
+%global _pamlibdir %{_libdir}
+%global _moduledir %{_libdir}/security
+%global _secconfdir %{_sysconfdir}/security
+%global _pamconfdir %{_sysconfdir}/pam.d
 
 %if %{?WITH_SELINUX:0}%{!?WITH_SELINUX:1}
-%define WITH_SELINUX 1
+%global WITH_SELINUX 1
 %endif
 %if %{?WITH_AUDIT:0}%{!?WITH_AUDIT:1}
-%define WITH_AUDIT 1
+%global WITH_AUDIT 1
 %endif
 %global _performance_build 1
 
@@ -371,6 +371,7 @@ done
 * Fri Nov 16 2018 Björn Esser <besser82@fedoraproject.org> - 1.3.1-8
 - Use %%ldconfig_scriptlets
 - Drop Requires(post), not needed anymore
+- Prefer %%global over %%define
 
 * Tue Nov 13 2018 Björn Esser <besser82@fedoraproject.org> - 1.3.1-7
 - when building against libxcrypt >= 4.3.3-2, we can avoid the explicit
