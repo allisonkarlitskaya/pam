@@ -50,6 +50,8 @@ Patch36: pam-1.3.1-unix-remove-obsolete-_unix_read_password-prototype.patch
 Patch37: pam-1.3.1-unix-bcrypt_b.patch
 # https://github.com/linux-pam/linux-pam/commit/dce80b3f11b3c3aa137d18f22699809094dd64b6
 Patch38: pam-1.3.1-unix-gensalt-autoentropy.patch
+# https://github.com/linux-pam/linux-pam/commit/4da9febc39b955892a30686e8396785b96bb8ba5
+Patch39: pam-1.3.1-unix-crypt_checksalt.patch
 
 %global _pamlibdir %{_libdir}
 %global _moduledir %{_libdir}/security
@@ -136,6 +138,7 @@ cp %{SOURCE18} .
 %patch36 -p1 -b .remove-prototype
 %patch37 -p1 -b .bcrypt_b
 %patch38 -p1 -b .gensalt-autoentropy
+%patch39 -p1 -b .crypt_checksalt
 
 autoreconf -i
 
@@ -382,6 +385,7 @@ done
 - Backport upstream commit removing an obsolete prototype
 - Backport upstream commit preferring bcrypt_b ($2b$) for blowfish
 - Backport upstream commit preferring gensalt with autoentropy
+- Backport upstream commit using crypt_checksalt for password aging
 
 * Fri Nov 16 2018 Björn Esser <besser82@fedoraproject.org> - 1.3.1-8
 - Use %%ldconfig_scriptlets
