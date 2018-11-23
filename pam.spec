@@ -52,6 +52,8 @@ Patch37: pam-1.3.1-unix-bcrypt_b.patch
 Patch38: pam-1.3.1-unix-gensalt-autoentropy.patch
 # https://github.com/linux-pam/linux-pam/commit/4da9febc39b955892a30686e8396785b96bb8ba5
 Patch39: pam-1.3.1-unix-crypt_checksalt.patch
+# https://github.com/linux-pam/linux-pam/commit/16bd523f85ede9fa9115f80e826f2d803d7e61d4
+Patch40: pam-1.3.1-unix-yescrypt.patch
 
 %global _pamlibdir %{_libdir}
 %global _moduledir %{_libdir}/security
@@ -139,6 +141,7 @@ cp %{SOURCE18} .
 %patch37 -p1 -b .bcrypt_b
 %patch38 -p1 -b .gensalt-autoentropy
 %patch39 -p1 -b .crypt_checksalt
+%patch40 -p1 -b .yescrypt
 
 autoreconf -i
 
@@ -386,6 +389,7 @@ done
 - Backport upstream commit preferring bcrypt_b ($2b$) for blowfish
 - Backport upstream commit preferring gensalt with autoentropy
 - Backport upstream commit using crypt_checksalt for password aging
+- Backport upstream commit adding support for (gost-)yescrypt
 
 * Fri Nov 16 2018 Björn Esser <besser82@fedoraproject.org> - 1.3.1-8
 - Use %%ldconfig_scriptlets
