@@ -46,6 +46,8 @@ Patch34: pam-1.3.1-coverity.patch
 Patch35: pam-1.3.1-console-build.patch
 # https://github.com/linux-pam/linux-pam/commit/a2b72aeb86f297d349bc9e6a8f059fedf97a499a
 Patch36: pam-1.3.1-unix-remove-obsolete-_unix_read_password-prototype.patch
+# https://github.com/linux-pam/linux-pam/commit/f7abb8c1ef3aa31e6c2564a8aaf69683a77c2016.patch
+Patch37: pam-1.3.1-unix-bcrypt_b.patch
 
 %global _pamlibdir %{_libdir}
 %global _moduledir %{_libdir}/security
@@ -130,6 +132,7 @@ cp %{SOURCE18} .
 %patch34 -p1 -b .coverity
 %patch35 -p1 -b .console-build
 %patch36 -p1 -b .remove-prototype
+%patch37 -p1 -b .bcrypt_b
 
 autoreconf -i
 
@@ -374,6 +377,7 @@ done
 %changelog
 * Fri Nov 23 2018 Björn Esser <besser82@fedoraproject.org> - 1.3.1-9
 - Backport upstream commit removing an obsolete prototype
+- Backport upstream commit preferring bcrypt_b ($2b$) for blowfish
 
 * Fri Nov 16 2018 Björn Esser <besser82@fedoraproject.org> - 1.3.1-8
 - Use %%ldconfig_scriptlets
