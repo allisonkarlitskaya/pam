@@ -34,8 +34,6 @@ Patch9:  pam-1.3.1-noflex.patch
 Patch10: pam-1.1.3-nouserenv.patch
 Patch13: pam-1.1.6-limits-user.patch
 Patch15: pam-1.1.8-full-relro.patch
-# FIPS related - non upstreamable
-Patch20: pam-1.2.0-unix-no-fallback.patch
 Patch28: pam-1.1.1-console-errmsg.patch
 # Upstreamed partially
 Patch29: pam-1.3.0-pwhistory-helper.patch
@@ -54,6 +52,8 @@ Patch38: pam-1.3.1-unix-gensalt-autoentropy.patch
 Patch39: pam-1.3.1-unix-crypt_checksalt.patch
 # https://github.com/linux-pam/linux-pam/commit/16bd523f85ede9fa9115f80e826f2d803d7e61d4
 Patch40: pam-1.3.1-unix-yescrypt.patch
+# To be upstreamed soon.
+Patch41: pam-1.3.1-unix-no-fallback.patch
 
 %global _pamlibdir %{_libdir}
 %global _moduledir %{_libdir}/security
@@ -129,7 +129,6 @@ cp %{SOURCE18} .
 %patch10 -p1 -b .nouserenv
 %patch13 -p1 -b .limits
 %patch15 -p1 -b .relro
-%patch20 -p1 -b .no-fallback
 %patch28 -p1 -b .errmsg
 %patch29 -p1 -b .pwhhelper
 %patch31 -p1 -b .audit-user-mgmt
@@ -142,6 +141,7 @@ cp %{SOURCE18} .
 %patch38 -p1 -b .gensalt-autoentropy
 %patch39 -p1 -b .crypt_checksalt
 %patch40 -p1 -b .yescrypt
+%patch41 -p1 -b .no-fallback
 
 autoreconf -i
 
@@ -390,6 +390,7 @@ done
 - Backport upstream commit preferring gensalt with autoentropy
 - Backport upstream commit using crypt_checksalt for password aging
 - Backport upstream commit adding support for (gost-)yescrypt
+- Update the no-MD5-fallback patch for alignment
 
 * Fri Nov 16 2018 Björn Esser <besser82@fedoraproject.org> - 1.3.1-8
 - Use %%ldconfig_scriptlets

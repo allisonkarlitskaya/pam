@@ -1,7 +1,8 @@
-diff -up Linux-PAM-1.2.0/modules/pam_unix/pam_unix.8.xml.no-fallback Linux-PAM-1.2.0/modules/pam_unix/pam_unix.8.xml
---- Linux-PAM-1.2.0/modules/pam_unix/pam_unix.8.xml.no-fallback	2015-04-27 16:38:03.000000000 +0200
-+++ Linux-PAM-1.2.0/modules/pam_unix/pam_unix.8.xml	2015-05-15 15:54:21.524440864 +0200
-@@ -284,11 +284,10 @@
+Index: Linux-PAM-1.3.1/modules/pam_unix/pam_unix.8.xml
+===================================================================
+--- Linux-PAM-1.3.1.orig/modules/pam_unix/pam_unix.8.xml
++++ Linux-PAM-1.3.1/modules/pam_unix/pam_unix.8.xml
+@@ -293,11 +293,10 @@
          <listitem>
            <para>
              When a user changes their password next,
@@ -16,7 +17,7 @@ diff -up Linux-PAM-1.2.0/modules/pam_unix/pam_unix.8.xml.no-fallback Linux-PAM-1
            </para>
          </listitem>
        </varlistentry>
-@@ -299,11 +298,10 @@
+@@ -308,11 +307,10 @@
          <listitem>
            <para>
              When a user changes their password next,
@@ -31,7 +32,7 @@ diff -up Linux-PAM-1.2.0/modules/pam_unix/pam_unix.8.xml.no-fallback Linux-PAM-1
            </para>
          </listitem>
        </varlistentry>
-@@ -314,11 +312,10 @@
+@@ -323,11 +321,10 @@
          <listitem>
            <para>
              When a user changes their password next,
@@ -46,10 +47,41 @@ diff -up Linux-PAM-1.2.0/modules/pam_unix/pam_unix.8.xml.no-fallback Linux-PAM-1
            </para>
          </listitem>
        </varlistentry>
-diff -up Linux-PAM-1.2.0/modules/pam_unix/passverify.c.no-fallback Linux-PAM-1.2.0/modules/pam_unix/passverify.c
---- Linux-PAM-1.2.0/modules/pam_unix/passverify.c.no-fallback	2015-05-15 15:54:21.525440887 +0200
-+++ Linux-PAM-1.2.0/modules/pam_unix/passverify.c	2015-05-15 15:57:23.138613273 +0200
-@@ -437,10 +437,9 @@ PAMH_ARG_DECL(char * create_password_has
+@@ -338,11 +335,10 @@
+         <listitem>
+           <para>
+             When a user changes their password next,
+-            encrypt it with the gost-yescrypt algorithm. If the
+-            gost-yescrypt algorithm is not known to the <citerefentry>
++            encrypt it with the gost-yescrypt algorithm. The
++            gost-yescrypt algorithm must be supported by the <citerefentry>
+ 	    <refentrytitle>crypt</refentrytitle><manvolnum>3</manvolnum>
+-            </citerefentry> function,
+-            fall back to MD5.
++            </citerefentry> function.
+           </para>
+         </listitem>
+       </varlistentry>
+@@ -353,11 +349,10 @@
+         <listitem>
+           <para>
+             When a user changes their password next,
+-            encrypt it with the yescrypt algorithm. If the
+-            yescrypt algorithm is not known to the <citerefentry>
++            encrypt it with the yescrypt algorithm. The
++            yescrypt algorithm must be supported by the <citerefentry>
+ 	    <refentrytitle>crypt</refentrytitle><manvolnum>3</manvolnum>
+-            </citerefentry> function,
+-            fall back to MD5.
++            </citerefentry> function.
+           </para>
+         </listitem>
+       </varlistentry>
+Index: Linux-PAM-1.3.1/modules/pam_unix/passverify.c
+===================================================================
+--- Linux-PAM-1.3.1.orig/modules/pam_unix/passverify.c
++++ Linux-PAM-1.3.1/modules/pam_unix/passverify.c
+@@ -466,10 +466,9 @@ PAMH_ARG_DECL(char * create_password_has
  	sp = crypt(password, salt);
  #endif
  	if (!sp || strncmp(algoid, sp, strlen(algoid)) != 0) {
@@ -59,10 +91,10 @@ diff -up Linux-PAM-1.2.0/modules/pam_unix/passverify.c.no-fallback Linux-PAM-1.2
 -			   "Algo %s not supported by the crypto backend, "
 -			   "falling back to MD5\n",
 +			   "Algo %s not supported by the crypto backend.\n",
+ 			   on(UNIX_YESCRYPT_PASS, ctrl) ? "yescrypt" :
+ 			   on(UNIX_GOST_YESCRYPT_PASS, ctrl) ? "gost_yescrypt" :
  			   on(UNIX_BLOWFISH_PASS, ctrl) ? "blowfish" :
- 			   on(UNIX_SHA256_PASS, ctrl) ? "sha256" :
- 			   on(UNIX_SHA512_PASS, ctrl) ? "sha512" : algoid);
-@@ -450,7 +449,7 @@ PAMH_ARG_DECL(char * create_password_has
+@@ -481,7 +480,7 @@ PAMH_ARG_DECL(char * create_password_has
  #ifdef HAVE_CRYPT_R
  		free(cdata);
  #endif
