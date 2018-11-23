@@ -3,7 +3,7 @@
 Summary: An extensible library which provides authentication for applications
 Name: pam
 Version: 1.3.1
-Release: 8%{?dist}
+Release: 9%{?dist}
 # The library is BSD licensed with option to relicense as GPLv2+
 # - this option is redundant as the BSD license allows that anyway.
 # pam_timestamp, pam_loginuid, and pam_console modules are GPLv2+.
@@ -44,6 +44,8 @@ Patch32: pam-1.2.1-console-devname.patch
 Patch33: pam-1.3.0-unix-nomsg.patch
 Patch34: pam-1.3.1-coverity.patch
 Patch35: pam-1.3.1-console-build.patch
+# https://github.com/linux-pam/linux-pam/commit/a2b72aeb86f297d349bc9e6a8f059fedf97a499a
+Patch36: pam-1.3.1-unix-remove-obsolete-_unix_read_password-prototype.patch
 
 %global _pamlibdir %{_libdir}
 %global _moduledir %{_libdir}/security
@@ -127,6 +129,8 @@ cp %{SOURCE18} .
 %patch33 -p1 -b .nomsg
 %patch34 -p1 -b .coverity
 %patch35 -p1 -b .console-build
+%patch36 -p1 -b .remove-prototype
+
 autoreconf -i
 
 %build
@@ -368,6 +372,9 @@ done
 %doc doc/specs/rfc86.0.txt
 
 %changelog
+* Fri Nov 23 2018 Björn Esser <besser82@fedoraproject.org> - 1.3.1-9
+- Backport upstream commit removing an obsolete prototype
+
 * Fri Nov 16 2018 Björn Esser <besser82@fedoraproject.org> - 1.3.1-8
 - Use %%ldconfig_scriptlets
 - Drop Requires(post), not needed anymore
