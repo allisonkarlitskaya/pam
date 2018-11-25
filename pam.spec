@@ -3,7 +3,7 @@
 Summary: An extensible library which provides authentication for applications
 Name: pam
 Version: 1.3.1
-Release: 9%{?dist}
+Release: 10%{?dist}
 # The library is BSD licensed with option to relicense as GPLv2+
 # - this option is redundant as the BSD license allows that anyway.
 # pam_timestamp, pam_loginuid, and pam_console modules are GPLv2+.
@@ -54,6 +54,9 @@ Patch39: pam-1.3.1-unix-crypt_checksalt.patch
 Patch40: pam-1.3.1-unix-yescrypt.patch
 # To be upstreamed soon.
 Patch41: pam-1.3.1-unix-no-fallback.patch
+# https://github.com/linux-pam/linux-pam/pull/80
+# Fixes rhbz#1653023
+Patch42: pam-1.3.1-unix-fix-checksalt-passphraseless-sudo.patch
 
 %global _pamlibdir %{_libdir}
 %global _moduledir %{_libdir}/security
@@ -142,6 +145,7 @@ cp %{SOURCE18} .
 %patch39 -p1 -b .crypt_checksalt
 %patch40 -p1 -b .yescrypt
 %patch41 -p1 -b .no-fallback
+%patch42 -p1 -b .checksalt-passphraseless-sudo
 
 autoreconf -i
 
@@ -384,6 +388,9 @@ done
 %doc doc/specs/rfc86.0.txt
 
 %changelog
+* Sun Nov 25 2018 Björn Esser <besser82@fedoraproject.org> - 1.3.1-10
+- Fix passphraseless sudo with crypt_checksalt (#1653023)
+
 * Fri Nov 23 2018 Björn Esser <besser82@fedoraproject.org> - 1.3.1-9
 - Backport upstream commit removing an obsolete prototype
 - Backport upstream commit preferring bcrypt_b ($2b$) for blowfish

@@ -1,0 +1,31 @@
+commit 3374f53d96aeea7760fb689f4acc89e9ac727428
+Author: Björn Esser <besser82@fedoraproject.org>
+Date:   Sun Nov 25 07:11:23 2018 +0100
+
+    pam_unix: Do not fail passphraseless sudo on locked accounts.
+    
+    Commit 4da9febc39b9 introduced a regression that made passphraseless
+    sudo fail when it was invoked from a user with a locked passphrase.
+    Thus we should check for such a scenario when evaluating the return
+    value of crypt_checksalt(3).
+    
+    * modules/pam_unix/passverify.c (check_shadow_expiry): Do not return
+    PAM_AUTHTOK_EXPIRED on locked user accounts.
+
+diff --git a/modules/pam_unix/passverify.c b/modules/pam_unix/passverify.c
+index 39e2bfa..7c0be8d 100644
+--- a/modules/pam_unix/passverify.c
++++ b/modules/pam_unix/passverify.c
+@@ -266,8 +266,10 @@ PAMH_ARG_DECL(int check_shadow_expiry,
+ 	    && (curdays - spent->sp_lstchg > spent->sp_inact)
+ 	    && (curdays - spent->sp_lstchg > spent->sp_max + spent->sp_inact)
+ 	    && (spent->sp_max != -1) && (spent->sp_inact != -1))
+-	    || (crypt_checksalt(spent->sp_pwdp) == CRYPT_SALT_METHOD_DISABLED)
+-	    || (crypt_checksalt(spent->sp_pwdp) == CRYPT_SALT_INVALID)) {
++	    || (((crypt_checksalt(spent->sp_pwdp) == CRYPT_SALT_METHOD_DISABLED)
++		 || (crypt_checksalt(spent->sp_pwdp) == CRYPT_SALT_INVALID))
++	        && ((spent->sp_pwdp != NULL)
++		    && !((spent->sp_pwdp[0] == '!') || (spent->sp_pwdp[0] == '*'))))) {
+ #else
+ 	if ((curdays - spent->sp_lstchg > spent->sp_max)
+ 	    && (curdays - spent->sp_lstchg > spent->sp_inact)
