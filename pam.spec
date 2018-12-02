@@ -59,6 +59,8 @@ Patch41: pam-1.3.1-unix-no-fallback.patch
 Patch42: pam-1.3.1-motd-multiple-paths.patch
 # https://github.com/linux-pam/linux-pam/commit/86eed7ca01864b9fd17099e57f10f2b9b6b568a1
 Patch43: pam-1.3.1-unix-checksalt_syslog.patch
+# https://github.com/linux-pam/linux-pam/commit/d8d11db2cef65da5d2afa7acf21aa9c8cd88abed
+Patch44: pam-1.3.1-unix-fix_checksalt_syslog.patch
 
 %global _pamlibdir %{_libdir}
 %global _moduledir %{_libdir}/security
@@ -149,6 +151,7 @@ cp %{SOURCE18} .
 %patch41 -p1 -b .no-fallback
 %patch42 -p1 -b .multiple-paths
 %patch43 -p1 -b .checksalt_syslog
+%patch44 -p1 -b .fix_checksalt_syslog
 
 autoreconf -i
 
@@ -393,6 +396,7 @@ done
 %changelog
 * Sun Dec 02 2018 Björn Esser <besser82@fedoraproject.org> - 1.3.1-13
 - Backport upstream commit reporting disabled or invalid hashes to syslog
+- Backport upstream commit fixing syslog for disabled or invalid hashes
 
 * Wed Nov 28 2018 Robert Fairley <rfairley@redhat.com> 1.3.1-12
 - Backport upstream commit pam_motd: Support multiple motd paths specified, with filename overrides (#69)
