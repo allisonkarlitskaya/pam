@@ -1,9 +1,9 @@
-%global pam_redhat_version 0.99.11
+%global pam_redhat_version 1.0.0
 
 Summary: An extensible library which provides authentication for applications
 Name: pam
 Version: 1.3.1
-Release: 13%{?dist}
+Release: 14%{?dist}
 # The library is BSD licensed with option to relicense as GPLv2+
 # - this option is redundant as the BSD license allows that anyway.
 # pam_timestamp, pam_loginuid, and pam_console modules are GPLv2+.
@@ -25,23 +25,16 @@ Source15: pamtmp.conf
 Source16: postlogin.pamd
 Source17: postlogin.5
 Source18: https://www.gnu.org/licenses/old-licenses/gpl-2.0.txt
-Patch1:  pam-1.2.0-redhat-modules.patch
-Patch4:  pam-1.1.0-console-nochmod.patch
-Patch5:  pam-1.1.0-notally.patch
-Patch7:  pam-1.2.1-faillock.patch
-Patch8:  pam-1.2.1-faillock-admin-group.patch
+Patch1:  pam-1.3.1-redhat-modules.patch
 Patch9:  pam-1.3.1-noflex.patch
 Patch10: pam-1.1.3-nouserenv.patch
 Patch13: pam-1.1.6-limits-user.patch
 Patch15: pam-1.1.8-full-relro.patch
-Patch28: pam-1.1.1-console-errmsg.patch
 # Upstreamed partially
 Patch29: pam-1.3.0-pwhistory-helper.patch
 Patch31: pam-1.1.8-audit-user-mgmt.patch
-Patch32: pam-1.2.1-console-devname.patch
 Patch33: pam-1.3.0-unix-nomsg.patch
 Patch34: pam-1.3.1-coverity.patch
-Patch35: pam-1.3.1-console-build.patch
 # https://github.com/linux-pam/linux-pam/commit/a2b72aeb86f297d349bc9e6a8f059fedf97a499a
 Patch36: pam-1.3.1-unix-remove-obsolete-_unix_read_password-prototype.patch
 # https://github.com/linux-pam/linux-pam/commit/f7abb8c1ef3aa31e6c2564a8aaf69683a77c2016.patch
@@ -128,21 +121,14 @@ mv pam-redhat-%{pam_redhat_version}/* modules
 cp %{SOURCE18} .
 
 %patch1 -p1 -b .redhat-modules
-%patch4 -p1 -b .nochmod
-%patch5 -p1 -b .notally
-%patch7 -p1 -b .faillock
-%patch8 -p1 -b .admin-group
 %patch9 -p1 -b .noflex
 %patch10 -p1 -b .nouserenv
 %patch13 -p1 -b .limits
 %patch15 -p1 -b .relro
-%patch28 -p1 -b .errmsg
 %patch29 -p1 -b .pwhhelper
 %patch31 -p1 -b .audit-user-mgmt
-%patch32 -p1 -b .devname
 %patch33 -p1 -b .nomsg
 %patch34 -p1 -b .coverity
-%patch35 -p1 -b .console-build
 %patch36 -p1 -b .remove-prototype
 %patch37 -p1 -b .bcrypt_b
 %patch38 -p1 -b .gensalt-autoentropy
@@ -253,6 +239,7 @@ if [ -d ${dir} ] ; then
 	[ ${dir} = "modules/pam_tty_audit" ] && continue
 %endif
 	[ ${dir} = "modules/pam_tally" ] && continue
+	[ ${dir} = "modules/pam_tally2" ] && continue
 	if ! ls -1 $RPM_BUILD_ROOT%{_moduledir}/`basename ${dir}`*.so ; then
 		echo ERROR `basename ${dir}` did not build a module.
 		exit 1
@@ -291,7 +278,6 @@ done
 %{_pamlibdir}/libpamc.so.*
 %{_pamlibdir}/libpam_misc.so.*
 %{_sbindir}/pam_console_apply
-%{_sbindir}/pam_tally2
 %{_sbindir}/faillock
 %attr(4755,root,root) %{_sbindir}/pam_timestamp_check
 %attr(4755,root,root) %{_sbindir}/unix_chkpwd
@@ -339,7 +325,6 @@ done
 %{_moduledir}/pam_shells.so
 %{_moduledir}/pam_stress.so
 %{_moduledir}/pam_succeed_if.so
-%{_moduledir}/pam_tally2.so
 %{_moduledir}/pam_time.so
 %{_moduledir}/pam_timestamp.so
 %if %{WITH_AUDIT}
@@ -394,6 +379,10 @@ done
 %doc doc/specs/rfc86.0.txt
 
 %changelog
+* Tue Dec  4 2018 Tomáš Mráz <tmraz@redhat.com> 1.3.1-14
+- Update Red Hat PAM modules to version 1.0.0 which includes pam_faillock
+- Drop also pam_tally2 which was obsoleted and deprecated long time ago
+
 * Sun Dec 02 2018 Björn Esser <besser82@fedoraproject.org> - 1.3.1-13
 - Backport upstream commit reporting disabled or invalid hashes to syslog
 - Backport upstream commit fixing syslog for disabled or invalid hashes
