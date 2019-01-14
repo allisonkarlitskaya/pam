@@ -3,7 +3,7 @@
 Summary: An extensible library which provides authentication for applications
 Name: pam
 Version: 1.3.1
-Release: 15%{?dist}
+Release: 16%{?dist}
 # The library is BSD licensed with option to relicense as GPLv2+
 # - this option is redundant as the BSD license allows that anyway.
 # pam_timestamp, pam_loginuid, and pam_console modules are GPLv2+.
@@ -385,6 +385,9 @@ done
 %doc doc/specs/rfc86.0.txt
 
 %changelog
+* Mon Jan 14 2019 Björn Esser <besser82@fedoraproject.org> - 1.3.1-16
+- Rebuilt for libcrypt.so.2 (#1666033)
+
 * Thu Dec 20 2018 Tomáš Mráz <tmraz@redhat.com> 1.3.1-15
 - Add the motd.d directories (empty) to silence warnings and to
   provide proper ownership for them (#1660935)
