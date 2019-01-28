@@ -8,7 +8,6 @@ Release: 16%{?dist}
 # - this option is redundant as the BSD license allows that anyway.
 # pam_timestamp, pam_loginuid, and pam_console modules are GPLv2+.
 License: BSD and GPLv2+
-Group: System Environment/Base
 Source0: https://github.com/linux-pam/linux-pam/releases/download/v%{version}/Linux-PAM-%{version}.tar.xz
 Source1: https://github.com/linux-pam/linux-pam/releases/download/v%{version}/Linux-PAM-%{version}.tar.xz.asc
 Source2: https://releases.pagure.org/pam-redhat/pam-redhat-%{pam_redhat_version}.tar.bz2
@@ -99,7 +98,6 @@ allows system administrators to set authentication policy without
 having to recompile programs that handle authentication.
 
 %package devel
-Group: Development/Libraries
 Summary: Files needed for developing PAM-aware applications and modules for PAM
 Requires: pam%{?_isa} = %{version}-%{release}
 
