@@ -1,9 +1,9 @@
-%global pam_redhat_version 1.1.0
+%global pam_redhat_version 1.1.1
 
 Summary: An extensible library which provides authentication for applications
 Name: pam
 Version: 1.3.1
-Release: 19%{?dist}
+Release: 20%{?dist}
 # The library is BSD licensed with option to relicense as GPLv2+
 # - this option is redundant as the BSD license allows that anyway.
 # pam_timestamp, pam_loginuid, and pam_console modules are GPLv2+.
@@ -53,6 +53,13 @@ Patch42: pam-1.3.1-motd-multiple-paths.patch
 Patch43: pam-1.3.1-unix-checksalt_syslog.patch
 # https://github.com/linux-pam/linux-pam/commit/d8d11db2cef65da5d2afa7acf21aa9c8cd88abed
 Patch44: pam-1.3.1-unix-fix_checksalt_syslog.patch
+Patch45: pam-1.3.1-namespace-mntopts.patch
+Patch46: pam-1.3.1-lastlog-no-showfailed.patch
+Patch47: pam-1.3.1-lastlog-unlimited-fsize.patch
+Patch48: pam-1.3.1-unix-improve-logging.patch
+Patch49: pam-1.3.1-tty-audit-manfix.patch
+Patch50: pam-1.3.1-fds-closing.patch
+Patch51: pam-1.3.1-authtok-verify-fix.patch
 
 %global _pamlibdir %{_libdir}
 %global _moduledir %{_libdir}/security
@@ -136,6 +143,13 @@ cp %{SOURCE18} .
 %patch42 -p1 -b .multiple-paths
 %patch43 -p1 -b .checksalt_syslog
 %patch44 -p1 -b .fix_checksalt_syslog
+%patch45 -p1 -b .mntopts
+%patch46 -p1 -b .no-showfailed
+%patch47 -p1 -b .unlimited-fsize
+%patch48 -p1 -b .improve-logging
+%patch49 -p1 -b .tty-audit-manfix
+%patch50 -p1 -b .fds-closing
+%patch51 -p1 -b .authtok-verify-fix
 
 autoreconf -i
 
@@ -162,6 +176,9 @@ for readme in modules/pam_*/README ; do
 	cp -f ${readme} doc/txts/README.`dirname ${readme} | sed -e 's|^modules/||'`
 done
 
+rm -rf doc/txts/README.pam_tally*
+rm -rf doc/sag/html/*pam_tally*
+
 # Install the binaries, libraries, and modules.
 make install DESTDIR=$RPM_BUILD_ROOT LDCONFIG=:
 
@@ -186,7 +203,6 @@ install -m 644 %{SOURCE10} $RPM_BUILD_ROOT%{_pamconfdir}/config-util
 install -m 644 %{SOURCE16} $RPM_BUILD_ROOT%{_pamconfdir}/postlogin
 install -m 600 /dev/null $RPM_BUILD_ROOT%{_secconfdir}/opasswd
 install -d -m 755 $RPM_BUILD_ROOT/var/log
-install -m 600 /dev/null $RPM_BUILD_ROOT/var/log/tallylog
 install -d -m 755 $RPM_BUILD_ROOT/var/run/faillock
 install -d -m 755 $RPM_BUILD_ROOT%{_sysconfdir}/motd.d
 install -d -m 755 $RPM_BUILD_ROOT/usr/lib/motd.d
@@ -364,7 +380,6 @@ done
 %config(noreplace) %{_secconfdir}/sepermit.conf
 %dir /var/run/sepermit
 %endif
-%ghost %verify(not md5 size mtime) /var/log/tallylog
 %dir /var/run/faillock
 %dir %{_sysconfdir}/motd.d
 %dir /run/motd.d
@@ -384,6 +399,17 @@ done
 %doc doc/specs/rfc86.0.txt
 
 %changelog
+* Wed Oct 16 2019 Tomáš Mráz <tmraz@redhat.com> 1.3.1-20
+- pam_namespace: Support noexec, nosuid and nodev flags for tmpfs mounts
+- Drop tallylog and pam_tally documentation
+- pam_faillock: Support local_users_only option
+- pam_lastlog: Do not display failed attempts with PAM_SILENT flag
+- pam_lastlog: Support unlimited option to override fsize limit
+- pam_unix: Log if user authenticated without password
+- pam_tty_audit: Improve manual page
+- Optimize closing fds when spawning helpers
+- Fix duplicate password verification in pam_authtok_verify()
+
 * Mon Sep  9 2019 Tomáš Mráz <tmraz@redhat.com> 1.3.1-19
 - pam_faillock: Support configuration file /etc/security/faillock.conf
 
