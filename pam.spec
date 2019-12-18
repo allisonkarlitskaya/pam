@@ -399,7 +399,7 @@ done
 %doc doc/specs/rfc86.0.txt
 
 %changelog
-* Wed Dec 17 2019 Tomáš Mráz <tmraz@redhat.com> 1.3.1-21
+* Wed Dec 18 2019 Tomáš Mráz <tmraz@redhat.com> 1.3.1-21
 - pam_faillock: Fix regression in admin_group support
 
 * Wed Oct 16 2019 Tomáš Mráz <tmraz@redhat.com> 1.3.1-20
