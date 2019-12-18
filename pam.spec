@@ -1,9 +1,9 @@
-%global pam_redhat_version 1.1.1
+%global pam_redhat_version 1.1.2
 
 Summary: An extensible library which provides authentication for applications
 Name: pam
 Version: 1.3.1
-Release: 20%{?dist}
+Release: 21%{?dist}
 # The library is BSD licensed with option to relicense as GPLv2+
 # - this option is redundant as the BSD license allows that anyway.
 # pam_timestamp, pam_loginuid, and pam_console modules are GPLv2+.
@@ -399,6 +399,9 @@ done
 %doc doc/specs/rfc86.0.txt
 
 %changelog
+* Wed Dec 17 2019 Tomáš Mráz <tmraz@redhat.com> 1.3.1-21
+- pam_faillock: Fix regression in admin_group support
+
 * Wed Oct 16 2019 Tomáš Mráz <tmraz@redhat.com> 1.3.1-20
 - pam_namespace: Support noexec, nosuid and nodev flags for tmpfs mounts
 - Drop tallylog and pam_tally documentation
