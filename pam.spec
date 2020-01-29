@@ -3,7 +3,7 @@
 Summary: An extensible library which provides authentication for applications
 Name: pam
 Version: 1.3.1
-Release: 21%{?dist}
+Release: 22%{?dist}
 # The library is BSD licensed with option to relicense as GPLv2+
 # - this option is redundant as the BSD license allows that anyway.
 # pam_timestamp, pam_loginuid, and pam_console modules are GPLv2+.
@@ -399,6 +399,9 @@ done
 %doc doc/specs/rfc86.0.txt
 
 %changelog
+* Wed Jan 29 2020 Fedora Release Engineering <releng@fedoraproject.org> - 1.3.1-22
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_32_Mass_Rebuild
+
 * Wed Dec 18 2019 Tomáš Mráz <tmraz@redhat.com> 1.3.1-21
 - pam_faillock: Fix regression in admin_group support
 
