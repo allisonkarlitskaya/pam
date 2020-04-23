@@ -3,7 +3,7 @@
 Summary: An extensible library which provides authentication for applications
 Name: pam
 Version: 1.3.1
-Release: 24%{?dist}
+Release: 25%{?dist}
 # The library is BSD licensed with option to relicense as GPLv2+
 # - this option is redundant as the BSD license allows that anyway.
 # pam_timestamp, pam_loginuid, and pam_console modules are GPLv2+.
@@ -117,6 +117,17 @@ allows system administrators to set authentication policy without
 having to recompile programs that handle authentication. This package
 contains header files used for building both PAM-aware applications
 and modules for use with the PAM system.
+
+%package docs
+Summary: Extra documentation for PAM.
+Requires: pam%{?_isa} = %{version}-%{release}
+
+%description docs
+PAM (Pluggable Authentication Modules) is a system security tool that
+allows system administrators to set authentication policy without
+having to recompile programs that handle authentication. The pam-docs
+contains extra documentation for PAM. Currently, this includes additional
+documentation in txt and html format.
 
 %prep
 %setup -q -n Linux-PAM-%{version} -a 2
@@ -295,8 +306,6 @@ done
 %{!?_licensedir:%global license %%doc}
 %license Copyright
 %license gpl-2.0.txt
-%doc doc/txts
-%doc doc/sag/*.txt doc/sag/html
 %{_pamlibdir}/libpam.so.*
 %{_pamlibdir}/libpamc.so.*
 %{_pamlibdir}/libpam_misc.so.*
@@ -405,7 +414,14 @@ done
 %doc doc/adg/*.txt doc/adg/html
 %doc doc/specs/rfc86.0.txt
 
+%files docs
+%doc doc/txts
+%doc doc/sag/*.txt doc/sag/html
+
 %changelog
+* Thu Apr 23 2020 Iker Pedrosa <ipedrosa@redhat.com> - 1.3.1-25
+- docs: splitted documentation in subpackage -docs
+
 * Mon Mar 9 2020 Iker Pedrosa <ipedrosa@redhat.com> - 1.3.1-24
 - pam_selinux: check unknown object classes or permissions in current policy
 
