@@ -1,0 +1,74 @@
+From b6f73810a2e7afd02a231e2dfa14b05752c83db7 Mon Sep 17 00:00:00 2001
+From: "Dmitry V. Levin" <ldv@altlinux.org>
+Date: Wed, 26 Feb 2020 19:20:58 +0000
+Subject: [PATCH] pam_modutil_sanitize_helper_fds: fix SIGPIPE effect of
+ PAM_MODUTIL_PIPE_FD
+
+When pam_modutil_sanitize_helper_fds() is invoked with
+PAM_MODUTIL_PIPE_FD to provide a dummy pipe descriptor for stdout
+or stderr, it closes the read end of the newly created dummy pipe.
+The negative side effect of this approach is that any write to such
+descriptor triggers a SIGPIPE.  Avoid this by closing the write end of
+the dummy pipe and using its read end as a dummy pipe descriptor for
+output.  Any read from such descriptor returns 0, and any write just
+fails with EBADF, which should work better with unprepared writers.
+
+* libpam/pam_modutil_sanitize.c (redirect_out_pipe): Remove.
+(redirect_out): Call redirect_in_pipe instead of redirect_out_pipe.
+
+Fixes: b0ec5d1e ("Introduce pam_modutil_sanitize_helper_fds")
+---
+ libpam/pam_modutil_sanitize.c | 30 +-----------------------------
+ 1 file changed, 1 insertion(+), 29 deletions(-)
+
+diff --git a/libpam/pam_modutil_sanitize.c b/libpam/pam_modutil_sanitize.c
+index 605c859d..58b9537c 100644
+--- a/libpam/pam_modutil_sanitize.c
++++ b/libpam/pam_modutil_sanitize.c
+@@ -46,34 +46,6 @@ redirect_in_pipe(pam_handle_t *pamh, int fd, const char *name)
+ 	return fd;
+ }
+ 
+-/*
+- * Creates a pipe, closes its read end, redirects fd to its write end.
+- * Returns fd on success, -1 otherwise.
+- */
+-static int
+-redirect_out_pipe(pam_handle_t *pamh, int fd, const char *name)
+-{
+-	int out[2];
+-
+-	if (pipe(out) < 0) {
+-		pam_syslog(pamh, LOG_ERR, "Could not create pipe: %m");
+-		return -1;
+-	}
+-
+-	close(out[0]);
+-
+-	if (out[1] == fd)
+-		return fd;
+-
+-	if (dup2(out[1], fd) != fd) {
+-		pam_syslog(pamh, LOG_ERR, "dup2 of %s failed: %m", name);
+-		fd = -1;
+-	}
+-
+-	close(out[1]);
+-	return fd;
+-}
+-
+ /*
+  * Opens /dev/null for writing, redirects fd there.
+  * Returns fd on success, -1 otherwise.
+@@ -106,7 +78,7 @@ redirect_out(pam_handle_t *pamh, enum pam_modutil_redirect_fd mode,
+ {
+ 	switch (mode) {
+ 		case PAM_MODUTIL_PIPE_FD:
+-			if (redirect_out_pipe(pamh, fd, name) < 0)
++			if (redirect_in_pipe(pamh, fd, name) < 0)
+ 				return -1;
+ 			break;
+ 		case PAM_MODUTIL_NULL_FD:
+-- 
+2.25.3
+
