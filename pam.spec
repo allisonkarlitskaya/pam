@@ -3,7 +3,7 @@
 Summary: An extensible library which provides authentication for applications
 Name: pam
 Version: 1.3.1
-Release: 26%{?dist}
+Release: 27%{?dist}
 # The library is BSD licensed with option to relicense as GPLv2+
 # - this option is redundant as the BSD license allows that anyway.
 # pam_timestamp, pam_loginuid, and pam_console modules are GPLv2+.
@@ -67,6 +67,8 @@ Patch54: pam-1.3.1-pam_selinux-check-unknown-objects.patch
 Patch55: pam-1.3.1-audit-error.patch
 # Upstreamed
 Patch56: pam-1.3.1-pam-modutil-close-write.patch
+# Upstreamed
+Patch57: pam-1.3.1-determinine-user-exists.patch
 
 %global _pamlibdir %{_libdir}
 %global _moduledir %{_libdir}/security
@@ -173,6 +175,7 @@ cp %{SOURCE18} .
 %patch54 -p1 -b .pam_selinux-check-unknown-objects
 %patch55 -p1 -b .audit-error
 %patch56 -p1 -b .pam-modutil-close-write
+%patch57 -p1 -b .determinine-user-exists
 
 autoreconf -i
 
@@ -425,6 +428,9 @@ done
 %doc doc/sag/*.txt doc/sag/html
 
 %changelog
+* Wed Jun 17 2020 Iker Pedrosa <ipedrosa@redhat.com> - 1.3.1-27
+- pam_unix and pam_usertype: avoid determining if user exists (#1629598)
+
 * Thu May 14 2020 Iker Pedrosa <ipedrosa@redhat.com> 1.3.1-26
 - pam_tty_audit: if kernel audit is disabled return PAM_IGNORE (#1775357)
 - pam_modutil_sanitize_helper_fds: fix SIGPIPE effect of PAM_MODUTIL_PIPE_FD (#1791970)
