@@ -3,7 +3,7 @@
 Summary: An extensible library which provides authentication for applications
 Name: pam
 Version: 1.3.1
-Release: 24%{?dist}
+Release: 25%{?dist}
 # The library is BSD licensed with option to relicense as GPLv2+
 # - this option is redundant as the BSD license allows that anyway.
 # pam_timestamp, pam_loginuid, and pam_console modules are GPLv2+.
@@ -63,6 +63,8 @@ Patch51: pam-1.3.1-authtok-verify-fix.patch
 Patch52: pam-1.3.1-add-pam_usertype.patch
 Patch53: pam-1.3.1-add-pam_usertype-fix-backport.patch
 Patch54: pam-1.3.1-pam_selinux-check-unknown-objects.patch
+# Upstreamed
+Patch55: pam-1.3.1-determinine-user-exists.patch
 
 %global _pamlibdir %{_libdir}
 %global _moduledir %{_libdir}/security
@@ -156,6 +158,7 @@ cp %{SOURCE18} .
 %patch52 -p1 -b .add-pam_usertype
 %patch53 -p1 -b .add-pam_usertype-backport
 %patch54 -p1 -b .pam_selinux-check-unknown-objects
+%patch55 -p1 -b .determinine-user-exists
 
 autoreconf -i
 
@@ -406,6 +409,9 @@ done
 %doc doc/specs/rfc86.0.txt
 
 %changelog
+* Mon Jun 22 2020 Iker Pedrosa <ipedrosa@redhat.com> - 1.3.1-25
+- pam_unix and pam_usertype: avoid determining if user exists (#1629598)
+
 * Mon Mar 9 2020 Iker Pedrosa <ipedrosa@redhat.com> - 1.3.1-24
 - pam_selinux: check unknown object classes or permissions in current policy
 
