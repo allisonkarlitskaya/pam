@@ -3,7 +3,7 @@
 Summary: An extensible library which provides authentication for applications
 Name: pam
 Version: 1.3.1
-Release: 27%{?dist}
+Release: 28%{?dist}
 # The library is BSD licensed with option to relicense as GPLv2+
 # - this option is redundant as the BSD license allows that anyway.
 # pam_timestamp, pam_loginuid, and pam_console modules are GPLv2+.
@@ -69,6 +69,8 @@ Patch55: pam-1.3.1-audit-error.patch
 Patch56: pam-1.3.1-pam-modutil-close-write.patch
 # Upstreamed
 Patch57: pam-1.3.1-determinine-user-exists.patch
+# Upstreamed
+Patch58: pam-1.3.1-faillock-change-file-permissions.patch
 
 %global _pamlibdir %{_libdir}
 %global _moduledir %{_libdir}/security
@@ -176,6 +178,7 @@ cp %{SOURCE18} .
 %patch55 -p1 -b .audit-error
 %patch56 -p1 -b .pam-modutil-close-write
 %patch57 -p1 -b .determinine-user-exists
+%patch58 -p1 -b .faillock-change-file-permissions
 
 autoreconf -i
 
@@ -428,6 +431,9 @@ done
 %doc doc/sag/*.txt doc/sag/html
 
 %changelog
+* Mon Jun 22 2020 Iker Pedrosa <ipedrosa@redhat.com> - 1.3.1-28
+- pam_faillock: change /run/faillock/$USER permissions to 0660 (#1661822)
+
 * Wed Jun 17 2020 Iker Pedrosa <ipedrosa@redhat.com> - 1.3.1-27
 - pam_unix and pam_usertype: avoid determining if user exists (#1629598)
 
