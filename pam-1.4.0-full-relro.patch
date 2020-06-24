@@ -1,19 +1,19 @@
-diff -up Linux-PAM-1.1.8/modules/pam_filter/upperLOWER/Makefile.am.relro Linux-PAM-1.1.8/modules/pam_filter/upperLOWER/Makefile.am
---- Linux-PAM-1.1.8/modules/pam_filter/upperLOWER/Makefile.am.relro	2014-09-10 17:17:20.273401344 +0200
-+++ Linux-PAM-1.1.8/modules/pam_filter/upperLOWER/Makefile.am	2014-09-10 17:17:07.857115369 +0200
+diff -up Linux-PAM-1.4.0/modules/pam_filter/upperLOWER/Makefile.am.relro Linux-PAM-1.4.0/modules/pam_filter/upperLOWER/Makefile.am
+--- Linux-PAM-1.4.0/modules/pam_filter/upperLOWER/Makefile.am.relro	2020-06-22 13:06:45.397887922 +0200
++++ Linux-PAM-1.4.0/modules/pam_filter/upperLOWER/Makefile.am	2020-06-22 13:11:50.898150263 +0200
 @@ -9,7 +9,7 @@ securelibfilterdir = $(SECUREDIR)/pam_fi
  
  AM_CFLAGS = -I$(top_srcdir)/libpam/include -I$(top_srcdir)/libpamc/include \
- 	-I$(srcdir)/.. @PIE_CFLAGS@
+ 	-I$(srcdir)/.. @PIE_CFLAGS@ $(WARN_CFLAGS)
 -AM_LDFLAGS = @PIE_LDFLAGS@
 +AM_LDFLAGS = -Wl,-z,now @PIE_LDFLAGS@
  LDADD = $(top_builddir)/libpam/libpam.la
  
  securelibfilter_PROGRAMS = upperLOWER
-diff -up Linux-PAM-1.1.8/modules/pam_mkhomedir/Makefile.am.relro Linux-PAM-1.1.8/modules/pam_mkhomedir/Makefile.am
---- Linux-PAM-1.1.8/modules/pam_mkhomedir/Makefile.am.relro	2013-06-18 16:11:21.000000000 +0200
-+++ Linux-PAM-1.1.8/modules/pam_mkhomedir/Makefile.am	2014-09-10 17:18:42.922304935 +0200
-@@ -30,6 +30,8 @@ endif
+diff -up Linux-PAM-1.4.0/modules/pam_mkhomedir/Makefile.am.relro Linux-PAM-1.4.0/modules/pam_mkhomedir/Makefile.am
+--- Linux-PAM-1.4.0/modules/pam_mkhomedir/Makefile.am.relro	2020-06-22 13:06:45.397887922 +0200
++++ Linux-PAM-1.4.0/modules/pam_mkhomedir/Makefile.am	2020-06-22 13:11:57.015235608 +0200
+@@ -31,6 +31,8 @@ endif
  
  sbin_PROGRAMS = mkhomedir_helper
  mkhomedir_helper_SOURCES = mkhomedir_helper.c
@@ -21,11 +21,11 @@ diff -up Linux-PAM-1.1.8/modules/pam_mkhomedir/Makefile.am.relro Linux-PAM-1.1.8
 +mkhomedir_helper_LDFLAGS = -Wl,-z,now @PIE_LDFLAGS@
  mkhomedir_helper_LDADD = $(top_builddir)/libpam/libpam.la
  
- if ENABLE_REGENERATE_MAN
-diff -up Linux-PAM-1.1.8/modules/pam_tally2/Makefile.am.relro Linux-PAM-1.1.8/modules/pam_tally2/Makefile.am
---- Linux-PAM-1.1.8/modules/pam_tally2/Makefile.am.relro	2013-06-18 16:11:21.000000000 +0200
-+++ Linux-PAM-1.1.8/modules/pam_tally2/Makefile.am	2014-09-10 17:22:04.339944040 +0200
-@@ -26,6 +26,8 @@ if HAVE_VERSIONING
+ check_PROGRAMS = tst-pam_mkhomedir-retval
+diff -up Linux-PAM-1.4.0/modules/pam_tally2/Makefile.am.relro Linux-PAM-1.4.0/modules/pam_tally2/Makefile.am
+--- Linux-PAM-1.4.0/modules/pam_tally2/Makefile.am.relro	2020-06-08 12:17:27.000000000 +0200
++++ Linux-PAM-1.4.0/modules/pam_tally2/Makefile.am	2020-06-22 13:06:45.398887936 +0200
+@@ -29,6 +29,8 @@ if HAVE_VERSIONING
    pam_tally2_la_LDFLAGS += -Wl,--version-script=$(srcdir)/../modules.map
  endif
  
@@ -34,10 +34,10 @@ diff -up Linux-PAM-1.1.8/modules/pam_tally2/Makefile.am.relro Linux-PAM-1.1.8/mo
  pam_tally2_LDADD = $(top_builddir)/libpam/libpam.la $(LIBAUDIT)
  
  securelib_LTLIBRARIES = pam_tally2.la
-diff -up Linux-PAM-1.1.8/modules/pam_timestamp/Makefile.am.relro Linux-PAM-1.1.8/modules/pam_timestamp/Makefile.am
---- Linux-PAM-1.1.8/modules/pam_timestamp/Makefile.am.relro	2013-06-18 16:11:21.000000000 +0200
-+++ Linux-PAM-1.1.8/modules/pam_timestamp/Makefile.am	2014-08-13 16:02:49.906688139 +0200
-@@ -36,7 +36,7 @@ pam_timestamp_la_CFLAGS = $(AM_CFLAGS)
+diff -up Linux-PAM-1.4.0/modules/pam_timestamp/Makefile.am.relro Linux-PAM-1.4.0/modules/pam_timestamp/Makefile.am
+--- Linux-PAM-1.4.0/modules/pam_timestamp/Makefile.am.relro	2020-06-08 12:17:27.000000000 +0200
++++ Linux-PAM-1.4.0/modules/pam_timestamp/Makefile.am	2020-06-22 13:06:45.398887936 +0200
+@@ -38,7 +38,7 @@ pam_timestamp_la_CFLAGS = $(AM_CFLAGS)
  pam_timestamp_check_SOURCES = pam_timestamp_check.c
  pam_timestamp_check_CFLAGS = $(AM_CFLAGS) @PIE_CFLAGS@
  pam_timestamp_check_LDADD = $(top_builddir)/libpam/libpam.la
@@ -46,10 +46,10 @@ diff -up Linux-PAM-1.1.8/modules/pam_timestamp/Makefile.am.relro Linux-PAM-1.1.8
  
  hmacfile_SOURCES = hmacfile.c hmacsha1.c sha1.c
  hmacfile_LDADD = $(top_builddir)/libpam/libpam.la
-diff -up Linux-PAM-1.1.8/modules/pam_unix/Makefile.am.relro Linux-PAM-1.1.8/modules/pam_unix/Makefile.am
---- Linux-PAM-1.1.8/modules/pam_unix/Makefile.am.relro	2013-06-18 16:11:21.000000000 +0200
-+++ Linux-PAM-1.1.8/modules/pam_unix/Makefile.am	2014-08-13 16:02:49.906688139 +0200
-@@ -55,13 +55,13 @@ bigcrypt_LDADD = @LIBCRYPT@
+diff -up Linux-PAM-1.4.0/modules/pam_unix/Makefile.am.relro Linux-PAM-1.4.0/modules/pam_unix/Makefile.am
+--- Linux-PAM-1.4.0/modules/pam_unix/Makefile.am.relro	2020-06-08 12:17:27.000000000 +0200
++++ Linux-PAM-1.4.0/modules/pam_unix/Makefile.am	2020-06-22 13:06:45.398887936 +0200
+@@ -48,13 +48,13 @@ bigcrypt_LDADD = @LIBCRYPT@
  unix_chkpwd_SOURCES = unix_chkpwd.c md5_good.c md5_broken.c bigcrypt.c \
  	passverify.c
  unix_chkpwd_CFLAGS = $(AM_CFLAGS) @PIE_CFLAGS@ -DHELPER_COMPILE=\"unix_chkpwd\"

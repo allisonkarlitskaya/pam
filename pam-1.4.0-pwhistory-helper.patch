@@ -1,6 +1,6 @@
-diff -up Linux-PAM-1.3.0/modules/pam_pwhistory/Makefile.am.pwhhelper Linux-PAM-1.3.0/modules/pam_pwhistory/Makefile.am
---- Linux-PAM-1.3.0/modules/pam_pwhistory/Makefile.am.pwhhelper	2016-03-24 12:45:42.000000000 +0100
-+++ Linux-PAM-1.3.0/modules/pam_pwhistory/Makefile.am	2016-05-06 15:18:42.307637933 +0200
+diff -up Linux-PAM-1.4.0/modules/pam_pwhistory/Makefile.am.pwhhelper Linux-PAM-1.4.0/modules/pam_pwhistory/Makefile.am
+--- Linux-PAM-1.4.0/modules/pam_pwhistory/Makefile.am.pwhhelper	2020-06-08 12:17:27.000000000 +0200
++++ Linux-PAM-1.4.0/modules/pam_pwhistory/Makefile.am	2020-06-22 13:22:13.740840867 +0200
 @@ -1,5 +1,6 @@
  #
  # Copyright (c) 2008, 2009 Thorsten Kukuk <kukuk@suse.de>
@@ -8,23 +8,25 @@ diff -up Linux-PAM-1.3.0/modules/pam_pwhistory/Makefile.am.pwhhelper Linux-PAM-1
  #
  
  CLEANFILES = *~
-@@ -9,25 +10,34 @@ EXTRA_DIST = README $(MANS) $(XMLS) tst-
+@@ -8,9 +9,9 @@ MAINTAINERCLEANFILES = $(MANS) README
+ EXTRA_DIST = $(XMLS)
  
- TESTS = tst-pam_pwhistory
- 
--man_MANS = pam_pwhistory.8
-+man_MANS = pam_pwhistory.8 pwhistory_helper.8
- 
+ if HAVE_DOC
+-dist_man_MANS = pam_pwhistory.8
++dist_man_MANS = pam_pwhistory.8 pwhistory_helper.8
+ endif
 -XMLS = README.xml pam_pwhistory.8.xml
 +XMLS = README.xml pam_pwhistory.8.xml pwhistory_helper.8.xml
+ dist_check_SCRIPTS = tst-pam_pwhistory
+ TESTS = $(dist_check_SCRIPTS)
  
- securelibdir = $(SECUREDIR)
+@@ -18,18 +19,26 @@ securelibdir = $(SECUREDIR)
  secureconfdir = $(SCONFIGDIR)
  
--AM_CFLAGS = -I$(top_srcdir)/libpam/include -I$(top_srcdir)/libpamc/include
+ AM_CFLAGS = -I$(top_srcdir)/libpam/include -I$(top_srcdir)/libpamc/include \
+-	$(WARN_CFLAGS)
 -AM_LDFLAGS = -no-undefined -avoid-version -module
-+AM_CFLAGS = -I$(top_srcdir)/libpam/include -I$(top_srcdir)/libpamc/include \
-+	    -DPWHISTORY_HELPER=\"$(sbindir)/pwhistory_helper\"
++	$(WARN_CFLAGS) -DPWHISTORY_HELPER=\"$(sbindir)/pwhistory_helper\"
 +
 +pam_pwhistory_la_LDFLAGS = -no-undefined -avoid-version -module
  if HAVE_VERSIONING
@@ -47,11 +49,11 @@ diff -up Linux-PAM-1.3.0/modules/pam_pwhistory/Makefile.am.pwhhelper Linux-PAM-1
 +pwhistory_helper_LDADD = $(top_builddir)/libpam/libpam.la @LIBCRYPT@
 +
  if ENABLE_REGENERATE_MAN
- noinst_DATA = README
- README: pam_pwhistory.8.xml
-diff -up Linux-PAM-1.3.0/modules/pam_pwhistory/opasswd.c.pwhhelper Linux-PAM-1.3.0/modules/pam_pwhistory/opasswd.c
---- Linux-PAM-1.3.0/modules/pam_pwhistory/opasswd.c.pwhhelper	2016-03-24 12:45:42.000000000 +0100
-+++ Linux-PAM-1.3.0/modules/pam_pwhistory/opasswd.c	2016-05-06 15:18:42.307637933 +0200
+ dist_noinst_DATA = README
+ -include $(top_srcdir)/Make.xml.rules
+diff -up Linux-PAM-1.4.0/modules/pam_pwhistory/opasswd.c.pwhhelper Linux-PAM-1.4.0/modules/pam_pwhistory/opasswd.c
+--- Linux-PAM-1.4.0/modules/pam_pwhistory/opasswd.c.pwhhelper	2020-06-08 12:17:27.000000000 +0200
++++ Linux-PAM-1.4.0/modules/pam_pwhistory/opasswd.c	2020-06-22 13:24:02.424365617 +0200
 @@ -1,5 +1,6 @@
  /*
   * Copyright (c) 2008 Thorsten Kukuk <kukuk@suse.de>
@@ -74,7 +76,7 @@ diff -up Linux-PAM-1.3.0/modules/pam_pwhistory/opasswd.c.pwhhelper Linux-PAM-1.3
 +#include <stdarg.h>
  #include <sys/stat.h>
  
- #if defined (HAVE_XCRYPT_H)
+ #if defined HAVE_LIBXCRYPT
 @@ -55,7 +58,14 @@
  #include <crypt.h>
  #endif
@@ -191,9 +193,9 @@ diff -up Linux-PAM-1.3.0/modules/pam_pwhistory/opasswd.c.pwhhelper Linux-PAM-1.3
  	{
  	  retval = PAM_AUTHTOK_ERR;
  	  if (oldpf)
-diff -up Linux-PAM-1.3.0/modules/pam_pwhistory/opasswd.h.pwhhelper Linux-PAM-1.3.0/modules/pam_pwhistory/opasswd.h
---- Linux-PAM-1.3.0/modules/pam_pwhistory/opasswd.h.pwhhelper	2016-03-24 12:45:42.000000000 +0100
-+++ Linux-PAM-1.3.0/modules/pam_pwhistory/opasswd.h	2016-05-06 15:18:42.307637933 +0200
+diff -up Linux-PAM-1.4.0/modules/pam_pwhistory/opasswd.h.pwhhelper Linux-PAM-1.4.0/modules/pam_pwhistory/opasswd.h
+--- Linux-PAM-1.4.0/modules/pam_pwhistory/opasswd.h.pwhhelper	2020-06-08 12:17:27.000000000 +0200
++++ Linux-PAM-1.4.0/modules/pam_pwhistory/opasswd.h	2020-06-22 13:13:23.722445347 +0200
 @@ -1,5 +1,6 @@
  /*
   * Copyright (c) 2008 Thorsten Kukuk <kukuk@suse.de>
@@ -239,11 +241,11 @@ diff -up Linux-PAM-1.3.0/modules/pam_pwhistory/opasswd.h.pwhhelper Linux-PAM-1.3
 +save_old_pass, const char *user, int howmany, int debug);
  
  #endif /* __OPASSWD_H__ */
-diff -up Linux-PAM-1.3.0/modules/pam_pwhistory/pam_pwhistory.c.pwhhelper Linux-PAM-1.3.0/modules/pam_pwhistory/pam_pwhistory.c
---- Linux-PAM-1.3.0/modules/pam_pwhistory/pam_pwhistory.c.pwhhelper	2016-04-04 11:22:28.000000000 +0200
-+++ Linux-PAM-1.3.0/modules/pam_pwhistory/pam_pwhistory.c	2016-05-06 15:19:31.610785512 +0200
-@@ -1,6 +1,7 @@
- /*
+diff -up Linux-PAM-1.4.0/modules/pam_pwhistory/pam_pwhistory.c.pwhhelper Linux-PAM-1.4.0/modules/pam_pwhistory/pam_pwhistory.c
+--- Linux-PAM-1.4.0/modules/pam_pwhistory/pam_pwhistory.c.pwhhelper	2020-06-08 12:17:27.000000000 +0200
++++ Linux-PAM-1.4.0/modules/pam_pwhistory/pam_pwhistory.c	2020-06-22 13:25:23.107497539 +0200
+@@ -3,6 +3,7 @@
+  *
   * Copyright (c) 2008, 2012 Thorsten Kukuk
   * Author: Thorsten Kukuk <kukuk@thkukuk.de>
 + * Copyright (c) 2013 Red Hat, Inc.
@@ -266,15 +268,15 @@ diff -up Linux-PAM-1.3.0/modules/pam_pwhistory/pam_pwhistory.c.pwhhelper Linux-P
  
  #include <security/pam_modules.h>
  #include <security/pam_modutil.h>
-@@ -59,6 +64,7 @@
- #include "opasswd.h"
+@@ -60,6 +65,7 @@
+ #include "pam_inline.h"
  
  #define DEFAULT_BUFLEN 2048
 +#define MAX_FD_NO 20000
  
  struct options_t {
    int debug;
-@@ -102,6 +108,184 @@ parse_option (pam_handle_t *pamh, const
+@@ -105,6 +111,184 @@ parse_option (pam_handle_t *pamh, const
      pam_syslog (pamh, LOG_ERR, "pam_pwhistory: unknown option: %s", argv);
  }
  
@@ -459,7 +461,7 @@ diff -up Linux-PAM-1.3.0/modules/pam_pwhistory/pam_pwhistory.c.pwhhelper Linux-P
  
  /* This module saves the current crypted password in /etc/security/opasswd
     and then compares the new password with all entries in this file. */
-@@ -109,7 +293,6 @@ parse_option (pam_handle_t *pamh, const
+@@ -112,7 +296,6 @@ parse_option (pam_handle_t *pamh, const
  int
  pam_sm_chauthtok (pam_handle_t *pamh, int flags, int argc, const char **argv)
  {
@@ -467,7 +469,7 @@ diff -up Linux-PAM-1.3.0/modules/pam_pwhistory/pam_pwhistory.c.pwhhelper Linux-P
    const char *newpass;
    const char *user;
      int retval, tries;
-@@ -154,31 +337,13 @@ pam_sm_chauthtok (pam_handle_t *pamh, in
+@@ -148,31 +331,13 @@ pam_sm_chauthtok (pam_handle_t *pamh, in
        return PAM_SUCCESS;
      }
  
@@ -505,7 +507,7 @@ diff -up Linux-PAM-1.3.0/modules/pam_pwhistory/pam_pwhistory.c.pwhhelper Linux-P
  
    newpass = NULL;
    tries = 0;
-@@ -207,8 +372,11 @@ pam_sm_chauthtok (pam_handle_t *pamh, in
+@@ -201,8 +366,11 @@ pam_sm_chauthtok (pam_handle_t *pamh, in
        if (options.debug)
  	pam_syslog (pamh, LOG_DEBUG, "check against old password file");
  
@@ -519,9 +521,81 @@ diff -up Linux-PAM-1.3.0/modules/pam_pwhistory/pam_pwhistory.c.pwhhelper Linux-P
  	{
  	  if (getuid() || options.enforce_for_root ||
  	      (flags & PAM_CHANGE_EXPIRED_AUTHTOK))
-diff -up Linux-PAM-1.3.0/modules/pam_pwhistory/pwhistory_helper.c.pwhhelper Linux-PAM-1.3.0/modules/pam_pwhistory/pwhistory_helper.c
---- Linux-PAM-1.3.0/modules/pam_pwhistory/pwhistory_helper.c.pwhhelper	2016-05-06 15:18:42.308637957 +0200
-+++ Linux-PAM-1.3.0/modules/pam_pwhistory/pwhistory_helper.c	2016-05-06 15:18:42.308637957 +0200
+diff -up Linux-PAM-1.4.0/modules/pam_pwhistory/pwhistory_helper.8.xml.pwhhelper Linux-PAM-1.4.0/modules/pam_pwhistory/pwhistory_helper.8.xml
+--- Linux-PAM-1.4.0/modules/pam_pwhistory/pwhistory_helper.8.xml.pwhhelper	2020-06-22 13:13:23.723445361 +0200
++++ Linux-PAM-1.4.0/modules/pam_pwhistory/pwhistory_helper.8.xml	2020-06-22 13:13:23.723445361 +0200
+@@ -0,0 +1,68 @@
++<?xml version="1.0" encoding='UTF-8'?>
++<!DOCTYPE refentry PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
++	"http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd">
++
++<refentry id="pwhistory_helper">
++
++  <refmeta>
++    <refentrytitle>pwhistory_helper</refentrytitle>
++    <manvolnum>8</manvolnum>
++    <refmiscinfo class="sectdesc">Linux-PAM Manual</refmiscinfo>
++  </refmeta>
++
++  <refnamediv id="pwhistory_helper-name">
++    <refname>pwhistory_helper</refname>
++    <refpurpose>Helper binary that transfers password hashes from passwd or shadow to opasswd</refpurpose>
++  </refnamediv>
++
++  <refsynopsisdiv>
++    <cmdsynopsis id="pwhistory_helper-cmdsynopsis">
++      <command>pwhistory_helper</command>
++      <arg choice="opt">
++        ...
++      </arg>
++    </cmdsynopsis>
++  </refsynopsisdiv>
++
++  <refsect1 id="pwhistory_helper-description">
++
++    <title>DESCRIPTION</title>
++
++    <para>
++      <emphasis>pwhistory_helper</emphasis> is a helper program for the
++      <emphasis>pam_pwhistory</emphasis> module that transfers password hashes
++      from passwd or shadow file to the opasswd file and checks a password
++      supplied by user against the existing hashes in the opasswd file.
++    </para>
++
++    <para>
++      The purpose of the helper is to enable tighter confinement of
++      login and password changing services. The helper is thus called only
++      when SELinux is enabled on the system.
++    </para>
++
++    <para>
++      The interface of the helper - command line options, and input/output
++      data format are internal to the <emphasis>pam_pwhistory</emphasis>
++      module and it should not be called directly from applications.
++    </para>
++  </refsect1>
++
++  <refsect1 id='pwhistory_helper-see_also'>
++    <title>SEE ALSO</title>
++    <para>
++      <citerefentry>
++	<refentrytitle>pam_pwhistory</refentrytitle><manvolnum>8</manvolnum>
++      </citerefentry>
++    </para>
++  </refsect1>
++
++  <refsect1 id='pwhistory_helper-author'>
++    <title>AUTHOR</title>
++      <para>
++        Written by Tomas Mraz based on the code originally in
++        <emphasis>pam_pwhistory and pam_unix</emphasis> modules.
++      </para>
++  </refsect1>
++
++</refentry>
+diff -up Linux-PAM-1.4.0/modules/pam_pwhistory/pwhistory_helper.c.pwhhelper Linux-PAM-1.4.0/modules/pam_pwhistory/pwhistory_helper.c
+--- Linux-PAM-1.4.0/modules/pam_pwhistory/pwhistory_helper.c.pwhhelper	2020-06-22 13:13:23.723445361 +0200
++++ Linux-PAM-1.4.0/modules/pam_pwhistory/pwhistory_helper.c	2020-06-22 13:13:23.723445361 +0200
 @@ -0,0 +1,209 @@
 +/* 
 + * Copyright (c) 2013 Red Hat, Inc.
@@ -732,75 +806,3 @@ diff -up Linux-PAM-1.3.0/modules/pam_pwhistory/pwhistory_helper.c.pwhhelper Linu
 +  return PAM_SYSTEM_ERR;
 +}
 +
-diff -up Linux-PAM-1.3.0/modules/pam_pwhistory/pwhistory_helper.8.xml.pwhhelper Linux-PAM-1.3.0/modules/pam_pwhistory/pwhistory_helper.8.xml
---- Linux-PAM-1.3.0/modules/pam_pwhistory/pwhistory_helper.8.xml.pwhhelper	2016-05-06 15:18:42.308637957 +0200
-+++ Linux-PAM-1.3.0/modules/pam_pwhistory/pwhistory_helper.8.xml	2016-05-06 15:18:42.308637957 +0200
-@@ -0,0 +1,68 @@
-+<?xml version="1.0" encoding='UTF-8'?>
-+<!DOCTYPE refentry PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
-+	"http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd">
-+
-+<refentry id="pwhistory_helper">
-+
-+  <refmeta>
-+    <refentrytitle>pwhistory_helper</refentrytitle>
-+    <manvolnum>8</manvolnum>
-+    <refmiscinfo class="sectdesc">Linux-PAM Manual</refmiscinfo>
-+  </refmeta>
-+
-+  <refnamediv id="pwhistory_helper-name">
-+    <refname>pwhistory_helper</refname>
-+    <refpurpose>Helper binary that transfers password hashes from passwd or shadow to opasswd</refpurpose>
-+  </refnamediv>
-+
-+  <refsynopsisdiv>
-+    <cmdsynopsis id="pwhistory_helper-cmdsynopsis">
-+      <command>pwhistory_helper</command>
-+      <arg choice="opt">
-+        ...
-+      </arg>
-+    </cmdsynopsis>
-+  </refsynopsisdiv>
-+
-+  <refsect1 id="pwhistory_helper-description">
-+
-+    <title>DESCRIPTION</title>
-+
-+    <para>
-+      <emphasis>pwhistory_helper</emphasis> is a helper program for the
-+      <emphasis>pam_pwhistory</emphasis> module that transfers password hashes
-+      from passwd or shadow file to the opasswd file and checks a password
-+      supplied by user against the existing hashes in the opasswd file.
-+    </para>
-+
-+    <para>
-+      The purpose of the helper is to enable tighter confinement of
-+      login and password changing services. The helper is thus called only
-+      when SELinux is enabled on the system.
-+    </para>
-+
-+    <para>
-+      The interface of the helper - command line options, and input/output
-+      data format are internal to the <emphasis>pam_pwhistory</emphasis>
-+      module and it should not be called directly from applications.
-+    </para>
-+  </refsect1>
-+
-+  <refsect1 id='pwhistory_helper-see_also'>
-+    <title>SEE ALSO</title>
-+    <para>
-+      <citerefentry>
-+	<refentrytitle>pam_pwhistory</refentrytitle><manvolnum>8</manvolnum>
-+      </citerefentry>
-+    </para>
-+  </refsect1>
-+
-+  <refsect1 id='pwhistory_helper-author'>
-+    <title>AUTHOR</title>
-+      <para>
-+        Written by Tomas Mraz based on the code originally in
-+        <emphasis>pam_pwhistory and pam_unix</emphasis> modules.
-+      </para>
-+  </refsect1>
-+
-+</refentry>

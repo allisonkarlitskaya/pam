@@ -1,0 +1,15 @@
+diff -up Linux-PAM-1.4.0/modules/pam_env/pam_env.8.xml.nouserenv Linux-PAM-1.4.0/modules/pam_env/pam_env.8.xml
+--- Linux-PAM-1.4.0/modules/pam_env/pam_env.8.xml.nouserenv	2020-06-22 13:00:37.480755648 +0200
++++ Linux-PAM-1.4.0/modules/pam_env/pam_env.8.xml	2020-06-22 13:05:06.038501660 +0200
+@@ -158,7 +158,10 @@
+         <listitem>
+           <para>
+             Turns on or off the reading of the user specific environment
+-            file. 0 is off, 1 is on. By default this option is off.
++            file. 0 is off, 1 is on. By default this option is off as user
++            supplied environment variables in the PAM environment could affect
++            behavior of subsequent modules in the stack without the consent
++            of the system administrator.
+           </para>
+         </listitem>
+       </varlistentry>

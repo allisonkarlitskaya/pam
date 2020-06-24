@@ -1,0 +1,131 @@
+diff -up Linux-PAM-1.4.0/libpam_misc/misc_conv.c.coverity Linux-PAM-1.4.0/libpam_misc/misc_conv.c
+--- Linux-PAM-1.4.0/libpam_misc/misc_conv.c.coverity	2020-06-08 12:17:27.000000000 +0200
++++ Linux-PAM-1.4.0/libpam_misc/misc_conv.c	2020-06-23 10:19:32.999827223 +0200
+@@ -211,7 +211,7 @@ static int read_string(int echo, const c
+ 		    line[nc] = '\0';
+ 		}
+ 		*retstr = strdup(line);
+-		_pam_overwrite(line);
++		_pam_overwrite_n(line, sizeof(line));
+ 		if (!*retstr) {
+ 		    D(("no memory for response string"));
+ 		    nc = -1;
+@@ -244,7 +244,7 @@ static int read_string(int echo, const c
+     D(("the timer appears to have expired"));
+ 
+     *retstr = NULL;
+-    _pam_overwrite(line);
++    _pam_overwrite_n(line, sizeof(line));
+ 
+  cleanexit:
+ 
+diff -up Linux-PAM-1.4.0/libpam/pam_handlers.c.coverity Linux-PAM-1.4.0/libpam/pam_handlers.c
+diff -up Linux-PAM-1.4.0/modules/pam_access/pam_access.c.coverity Linux-PAM-1.4.0/modules/pam_access/pam_access.c
+--- Linux-PAM-1.4.0/modules/pam_access/pam_access.c.coverity	2020-06-23 10:19:32.999827223 +0200
++++ Linux-PAM-1.4.0/modules/pam_access/pam_access.c	2020-06-23 10:21:17.113398827 +0200
+@@ -811,7 +811,7 @@ pam_sm_authenticate (pam_handle_t *pamh,
+     const char *user=NULL;
+     const void *void_from=NULL;
+     const char *from;
+-    const char *default_config = PAM_ACCESS_CONFIG;
++    const char * const default_config = PAM_ACCESS_CONFIG;
+     struct passwd *user_pw;
+     char hostname[MAXHOSTNAMELEN + 1];
+     int rv;
+diff -up Linux-PAM-1.4.0/modules/pam_limits/pam_limits.c.coverity Linux-PAM-1.4.0/modules/pam_limits/pam_limits.c
+--- Linux-PAM-1.4.0/modules/pam_limits/pam_limits.c.coverity	2020-06-08 12:17:27.000000000 +0200
++++ Linux-PAM-1.4.0/modules/pam_limits/pam_limits.c	2020-06-23 10:22:40.357855843 +0200
+@@ -342,7 +342,7 @@ static const char *lnames[RLIM_NLIMITS]
+ #endif
+ };
+ 
+-static int str2rlimit(char *name) {
++static int str2rlimit(const char *name) {
+     int i;
+     if (!name || *name == '\0')
+         return -1;
+@@ -352,7 +352,7 @@ static int str2rlimit(char *name) {
+     return -1;
+ }
+ 
+-static rlim_t str2rlim_t(char *value) {
++static rlim_t str2rlim_t(const char *value) {
+     unsigned long long rlimit = 0;
+ 
+     if (!value) return (rlim_t)rlimit;
+@@ -384,7 +384,7 @@ static void parse_kernel_limits(pam_hand
+     FILE *limitsfile;
+     const char *proclimits = "/proc/1/limits";
+     char line[256];
+-    char *hard, *soft, *name;
++    const char *hard, *soft, *name;
+ 
+     if (!(limitsfile = fopen(proclimits, "r"))) {
+         pam_syslog(pamh, LOG_WARNING, "Could not read %s (%s), using PAM defaults", proclimits, strerror(errno));
+diff -up Linux-PAM-1.4.0/modules/pam_loginuid/pam_loginuid.c.coverity Linux-PAM-1.4.0/modules/pam_loginuid/pam_loginuid.c
+--- Linux-PAM-1.4.0/modules/pam_loginuid/pam_loginuid.c.coverity	2020-06-08 12:17:27.000000000 +0200
++++ Linux-PAM-1.4.0/modules/pam_loginuid/pam_loginuid.c	2020-06-23 10:19:32.999827223 +0200
+@@ -65,7 +65,7 @@ static int set_loginuid(pam_handle_t *pa
+ 	fd = open("/proc/self/uid_map", O_RDONLY);
+ 	if (fd >= 0) {
+ 		count = pam_modutil_read(fd, uid_map, sizeof(uid_map));
+-		if (strncmp(uid_map, host_uid_map, count) != 0)
++		if (count <= 0 || strncmp(uid_map, host_uid_map, count) != 0)
+ 			rc = PAM_IGNORE;
+ 		close(fd);
+ 	}
+diff -up Linux-PAM-1.4.0/modules/pam_mkhomedir/mkhomedir_helper.c.coverity Linux-PAM-1.4.0/modules/pam_mkhomedir/mkhomedir_helper.c
+--- Linux-PAM-1.4.0/modules/pam_mkhomedir/mkhomedir_helper.c.coverity	2020-06-08 12:17:27.000000000 +0200
++++ Linux-PAM-1.4.0/modules/pam_mkhomedir/mkhomedir_helper.c	2020-06-23 10:19:33.000827228 +0200
+@@ -232,6 +232,8 @@ create_homedir(const struct passwd *pwd,
+       {
+          pam_syslog(NULL, LOG_DEBUG,
+ 		    "unable to open or stat src file %s: %m", newsource);
++         if (srcfd >= 0)
++            close(srcfd);
+          closedir(d);
+ 
+ #ifndef PATH_MAX
+diff -up Linux-PAM-1.4.0/modules/pam_namespace/pam_namespace.c.coverity Linux-PAM-1.4.0/modules/pam_namespace/pam_namespace.c
+--- Linux-PAM-1.4.0/modules/pam_namespace/pam_namespace.c.coverity	2020-06-08 12:17:27.000000000 +0200
++++ Linux-PAM-1.4.0/modules/pam_namespace/pam_namespace.c	2020-06-23 10:19:33.000827228 +0200
+@@ -1488,6 +1488,7 @@ static int create_instance(struct polydi
+     if (fstat(fd, &newstatbuf) < 0) {
+         pam_syslog(idata->pamh, LOG_ERR, "Error stating %s, %m",
+ 		ipath);
++	close(fd);
+ 	rmdir(ipath);
+         return PAM_SESSION_ERR;
+     }
+diff -up Linux-PAM-1.4.0/modules/pam_rootok/pam_rootok.c.coverity Linux-PAM-1.4.0/modules/pam_rootok/pam_rootok.c
+--- Linux-PAM-1.4.0/modules/pam_rootok/pam_rootok.c.coverity	2020-06-08 12:17:27.000000000 +0200
++++ Linux-PAM-1.4.0/modules/pam_rootok/pam_rootok.c	2020-06-23 10:26:21.405069413 +0200
+@@ -55,15 +55,17 @@ log_callback (int type UNUSED, const cha
+     int audit_fd;
+     va_list ap;
+ 
+-    va_start(ap, fmt);
+ #ifdef HAVE_LIBAUDIT
+     audit_fd = audit_open();
+ 
+     if (audit_fd >= 0) {
+ 	char *buf;
++	int ret;
+ 
+-	if (vasprintf (&buf, fmt, ap) < 0) {
+-		va_end(ap);
++	va_start(ap, fmt);
++	ret = vasprintf (&buf, fmt, ap);
++	va_end(ap);
++	if (ret < 0) {
+ 		return 0;
+ 	}
+ 	audit_log_user_avc_message(audit_fd, AUDIT_USER_AVC, buf, NULL, NULL,
+@@ -75,6 +77,7 @@ log_callback (int type UNUSED, const cha
+     }
+ 
+ #endif
++    va_start(ap, fmt);
+     vsyslog (LOG_USER | LOG_INFO, fmt, ap);
+     va_end(ap);
+     return 0;
