@@ -3,7 +3,7 @@
 Summary: An extensible library which provides authentication for applications
 Name: pam
 Version: 1.4.0
-Release: 1%{?dist}
+Release: 2%{?dist}
 # The library is BSD licensed with option to relicense as GPLv2+
 # - this option is redundant as the BSD license allows that anyway.
 # pam_timestamp, pam_loginuid, and pam_console modules are GPLv2+.
@@ -44,6 +44,7 @@ Patch58: pam-1.3.1-faillock-change-file-permissions.patch
 %global _moduledir %{_libdir}/security
 %global _secconfdir %{_sysconfdir}/security
 %global _pamconfdir %{_sysconfdir}/pam.d
+%global _pamvendordir %{_datadir}/pam.d
 %global _systemdlibdir /usr/lib/systemd/system
 
 %if %{?WITH_SELINUX:0}%{!?WITH_SELINUX:1}
@@ -68,6 +69,8 @@ Requires: audit-libs >= 1.0.8
 BuildRequires: libselinux-devel >= 1.33.2
 Requires: libselinux >= 1.33.2
 %endif
+BuildRequires: libeconf-devel >= 0.3.5
+Requires: libeconf >= 0.3.5
 Requires: glibc >= 2.3.90-37
 BuildRequires: libxcrypt-devel >= 4.3.3-2
 BuildRequires: libdb-devel
@@ -133,6 +136,7 @@ autoreconf -i
 	--disable-rpath \
 	--libdir=%{_pamlibdir} \
 	--includedir=%{_includedir}/security \
+	--enable-vendordir=%{_datadir} \
 %if ! %{WITH_SELINUX}
 	--disable-selinux \
 %endif
@@ -169,6 +173,7 @@ rm -f $RPM_BUILD_ROOT%{_sysconfdir}/environment
 
 # Install default configuration files.
 install -d -m 755 $RPM_BUILD_ROOT%{_pamconfdir}
+install -d -m 755 $RPM_BUILD_ROOT%{_pamvendordir}
 install -m 644 %{SOURCE5} $RPM_BUILD_ROOT%{_pamconfdir}/other
 install -m 644 %{SOURCE6} $RPM_BUILD_ROOT%{_pamconfdir}/system-auth
 install -m 644 %{SOURCE7} $RPM_BUILD_ROOT%{_pamconfdir}/password-auth
@@ -256,6 +261,7 @@ done
 
 %files -f Linux-PAM.lang
 %dir %{_pamconfdir}
+%dir %{_pamvendordir}
 %config(noreplace) %{_pamconfdir}/other
 %config(noreplace) %{_pamconfdir}/system-auth
 %config(noreplace) %{_pamconfdir}/password-auth
@@ -381,6 +387,9 @@ done
 %doc doc/sag/*.txt doc/sag/html
 
 %changelog
+* Thu Jul  2 2020 Iker Pedrosa <ipedrosa@redhat.com> - 1.4.0-2
+- Enable layered configuration with distribution configs in /usr/share/pam.d
+
 * Wed Jun 24 2020 Iker Pedrosa <ipedrosa@redhat.com> - 1.4.0-1
 - Rebased to release 1.4.0
 - Rebased to pam-redhat-1.1.3
