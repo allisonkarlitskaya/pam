@@ -389,6 +389,7 @@ done
 %changelog
 * Thu Jul  2 2020 Iker Pedrosa <ipedrosa@redhat.com> - 1.4.0-2
 - Enable layered configuration with distribution configs in /usr/share/pam.d
+- Added new pam-redhat tarball to lookaside cache
 
 * Wed Jun 24 2020 Iker Pedrosa <ipedrosa@redhat.com> - 1.4.0-1
 - Rebased to release 1.4.0
