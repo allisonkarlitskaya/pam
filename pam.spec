@@ -3,7 +3,7 @@
 Summary: An extensible library which provides authentication for applications
 Name: pam
 Version: 1.4.0
-Release: 2%{?dist}
+Release: 3%{?dist}
 # The library is BSD licensed with option to relicense as GPLv2+
 # - this option is redundant as the BSD license allows that anyway.
 # pam_timestamp, pam_loginuid, and pam_console modules are GPLv2+.
@@ -387,6 +387,9 @@ done
 %doc doc/sag/*.txt doc/sag/html
 
 %changelog
+* Tue Jul 28 2020 Fedora Release Engineering <releng@fedoraproject.org> - 1.4.0-3
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_33_Mass_Rebuild
+
 * Thu Jul  2 2020 Iker Pedrosa <ipedrosa@redhat.com> - 1.4.0-2
 - Enable layered configuration with distribution configs in /usr/share/pam.d
 - Added new pam-redhat tarball to lookaside cache
