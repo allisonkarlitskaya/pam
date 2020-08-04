@@ -3,7 +3,7 @@
 Summary: An extensible library which provides authentication for applications
 Name: pam
 Version: 1.4.0
-Release: 3%{?dist}
+Release: 4%{?dist}
 # The library is BSD licensed with option to relicense as GPLv2+
 # - this option is redundant as the BSD license allows that anyway.
 # pam_timestamp, pam_loginuid, and pam_console modules are GPLv2+.
@@ -77,6 +77,7 @@ BuildRequires: libdb-devel
 # Following deps are necessary only to build the pam library documentation.
 BuildRequires: linuxdoc-tools, elinks, libxslt
 BuildRequires: docbook-style-xsl, docbook-dtds
+BuildRequires: gcc
 
 URL: http://www.linux-pam.org/
 
@@ -387,6 +388,10 @@ done
 %doc doc/sag/*.txt doc/sag/html
 
 %changelog
+* Tue Aug 04 2020 Tom Stellard <tstellar@redhat.com> - 1.4.0-4
+- Add BuildRequires: gcc
+- https://docs.fedoraproject.org/en-US/packaging-guidelines/C_and_C++/#_packaging
+
 * Tue Jul 28 2020 Fedora Release Engineering <releng@fedoraproject.org> - 1.4.0-3
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_33_Mass_Rebuild
 
