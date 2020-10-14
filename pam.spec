@@ -3,7 +3,7 @@
 Summary: An extensible library which provides authentication for applications
 Name: pam
 Version: 1.3.1
-Release: 26%{?dist}
+Release: 27%{?dist}
 # The library is BSD licensed with option to relicense as GPLv2+
 # - this option is redundant as the BSD license allows that anyway.
 # pam_timestamp, pam_loginuid, and pam_console modules are GPLv2+.
@@ -67,6 +67,9 @@ Patch54: pam-1.3.1-pam_selinux-check-unknown-objects.patch
 Patch55: pam-1.3.1-determinine-user-exists.patch
 # Upstreamed
 Patch56: pam-1.3.1-faillock-change-file-permissions.patch
+# https://github.com/linux-pam/linux-pam/commit/16cebfeb30a8bd7c7dc269190a054c25b0f8d044
+# https://github.com/linux-pam/linux-pam/commit/ad8b6feaf8ea989368676acaea905998a807986e
+Patch57: pam-1.3.1-motd-filter-files.patch
 
 %global _pamlibdir %{_libdir}
 %global _moduledir %{_libdir}/security
@@ -162,6 +165,7 @@ cp %{SOURCE18} .
 %patch54 -p1 -b .pam_selinux-check-unknown-objects
 %patch55 -p1 -b .determinine-user-exists
 %patch56 -p1 -b .faillock-change-file-permissions
+%patch57 -p1 -b .motd-filter-files
 
 autoreconf -i
 
@@ -412,6 +416,10 @@ done
 %doc doc/specs/rfc86.0.txt
 
 %changelog
+* Mon Oct 26 2020 Iker Pedrosa <ipedrosa@redhat.com> - 1.3.1-27
+- pam_motd: read motd files with target user credentials skipping unreadable ones (#1861640)
+- Clarify upstreamed patches
+
 * Wed Jun 24 2020 Iker Pedrosa <ipedrosa@redhat.com> - 1.3.1-26
 - pam_faillock: change /run/faillock/$USER permissions to 0660 (#1661822)
 
