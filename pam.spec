@@ -3,7 +3,7 @@
 Summary: An extensible library which provides authentication for applications
 Name: pam
 Version: 1.4.0
-Release: 4%{?dist}
+Release: 5%{?dist}
 # The library is BSD licensed with option to relicense as GPLv2+
 # - this option is redundant as the BSD license allows that anyway.
 # pam_timestamp, pam_loginuid, and pam_console modules are GPLv2+.
@@ -26,19 +26,28 @@ Source17: postlogin.5
 Source18: https://www.gnu.org/licenses/old-licenses/gpl-2.0.txt
 Patch1:  pam-1.4.0-redhat-modules.patch
 Patch9:  pam-1.4.0-noflex.patch
+# https://github.com/linux-pam/linux-pam/commit/cbdef051ab5d4031656d14ac6cdb1f6c2d8d6595
 Patch10: pam-1.4.0-nouserenv.patch
+# https://github.com/linux-pam/linux-pam/commit/adc037167ad293242d9c69c4d427da1001f26706
 Patch13: pam-1.1.6-limits-user.patch
 Patch15: pam-1.4.0-full-relro.patch
-# Upstreamed partially
+# https://github.com/linux-pam/linux-pam/commit/f787845843da96cc29ea1f864e29fb17379b36b7
 Patch29: pam-1.4.0-pwhistory-helper.patch
 Patch31: pam-1.1.8-audit-user-mgmt.patch
 Patch33: pam-1.3.0-unix-nomsg.patch
+# https://github.com/linux-pam/linux-pam/commit/655b5e3cf32cb2bd6606cb8ab696b8f00f87051e
+# https://github.com/linux-pam/linux-pam/commit/a6a1b9f788a79b2a09827c72a755f471c2e05100
+# https://github.com/linux-pam/linux-pam/commit/2bae5daf16d4466185fac89539d653b269a3ea01
+# https://github.com/linux-pam/linux-pam/commit/276ad5b8e48aa77c24ef25e18d2e97f66c83d68c
 Patch34: pam-1.4.0-coverity.patch
 # https://github.com/linux-pam/linux-pam/commit/af0faf666c5008e54dfe43684f210e3581ff1bca
 # https://github.com/linux-pam/linux-pam/commit/0e9b286afe1224b91ff00936058b084ad4b776e4
 Patch57: pam-1.4.0-determine-user-exists.patch
 # https://github.com/linux-pam/linux-pam/commit/395915dae1571e10e2766c999974de864655ea3a
 Patch58: pam-1.3.1-faillock-change-file-permissions.patch
+# https://github.com/linux-pam/linux-pam/commit/16cebfeb30a8bd7c7dc269190a054c25b0f8d044
+# https://github.com/linux-pam/linux-pam/commit/ad8b6feaf8ea989368676acaea905998a807986e
+Patch59: pam-1.4.0-motd-filter-files.patch
 
 %global _pamlibdir %{_libdir}
 %global _moduledir %{_libdir}/security
@@ -129,6 +138,7 @@ cp %{SOURCE18} .
 %patch34 -p1 -b .coverity
 %patch57 -p1 -b .determine-user-exists
 %patch58 -p1 -b .faillock-change-file-permissions
+%patch59 -p1 -b .motd-filter-files
 
 autoreconf -i
 
@@ -388,6 +398,10 @@ done
 %doc doc/sag/*.txt doc/sag/html
 
 %changelog
+* Wed Oct 14 2020 Iker Pedrosa <ipedrosa@redhat.com> - 1.4.0-5
+- pam_motd: read motd files with target user credentials skipping unreadable ones (#1861640)
+- Clarify upstreamed patches
+
 * Tue Aug 04 2020 Tom Stellard <tstellar@redhat.com> - 1.4.0-4
 - Add BuildRequires: gcc
 - https://docs.fedoraproject.org/en-US/packaging-guidelines/C_and_C++/#_packaging
