@@ -1,0 +1,27 @@
+From 9f24bbeeb4fe04bc396898cd9825478ad52c5ac7 Mon Sep 17 00:00:00 2001
+From: ikerexxe <ipedrosa@redhat.com>
+Date: Wed, 21 Oct 2020 09:47:20 +0200
+Subject: [PATCH] pam_motd: unset prompt value to drop privileges
+
+modules/pam_motd/pam_motd.c: set NULL value instead of "key user" for the
+prompt when dropping privileges.
+---
+ modules/pam_motd/pam_motd.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/modules/pam_motd/pam_motd.c b/modules/pam_motd/pam_motd.c
+index a4fd0e59..6ac8cba2 100644
+--- a/modules/pam_motd/pam_motd.c
++++ b/modules/pam_motd/pam_motd.c
+@@ -288,7 +288,7 @@ static int drop_privileges(pam_handle_t *pamh, struct pam_modutil_privs *privs)
+     const char *username;
+     int retval;
+ 
+-    retval = pam_get_user(pamh, &username, "key user");
++    retval = pam_get_user(pamh, &username, NULL);
+ 
+     if (retval == PAM_SUCCESS) {
+         pw = pam_modutil_getpwnam (pamh, username);
+-- 
+2.26.2
+

@@ -1,0 +1,32 @@
+From db6b293046aee4735f3aa2d1713742ed4b533219 Mon Sep 17 00:00:00 2001
+From: Tomas Mraz <tmraz@fedoraproject.org>
+Date: Wed, 22 Jul 2020 11:47:55 +0200
+Subject: [PATCH] Fix missing initialization of daysleft
+
+The daysleft otherwise stays uninitialized if there is no shadow entry.
+
+Regression from commit f5adefa.
+
+Fixes #255
+
+* modules/pam_unix/pam_unix_acct.c (pam_sm_acct_mgmt): Initialize daysleft.
+---
+ modules/pam_unix/pam_unix_acct.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/modules/pam_unix/pam_unix_acct.c b/modules/pam_unix/pam_unix_acct.c
+index de8d65c1..f46f2308 100644
+--- a/modules/pam_unix/pam_unix_acct.c
++++ b/modules/pam_unix/pam_unix_acct.c
+@@ -189,7 +189,7 @@ pam_sm_acct_mgmt(pam_handle_t *pamh, int flags, int argc, const char **argv)
+ 	unsigned long long ctrl;
+ 	const void *void_uname;
+ 	const char *uname;
+-	int retval, daysleft;
++	int retval, daysleft = -1;
+ 	char buf[256];
+ 
+ 	D(("called."));
+-- 
+2.26.2
+
