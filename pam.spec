@@ -3,7 +3,7 @@
 Summary: An extensible library which provides authentication for applications
 Name: pam
 Version: 1.4.0
-Release: 6%{?dist}
+Release: 7%{?dist}
 # The library is BSD licensed with option to relicense as GPLv2+
 # - this option is redundant as the BSD license allows that anyway.
 # pam_timestamp, pam_loginuid, and pam_console modules are GPLv2+.
@@ -52,6 +52,9 @@ Patch59: pam-1.4.0-motd-filter-files.patch
 Patch60: pam-1.4.0-unix-init-daysleft.patch
 # https://github.com/linux-pam/linux-pam/commit/9f24bbeeb4fe04bc396898cd9825478ad52c5ac7
 Patch61: pam-1.4.0-motd-privilege-message.patch
+# https://github.com/linux-pam/linux-pam/commit/50ab1eda259ff039922b2774895f09bf0a57e078
+# https://github.com/linux-pam/linux-pam/commit/51318fd423a8ab4456a278ef0aff6ad449aab916
+Patch62: pam-1.4.0-libpam-start-leak.patch
 
 %global _pamlibdir %{_libdir}
 %global _moduledir %{_libdir}/security
@@ -145,6 +148,7 @@ cp %{SOURCE18} .
 %patch59 -p1 -b .motd-filter-files
 %patch60 -p1 -b .unix-init-daysleft
 %patch61 -p1 -b .motd-privilege-message
+%patch62 -p1 -b .libpam-start-leak
 
 autoreconf -i
 
@@ -404,6 +408,9 @@ done
 %doc doc/sag/*.txt doc/sag/html
 
 %changelog
+* Fri Nov  6 2020 Iker Pedrosa <ipedrosa@redhat.com> - 1.4.0-7
+- libpam: fix memory leak in pam_start (#1894630)
+
 * Mon Oct 19 2020 Iker Pedrosa <ipedrosa@redhat.com> - 1.4.0-6
 - pam_unix: fix missing initialization of daysleft  (#1887077)
 - pam_motd: change privilege message prompt to default (#1861640)

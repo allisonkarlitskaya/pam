@@ -1,0 +1,84 @@
+From 50ab1eda259ff039922b2774895f09bf0a57e078 Mon Sep 17 00:00:00 2001
+From: Andreas Schneider <asn@cryptomilk.org>
+Date: Wed, 4 Nov 2020 17:21:47 +0100
+Subject: [PATCH 1/2] libpam: Fix memory leak with pam_start_confdir()
+
+Found with AddressSanitzer in pam_wrapper tests.
+
+==985738== 44 bytes in 4 blocks are definitely lost in loss record 18 of 18
+==985738==    at 0x4839809: malloc (vg_replace_malloc.c:307)
+==985738==    by 0x48957E1: _pam_strdup (pam_misc.c:129)
+==985738==    by 0x489851B: _pam_start_internal (pam_start.c:85)
+==985738==    by 0x4849C8C: libpam_pam_start_confdir (pam_wrapper.c:418)
+==985738==    by 0x484AF94: pwrap_pam_start (pam_wrapper.c:1461)
+==985738==    by 0x484AFEE: pam_start (pam_wrapper.c:1483)
+==985738==    by 0x401723: setup_noconv (test_pam_wrapper.c:189)
+==985738==    by 0x4889E82: ??? (in /usr/lib64/libcmocka.so.0.7.0)
+==985738==    by 0x488A444: _cmocka_run_group_tests (in /usr/lib64/libcmocka.so.0.7.0)
+==985738==    by 0x403EE5: main (test_pam_wrapper.c:1059)
+
+Signed-off-by: Andreas Schneider <asn@cryptomilk.org>
+---
+ libpam/pam_end.c | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/libpam/pam_end.c b/libpam/pam_end.c
+index 942253d8..406b1478 100644
+--- a/libpam/pam_end.c
++++ b/libpam/pam_end.c
+@@ -56,6 +56,9 @@ int pam_end(pam_handle_t *pamh, int pam_status)
+     _pam_overwrite(pamh->user);
+     _pam_drop(pamh->user);
+ 
++    _pam_overwrite(pamh->confdir);
++    _pam_drop(pamh->confdir);
++
+     _pam_overwrite(pamh->prompt);
+     _pam_drop(pamh->prompt);                  /* prompt for pam_get_user() */
+ 
+-- 
+2.26.2
+
+
+From 51318fd423a8ab4456a278ef0aff6ad449aab916 Mon Sep 17 00:00:00 2001
+From: Andreas Schneider <asn@cryptomilk.org>
+Date: Wed, 4 Nov 2020 17:23:09 +0100
+Subject: [PATCH 2/2] libpam: Fix memory leak on error path in
+ _pam_start_internal()
+
+Signed-off-by: Andreas Schneider <asn@cryptomilk.org>
+---
+ libpam/pam_start.c | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/libpam/pam_start.c b/libpam/pam_start.c
+index 59d06224..99dd0389 100644
+--- a/libpam/pam_start.c
++++ b/libpam/pam_start.c
+@@ -115,6 +115,7 @@ static int _pam_start_internal (
+ 	pam_syslog(*pamh, LOG_CRIT, "pam_start: malloc failed for pam_conv");
+ 	_pam_drop((*pamh)->service_name);
+ 	_pam_drop((*pamh)->user);
++	_pam_drop((*pamh)->confdir);
+ 	_pam_drop(*pamh);
+ 	return (PAM_BUF_ERR);
+     } else {
+@@ -128,6 +129,7 @@ static int _pam_start_internal (
+ 	_pam_drop((*pamh)->pam_conversation);
+ 	_pam_drop((*pamh)->service_name);
+ 	_pam_drop((*pamh)->user);
++	_pam_drop((*pamh)->confdir);
+ 	_pam_drop(*pamh);
+ 	return PAM_ABORT;
+     }
+@@ -145,6 +147,7 @@ static int _pam_start_internal (
+ 	_pam_drop((*pamh)->pam_conversation);
+ 	_pam_drop((*pamh)->service_name);
+ 	_pam_drop((*pamh)->user);
++	_pam_drop((*pamh)->confdir);
+ 	_pam_drop(*pamh);
+ 	return PAM_ABORT;
+     }
+-- 
+2.26.2
+
