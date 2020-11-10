@@ -1,0 +1,52 @@
+From 62d826471e87e27b39a36ccbeee58999e2514a92 Mon Sep 17 00:00:00 2001
+From: Allison Karlitskaya <allison.karlitskaya@redhat.com>
+Date: Thu, 5 Nov 2020 14:06:53 +0100
+Subject: [PATCH] libpam: add supplementary groups on priv drop
+
+Replace the setgroups(0, NULL) call in pam_modutil_drop_priv() with a
+call to initgroups().  This makes sure that the user's supplementary
+groups are also configured.  Fall back to setgroups(0, NULL) in case the
+initgroups() call fails.
+
+This fixes the permission check in pam_motd: this feature was intended
+to allow setting permissions on a motd file to prevent it from being
+shown to users who are not a member of a particular group (for example,
+wheel).
+
+Closes #292
+---
+ libpam/pam_modutil_priv.c | 17 +++++++++++++----
+ 2 files changed, 15 insertions(+), 4 deletions(-)
+
+diff --git a/libpam/pam_modutil_priv.c b/libpam/pam_modutil_priv.c
+index e22fab1a..a463e06a 100644
+--- a/libpam/pam_modutil_priv.c
++++ b/libpam/pam_modutil_priv.c
+@@ -107,11 +107,20 @@ int pam_modutil_drop_priv(pam_handle_t *pamh,
+ 	 * We should care to leave process credentials in consistent state.
+ 	 * That is, e.g. if change_gid() succeeded but change_uid() failed,
+ 	 * we should try to restore old gid.
++	 *
++	 * We try to add the supplementary groups on a best-effort
++	 * basis.  If it fails, it's not fatal: we fall back to using an
++	 * empty list.
+ 	 */
+-	if (setgroups(0, NULL)) {
+-		pam_syslog(pamh, LOG_ERR,
+-			   "pam_modutil_drop_priv: setgroups failed: %m");
+-		return cleanup(p);
++	if (initgroups(pw->pw_name, pw->pw_gid)) {
++		pam_syslog(pamh, LOG_WARNING,
++			   "pam_modutil_drop_priv: initgroups failed: %m");
++
++		if (setgroups(0, NULL)) {
++			pam_syslog(pamh, LOG_ERR,
++				   "pam_modutil_drop_priv: setgroups failed: %m");
++			return cleanup(p);
++		}
+ 	}
+ 	if (change_gid(pw->pw_gid, &p->old_gid)) {
+ 		pam_syslog(pamh, LOG_ERR,
+-- 
+2.28.0
+

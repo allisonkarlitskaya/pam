@@ -3,7 +3,7 @@
 Summary: An extensible library which provides authentication for applications
 Name: pam
 Version: 1.3.1
-Release: 29%{?dist}
+Release: 30%{?dist}
 # The library is BSD licensed with option to relicense as GPLv2+
 # - this option is redundant as the BSD license allows that anyway.
 # pam_timestamp, pam_loginuid, and pam_console modules are GPLv2+.
@@ -76,6 +76,8 @@ Patch58: pam-1.3.1-unix-init-daysleft.patch
 Patch59: pam-1.3.1-motd-privilege-message.patch
 # https://github.com/linux-pam/linux-pam/commit/30fdfb90d9864bcc254a62760aaa149d373fd4eb
 Patch60: pam-1.3.1-unix-blank-check-with-root.patch
+# https://github.com/linux-pam/linux-pam/commit/62d826471e87e27b39a36ccbeee58999e2514a92
+Patch61: pam-1.3.1-drop-priv-initgroups.patch
 
 %global _pamlibdir %{_libdir}
 %global _moduledir %{_libdir}/security
@@ -175,6 +177,7 @@ cp %{SOURCE18} .
 %patch58 -p1 -b .unix-init-daysleft
 %patch59 -p1 -b .motd-privilege-message
 %patch60 -p1 -b .unix-blank-check-with-root
+%patch61 -p1 -b .drop-priv-initgroups
 
 autoreconf -i
 
@@ -425,6 +428,9 @@ done
 %doc doc/specs/rfc86.0.txt
 
 %changelog
+* Tue Dec  1 2020 Allison Karlitskaya <allison.karlitskaya@redhat.com> - 1.3.1-30
+- libpam: add supplementary groups on priv drop (#1896452)
+
 * Fri Nov 27 2020 Iker Pedrosa <ipedrosa@redhat.com> - 1.3.1-29
 - fix CVE-2020-27780: authentication bypass when the user doesn't exist
   and root password is blank (#1901173)
