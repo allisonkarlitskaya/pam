@@ -3,7 +3,7 @@
 Summary: An extensible library which provides authentication for applications
 Name: pam
 Version: 1.4.0
-Release: 7%{?dist}
+Release: 8%{?dist}
 # The library is BSD licensed with option to relicense as GPLv2+
 # - this option is redundant as the BSD license allows that anyway.
 # pam_timestamp, pam_loginuid, and pam_console modules are GPLv2+.
@@ -55,6 +55,8 @@ Patch61: pam-1.4.0-motd-privilege-message.patch
 # https://github.com/linux-pam/linux-pam/commit/50ab1eda259ff039922b2774895f09bf0a57e078
 # https://github.com/linux-pam/linux-pam/commit/51318fd423a8ab4456a278ef0aff6ad449aab916
 Patch62: pam-1.4.0-libpam-start-leak.patch
+# https://github.com/linux-pam/linux-pam/commit/62d826471e87e27b39a36ccbeee58999e2514a92
+Patch63: pam-1.4.0-drop-priv-initgroups.patch
 
 %global _pamlibdir %{_libdir}
 %global _moduledir %{_libdir}/security
@@ -149,6 +151,7 @@ cp %{SOURCE18} .
 %patch60 -p1 -b .unix-init-daysleft
 %patch61 -p1 -b .motd-privilege-message
 %patch62 -p1 -b .libpam-start-leak
+%patch63 -p1 -b .drop-priv-initgroups
 
 autoreconf -i
 
@@ -408,6 +411,9 @@ done
 %doc doc/sag/*.txt doc/sag/html
 
 %changelog
+* Mon Nov 16 2020 Allison Karlitskaya <allison.karlitskaya@redhat.com> - 1.4.0-8
+- libpam: add supplementary groups on priv drop (#1896452)
+
 * Fri Nov  6 2020 Iker Pedrosa <ipedrosa@redhat.com> - 1.4.0-7
 - libpam: fix memory leak in pam_start (#1894630)
 
