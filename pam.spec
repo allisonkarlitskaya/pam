@@ -3,7 +3,7 @@
 Summary: An extensible library which provides authentication for applications
 Name: pam
 Version: 1.3.1
-Release: 28%{?dist}
+Release: 29%{?dist}
 # The library is BSD licensed with option to relicense as GPLv2+
 # - this option is redundant as the BSD license allows that anyway.
 # pam_timestamp, pam_loginuid, and pam_console modules are GPLv2+.
@@ -74,6 +74,8 @@ Patch57: pam-1.3.1-motd-filter-files.patch
 Patch58: pam-1.3.1-unix-init-daysleft.patch
 # https://github.com/linux-pam/linux-pam/commit/9f24bbeeb4fe04bc396898cd9825478ad52c5ac7
 Patch59: pam-1.3.1-motd-privilege-message.patch
+# https://github.com/linux-pam/linux-pam/commit/30fdfb90d9864bcc254a62760aaa149d373fd4eb
+Patch60: pam-1.3.1-unix-blank-check-with-root.patch
 
 %global _pamlibdir %{_libdir}
 %global _moduledir %{_libdir}/security
@@ -172,6 +174,7 @@ cp %{SOURCE18} .
 %patch57 -p1 -b .motd-filter-files
 %patch58 -p1 -b .unix-init-daysleft
 %patch59 -p1 -b .motd-privilege-message
+%patch60 -p1 -b .unix-blank-check-with-root
 
 autoreconf -i
 
@@ -422,6 +425,10 @@ done
 %doc doc/specs/rfc86.0.txt
 
 %changelog
+* Fri Nov 27 2020 Iker Pedrosa <ipedrosa@redhat.com> - 1.3.1-29
+- fix CVE-2020-27780: authentication bypass when the user doesn't exist
+  and root password is blank (#1901173)
+
 * Wed Nov 11 2020 Iker Pedrosa <ipedrosa@redhat.com> - 1.3.1-28
 - pam_unix: fix missing initialization of daysleft  (#1887077)
 - pam_motd: change privilege message prompt to default (#1861640)
